@@ -192,6 +192,7 @@ public class RobotRace extends Base {
         // Draw terrain
         terrain.draw();
         
+        /**
         // Unit box around origin.
         glut.glutWireCube(1f);
 
@@ -206,6 +207,7 @@ public class RobotRace extends Base {
 
         // Translated, rotated, scaled box.
         glut.glutWireCube(1f);
+        */
     }
     
     
@@ -214,21 +216,59 @@ public class RobotRace extends Base {
      * and origin (yellow).
      */
     public void drawAxisFrame() {
-        //glu.gluLookAt(5, 0, 5, 3, 0, -3, 0, 1, 0);
-
-        gl.glBegin(GL_LINES);
+        float radius = 0.1f;
+        int numSlices = 8;
+        int numStacks = 8;
+        float base = 0.1f;
+        float height = 0.2f;
+        
         gl.glColor3f(1, 0, 0);
-        gl.glVertex3f(1, 0, 0);
-        gl.glVertex3f(0, 0, 0);
-
+        gl.glPushMatrix();
+        gl.glTranslatef(0.5f, 0, 0);
+        gl.glScalef(1, 0.05f, 0.05f);
+        glut.glutSolidCube(1);
+        gl.glPopMatrix();
+        
         gl.glColor3f(0, 1, 0);
-        gl.glVertex3f(0, 1, 0);
-        gl.glVertex3f(0, 0, 0);
-
+        gl.glPushMatrix();
+        gl.glTranslatef(0, 0.5f, 0);
+        gl.glScalef(0.05f, 1, 0.05f);
+        glut.glutSolidCube(1);
+        gl.glPopMatrix();
+        
         gl.glColor3f(0, 0, 1);
-        gl.glVertex3f(0, 0, 1);
-        gl.glVertex3f(0, 0, 0);
-        gl.glEnd();
+        gl.glPushMatrix();
+        gl.glTranslatef(0, 0, 0.5f);
+        gl.glScalef(0.05f, 0.05f, 1);
+        glut.glutSolidCube(1);
+        gl.glPopMatrix();
+        
+        gl.glColor3f(1, 0, 0);
+        gl.glPushMatrix();
+        gl.glTranslatef(1, 0, 0);
+        gl.glRotatef(90, 0, 1, 0);
+        glut.glutSolidCone(base, height, numSlices, numStacks);
+        gl.glPopMatrix();
+        
+        gl.glColor3f(0, 1, 0);
+        gl.glPushMatrix();
+        gl.glTranslatef(0, 1, 0);
+        gl.glRotatef(90, -1, 0, 0);
+        glut.glutSolidCone(base, height, numSlices, numStacks);
+        gl.glPopMatrix();
+        
+        gl.glColor3f(0, 0, 1);
+        gl.glPushMatrix();
+        gl.glTranslatef(0, 0, 1);
+        glut.glutSolidCone(base, height, numSlices, numStacks);
+        gl.glPopMatrix();
+        
+        gl.glColor3f(1, 1, 0);
+        gl.glPushMatrix();
+        gl.glScalef(2, 2, 2);
+        glut.glutSolidSphere(radius, numSlices, numStacks);
+        gl.glPopMatrix();
+
     }
     
     /**
