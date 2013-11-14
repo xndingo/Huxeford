@@ -214,20 +214,20 @@ public class RobotRace extends Base {
      * and origin (yellow).
      */
     public void drawAxisFrame() {
-        glu.gluLookAt(5, 0, 5, 3, 0, -3, 0, 1, 0);
+        //glu.gluLookAt(5, 0, 5, 3, 0, -3, 0, 1, 0);
 
         gl.glBegin(GL_LINES);
         gl.glColor3f(1, 0, 0);
-        gl.glVertex3f(-50, -2, -20);
-        gl.glVertex3f(50, -2, -20);
+        gl.glVertex3f(1, 0, 0);
+        gl.glVertex3f(0, 0, 0);
 
         gl.glColor3f(0, 1, 0);
-        gl.glVertex3f(0, -50, -20);
-        gl.glVertex3f(0, 50, -20);
+        gl.glVertex3f(0, 1, 0);
+        gl.glVertex3f(0, 0, 0);
 
         gl.glColor3f(0, 0, 1);
-        gl.glVertex3f(0, -2, -100);
-        gl.glVertex3f(0, -2, 10);
+        gl.glVertex3f(0, 0, 1);
+        gl.glVertex3f(0, 0, 0);
         gl.glEnd();
     }
     
