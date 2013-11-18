@@ -3,6 +3,9 @@ import javax.media.opengl.GL;
 import static javax.media.opengl.GL2.*;
 import robotrace.Base;
 import robotrace.Vector;
+import static java.lang.Math.*;
+import static java.lang.System.out;
+import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 
 /**
  * Handles all of the RobotRace graphics functionality,
@@ -146,8 +149,8 @@ public class RobotRace extends Base {
 
         // Set the perspective.
         // Modify this to meet the requirements in the assignment.
-        glu.gluPerspective(40, (float)gs.w / (float)gs.h, 0.1, 100);
-        
+        glu.gluPerspective(40, (float)gs.w / (float)gs.h, 0.1*gs.vDist, 100*gs.vDist);
+
         // Set camera.
         gl.glMatrixMode(GL_MODELVIEW);
         gl.glLoadIdentity();
@@ -184,7 +187,7 @@ public class RobotRace extends Base {
         }
         
         // Draw the first robot
-        robots[0].draw(false);
+        robots[0].draw(true);
         
         // Draw race track
         raceTrack.draw(gs.trackNr);
@@ -216,12 +219,13 @@ public class RobotRace extends Base {
      * and origin (yellow).
      */
     public void drawAxisFrame() {
-        float radius = 0.1f;
-        int numSlices = 8;
-        int numStacks = 8;
-        float base = 0.1f;
-        float height = 0.2f;
+        float radius = 0.1f; //Sphere radius
+        int numSlices = 8; //Number of slices
+        int numStacks = 8; //Number of stacks
+        float base = 0.1f; //Base radius of cones
+        float height = 0.2f; //Height of cones
         
+        //X-axis-cube
         gl.glColor3f(1, 0, 0);
         gl.glPushMatrix();
         gl.glTranslatef(0.5f, 0, 0);
@@ -229,6 +233,7 @@ public class RobotRace extends Base {
         glut.glutSolidCube(1);
         gl.glPopMatrix();
         
+        //Y-axis-cube
         gl.glColor3f(0, 1, 0);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0.5f, 0);
@@ -236,6 +241,7 @@ public class RobotRace extends Base {
         glut.glutSolidCube(1);
         gl.glPopMatrix();
         
+        //Z-axis-cube
         gl.glColor3f(0, 0, 1);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 0.5f);
@@ -243,6 +249,7 @@ public class RobotRace extends Base {
         glut.glutSolidCube(1);
         gl.glPopMatrix();
         
+        //X-axis-cone
         gl.glColor3f(1, 0, 0);
         gl.glPushMatrix();
         gl.glTranslatef(1, 0, 0);
@@ -250,6 +257,7 @@ public class RobotRace extends Base {
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
+        //Y-axis-cone
         gl.glColor3f(0, 1, 0);
         gl.glPushMatrix();
         gl.glTranslatef(0, 1, 0);
@@ -257,18 +265,20 @@ public class RobotRace extends Base {
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
+        //Z-axis-cone
         gl.glColor3f(0, 0, 1);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 1);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
+        //Origin sphere
         gl.glColor3f(1, 1, 0);
         gl.glPushMatrix();
         gl.glScalef(2, 2, 2);
         glut.glutSolidSphere(radius, numSlices, numStacks);
         gl.glPopMatrix();
-
+        
     }
     
     /**
@@ -327,7 +337,10 @@ public class RobotRace extends Base {
      * Represents a Robot, to be implemented according to the Assignments.
      */
     private class Robot {
-        
+        float tx, ty, tz; //used for translation
+        int angle; //angle for rotation
+        float rx, ry, rz; //used for rotation
+        float sx, sy, sz; //used for scaling
         /** The material from which this robot is built. */
         private final Material material;
         
@@ -345,7 +358,81 @@ public class RobotRace extends Base {
          * Draws this robot (as a {@code stickfigure} if specified).
          */
         public void draw(boolean stickFigure) {
-            // code goes here ...
+            //Draw robot as stick figure
+            if (gs.showStick == false) {
+                //Head
+                gl.glColor3f(1, 0, 1);
+                gl.glPushMatrix();
+                gl.glTranslatef(1f, 0, 1.9f);
+                gl.glScalef(0.25f, 0.25f, 0.25f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Shoulders
+                gl.glColor3f(1, 0, 1);
+                gl.glPushMatrix();
+                gl.glTranslatef(1f, 0, 1.7f);
+                gl.glScalef(0.7f, 0.05f, 0.05f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Left hand
+                gl.glColor3f(1, 0, 1);
+                gl.glPushMatrix();
+                gl.glTranslatef(1.3f, 0, 1.25f);
+                gl.glRotatef(90, 0, 1, 0);
+                gl.glScalef(0.9f, 0.05f, 0.05f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Right hand
+                gl.glColor3f(1, 0, 1);
+                gl.glPushMatrix();
+                gl.glTranslatef(0.7f, 0, 1.25f);
+                gl.glRotatef(90, 0, 1, 0);
+                gl.glScalef(0.9f, 0.05f, 0.05f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Torso
+                gl.glColor3f(1, 0, 1);
+                gl.glPushMatrix();                
+                gl.glTranslatef(1f, 0, 1.4f);
+                gl.glRotatef(90, 0, 1, 0);
+                gl.glScalef(0.75f, 0.05f, 0.05f);           
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Bottom
+                gl.glColor3f(1, 0, 1);
+                gl.glPushMatrix();
+                gl.glTranslatef(1f, 0, 1f);
+                gl.glScalef(0.5f, 0.05f, 0.05f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Left leg
+                gl.glColor3f(1, 0, 1);
+                gl.glPushMatrix();
+                gl.glTranslatef(1.2f, 0, 0.5f);
+                gl.glRotatef(90, 0, 1, 0);
+                gl.glScalef(1f, 0.05f, 0.05f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Right leg
+                gl.glColor3f(1, 0, 1);
+                gl.glPushMatrix();
+                gl.glTranslatef(0.8f, 0, 0.5f);
+                gl.glRotatef(90, 0, 1, 0);
+                gl.glScalef(1f, 0.05f, 0.05f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+            } //Draw robot fully
+            else {
+                
+            }
         }
     }
     
