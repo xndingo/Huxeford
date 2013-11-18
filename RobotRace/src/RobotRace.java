@@ -222,6 +222,7 @@ public class RobotRace extends Base {
         float base = 0.1f;
         float height = 0.2f;
         
+        // Draw the x (red) axis.
         gl.glColor3f(1, 0, 0);
         gl.glPushMatrix();
         gl.glTranslatef(0.5f, 0, 0);
@@ -229,6 +230,7 @@ public class RobotRace extends Base {
         glut.glutSolidCube(1);
         gl.glPopMatrix();
         
+        // Draw the y (green) axis.
         gl.glColor3f(0, 1, 0);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0.5f, 0);
@@ -236,6 +238,7 @@ public class RobotRace extends Base {
         glut.glutSolidCube(1);
         gl.glPopMatrix();
         
+        // Draw the z (blue) axis.
         gl.glColor3f(0, 0, 1);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 0.5f);
@@ -243,6 +246,7 @@ public class RobotRace extends Base {
         glut.glutSolidCube(1);
         gl.glPopMatrix();
         
+        // Draw the cone for the x axis (red).
         gl.glColor3f(1, 0, 0);
         gl.glPushMatrix();
         gl.glTranslatef(1, 0, 0);
@@ -250,6 +254,7 @@ public class RobotRace extends Base {
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
+        // Draw the cone for the y axis (green).
         gl.glColor3f(0, 1, 0);
         gl.glPushMatrix();
         gl.glTranslatef(0, 1, 0);
@@ -257,12 +262,14 @@ public class RobotRace extends Base {
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
+        // Draw the cone for the z axis (blue).
         gl.glColor3f(0, 0, 1);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 1);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
+        // Draw the (yellow) sphere in the center.
         gl.glColor3f(1, 1, 0);
         gl.glPushMatrix();
         gl.glScalef(2, 2, 2);
