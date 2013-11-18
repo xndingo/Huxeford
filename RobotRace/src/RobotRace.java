@@ -5,6 +5,7 @@ import robotrace.Base;
 import robotrace.Vector;
 import static java.lang.Math.*;
 import static java.lang.System.out;
+import java.nio.FloatBuffer;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 
 /**
@@ -133,6 +134,8 @@ public class RobotRace extends Base {
         gl.glEnable(GL_TEXTURE_2D);
         gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         gl.glBindTexture(GL_TEXTURE_2D, 0);
+        
+        
     }
     
     /**
@@ -140,6 +143,13 @@ public class RobotRace extends Base {
      */
     @Override
     public void setView() {
+        /** Calculating the fovy angle. First calculate the hight with the 
+         * expression = gs.vWidth * (gs.w/gs.h). This expression is a proportion
+         * related to the aspect of the view. Second, caltulate the atan of
+         * (height/2)/gs.vDist, to determine half of the angle. Third, double
+         * the angle and convert it from radians to degrees. */
+        double fovy = (180/Math.PI) * (2 * Math.atan(gs.vWidth * (gs.w/gs.h) / (2 * gs.vDist))); 
+
         // Select part of window.
         gl.glViewport(0, 0, gs.w, gs.h);
         
@@ -149,7 +159,7 @@ public class RobotRace extends Base {
 
         // Set the perspective.
         // Modify this to meet the requirements in the assignment.
-        glu.gluPerspective(40, (float)gs.w / (float)gs.h, 0.1*gs.vDist, 100*gs.vDist);
+        glu.gluPerspective(fovy, (float)gs.w / (float)gs.h, 0.1*gs.vDist, 100*gs.vDist);
 
         // Set camera.
         gl.glMatrixMode(GL_MODELVIEW);
@@ -157,6 +167,8 @@ public class RobotRace extends Base {
                
         // Update the view according to the camera mode
         camera.update(gs.camMode);
+        
+        // The definition of the camera variables is in the Camera class.
         glu.gluLookAt(camera.eye.x(),    camera.eye.y(),    camera.eye.z(),
                       camera.center.x(), camera.center.y(), camera.center.z(),
                       camera.up.x(),     camera.up.y(),     camera.up.z());
@@ -440,11 +452,24 @@ public class RobotRace extends Base {
      * Implementation of a camera with a position and orientation. 
      */
     private class Camera {
+        // TODO: remove this variable!!!
+        int removeThis = 10; // Just to facilitate visualisation. 
         
-        /** The position of the camera. */
-        public Vector eye = new Vector(3f, 6f, 5f);
+        /** The position of the camera. 
+         * This point is calculated considering the Vector V (from gs.cnt to
+         * the eye).
+         */
+        public Vector eye = new Vector(
+                // The projection of the V vector to the X axis plus the gs.cnt gives the eye's X
+                gs.cnt.x() + gs.vDist * Math.cos(gs.phi) * Math.cos(gs.theta),
+                // The projection of the V vector to the Y axis plus the gs.cnt gives the eye's Y
+                removeThis + gs.cnt.y() + gs.vDist * Math.cos(gs.phi) * Math.sin(gs.theta),
+                // The projection of the V vector to the Z axis plus the gs.cnt gives the eye's Z
+                removeThis + gs.cnt.z() + gs.vDist * Math.sin(gs.phi));
         
-        /** The point to which the camera is looking. */
+        /** The point to which the camera is looking. 
+         * This point was set to be the origin, but according to the 
+         * instructions it is supposed to be the center defined by gs.cnt. */
         public Vector center = Vector.O;
         
         /** The up vector. */
