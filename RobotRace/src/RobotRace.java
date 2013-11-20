@@ -9,8 +9,10 @@ import java.nio.FloatBuffer;
 import static javax.media.opengl.GL.GL_FRONT;
 import static javax.media.opengl.GL.GL_TRUE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHT1;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_NORMALIZE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
@@ -143,23 +145,6 @@ public class RobotRace extends Base {
         gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         gl.glBindTexture(GL_TEXTURE_2D, 0);
         
-        // Enable lightning, choosing the color, intensity and position of all
-        // tree different types of light.
-        float[] ambientLight = {0.2f, 0.2f, 0.2f, 1.0f};
-        float[] diffuseLight = {0.8f, 0.8f, 0.8f, 1.0f};
-        float[] specularLight = {1f, 1f, 1f, 1.0f};
-        float[] lightPosition = {10, 0, 0, 1};
-        float[] lightDirection = {-1, 0, 0, 0};
-        gl.glLightfv(GL_LIGHT1, GL_AMBIENT, ambientLight, 0);
-        gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuseLight, 0);
-        gl.glLightfv(GL_LIGHT1, GL_SPECULAR, specularLight, 0);
-        gl.glLightfv(GL_LIGHT1, GL_POSITION, lightPosition, 0);
-        gl.glLightfv(GL_LIGHT1, GL_POSITION, lightDirection, 0);
-        gl.glEnable(GL_LIGHT1);
-        gl.glEnable(GL_LIGHTING);
-        
-        // Normalize the normals
-        gl.glEnable(GL_NORMALIZE);
     }
     
     /**
@@ -317,6 +302,9 @@ public class RobotRace extends Base {
         glut.glutSolidSphere(radius, numSlices, numStacks);
         gl.glPopMatrix();
         
+        // The light is defined after creating the axis in order to be
+        // able to apply the directions in the new configuration.
+        configureLighting();
     }
     
     /**
@@ -668,4 +656,28 @@ public class RobotRace extends Base {
         gl.glMaterialf(GL_FRONT, GL_SHININESS, shininess);    
     }
     
+    public void configureLighting(){
+        /* Enable lightning choosing the color, intensity and position of all
+         * tree different types of light. Besides, place the light source above
+         * and to the left of the eye/camera, as required.
+         */
+        float lightPositionX = 30 + (float)camera.eye.x();
+        float lightPositionY = (float)camera.eye.y();
+        float lightPositionZ = (float)camera.eye.z();
+        float[] ambientLight = {0.2f, 0.2f, 0.2f, 1.0f};
+        float[] diffuseLight = {0.8f, 0.8f, 0.8f, 1.0f};
+        float[] specularLight = {1f, 1f, 1f, 1.0f};
+        float[] lightPosition = {lightPositionX, lightPositionY, lightPositionZ, 1};
+//        float[] lightDirection = {-1, 0, 0, 0};
+        gl.glLightfv(GL_LIGHT1, GL_AMBIENT, ambientLight, 0);
+        gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuseLight, 0);
+        gl.glLightfv(GL_LIGHT1, GL_SPECULAR, specularLight, 0);
+        gl.glLightfv(GL_LIGHT1, GL_POSITION, lightPosition, 0);
+//        gl.glLightfv(GL_LIGHT1, GL_POSITION, lightDirection, 0);
+        gl.glEnable(GL_LIGHT1);
+        gl.glEnable(GL_LIGHTING);
+        
+        // Normalize the normals
+        gl.glEnable(GL_NORMALIZE);
+    }
 }
