@@ -6,6 +6,14 @@ import robotrace.Vector;
 import static java.lang.Math.*;
 import static java.lang.System.out;
 import java.nio.FloatBuffer;
+import static javax.media.opengl.GL.GL_FRONT;
+import static javax.media.opengl.GL.GL_TRUE;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHT1;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 
 /**
@@ -135,7 +143,23 @@ public class RobotRace extends Base {
         gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         gl.glBindTexture(GL_TEXTURE_2D, 0);
         
+        // Enable lightning, choosing the color, intensity and position of all
+        // tree different types of light.
+        float[] ambientLight = {0.2f, 0.2f, 0.2f, 1.0f};
+        float[] diffuseLight = {0.8f, 0.8f, 0.8f, 1.0f};
+        float[] specularLight = {1f, 1f, 1f, 1.0f};
+        float[] lightPosition = {10, 0, 0, 1};
+        float[] lightDirection = {-1, 0, 0, 0};
+        gl.glLightfv(GL_LIGHT1, GL_AMBIENT, ambientLight, 0);
+        gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuseLight, 0);
+        gl.glLightfv(GL_LIGHT1, GL_SPECULAR, specularLight, 0);
+        gl.glLightfv(GL_LIGHT1, GL_POSITION, lightPosition, 0);
+        gl.glLightfv(GL_LIGHT1, GL_POSITION, lightDirection, 0);
+        gl.glEnable(GL_LIGHT1);
+        gl.glEnable(GL_LIGHTING);
         
+        // Normalize the normals
+        gl.glEnable(GL_NORMALIZE);
     }
     
     /**
@@ -232,60 +256,62 @@ public class RobotRace extends Base {
      */
     public void drawAxisFrame() {
         float radius = 0.1f; //Sphere radius
-        int numSlices = 8; //Number of slices
-        int numStacks = 8; //Number of stacks
+        int numSlices = 10; //Number of slices
+        int numStacks = 10; //Number of stacks
         float base = 0.1f; //Base radius of cones
         float height = 0.2f; //Height of cones
+        float shininess = 1f; //Shininess coefficient
         
-        //X-axis-cube
-        gl.glColor3f(1, 0, 0);
+        
+        // Draw the (red) X axis.
+        setMaterialColor(1f, 0f, 0f, 1, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(0.5f, 0, 0);
         gl.glScalef(1, 0.05f, 0.05f);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
         
-        //Y-axis-cube
-        gl.glColor3f(0, 1, 0);
+        // Draw the (green) Y axis.
+        setMaterialColor(0f, 1f, 0f, 1, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0.5f, 0);
         gl.glScalef(0.05f, 1, 0.05f);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
         
-        //Z-axis-cube
-        gl.glColor3f(0, 0, 1);
+        // Draw the (blue) Z axis.
+        setMaterialColor(0f, 0f, 1f, 1, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 0.5f);
         gl.glScalef(0.05f, 0.05f, 1);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
         
-        //X-axis-cone
-        gl.glColor3f(1, 0, 0);
+        // Draw the cone for the X axis (red).
+        setMaterialColor(1f, 0f, 0f, 1, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(1, 0, 0);
         gl.glRotatef(90, 0, 1, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        //Y-axis-cone
-        gl.glColor3f(0, 1, 0);
+        // Draw the cone for the Y axis (green).
+        setMaterialColor(0f, 1f, 0f, 1, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(0, 1, 0);
         gl.glRotatef(90, -1, 0, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        //Z-axis-cone
-        gl.glColor3f(0, 0, 1);
+        // Draw the cone for the Z axis (blue).
+        setMaterialColor(0f, 0f, 1f, 1, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 1);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
         //Origin sphere
-        gl.glColor3f(1, 1, 0);
+        setMaterialColor(1f, 1f, 0f, 1, shininess);
         gl.glPushMatrix();
         gl.glScalef(2, 2, 2);
         glut.glutSolidSphere(radius, numSlices, numStacks);
@@ -371,9 +397,9 @@ public class RobotRace extends Base {
          */
         public void draw(boolean stickFigure) {
             //Draw robot as stick figure
+            setMaterialColor(0.2f, 0.5f, 0.8f, 1, 0.8f);
             if (gs.showStick == false) {
                 //Head
-                gl.glColor3f(1, 0, 1);
                 gl.glPushMatrix();
                 gl.glTranslatef(1f, 0, 1.9f);
                 gl.glScalef(0.25f, 0.25f, 0.25f);
@@ -381,7 +407,6 @@ public class RobotRace extends Base {
                 gl.glPopMatrix();
                 
                 //Shoulders
-                gl.glColor3f(1, 0, 1);
                 gl.glPushMatrix();
                 gl.glTranslatef(1f, 0, 1.7f);
                 gl.glScalef(0.7f, 0.05f, 0.05f);
@@ -389,7 +414,6 @@ public class RobotRace extends Base {
                 gl.glPopMatrix();
                 
                 //Left hand
-                gl.glColor3f(1, 0, 1);
                 gl.glPushMatrix();
                 gl.glTranslatef(1.3f, 0, 1.25f);
                 gl.glRotatef(90, 0, 1, 0);
@@ -398,7 +422,6 @@ public class RobotRace extends Base {
                 gl.glPopMatrix();
                 
                 //Right hand
-                gl.glColor3f(1, 0, 1);
                 gl.glPushMatrix();
                 gl.glTranslatef(0.7f, 0, 1.25f);
                 gl.glRotatef(90, 0, 1, 0);
@@ -407,7 +430,6 @@ public class RobotRace extends Base {
                 gl.glPopMatrix();
                 
                 //Torso
-                gl.glColor3f(1, 0, 1);
                 gl.glPushMatrix();                
                 gl.glTranslatef(1f, 0, 1.4f);
                 gl.glRotatef(90, 0, 1, 0);
@@ -416,7 +438,6 @@ public class RobotRace extends Base {
                 gl.glPopMatrix();
                 
                 //Bottom
-                gl.glColor3f(1, 0, 1);
                 gl.glPushMatrix();
                 gl.glTranslatef(1f, 0, 1f);
                 gl.glScalef(0.5f, 0.05f, 0.05f);
@@ -424,7 +445,6 @@ public class RobotRace extends Base {
                 gl.glPopMatrix();
                 
                 //Left leg
-                gl.glColor3f(1, 0, 1);
                 gl.glPushMatrix();
                 gl.glTranslatef(1.2f, 0, 0.5f);
                 gl.glRotatef(90, 0, 1, 0);
@@ -433,7 +453,6 @@ public class RobotRace extends Base {
                 gl.glPopMatrix();
                 
                 //Right leg
-                gl.glColor3f(1, 0, 1);
                 gl.glPushMatrix();
                 gl.glTranslatef(0.8f, 0, 0.5f);
                 gl.glRotatef(90, 0, 1, 0);
@@ -461,11 +480,11 @@ public class RobotRace extends Base {
          */
         public Vector eye = new Vector(
                 // The projection of the V vector to the X axis plus the gs.cnt gives the eye's X
-                gs.cnt.x() + gs.vDist * Math.cos(gs.phi) * Math.cos(gs.theta),
+                - gs.cnt.x() + gs.vDist * Math.cos(gs.phi) * Math.cos(gs.theta),
                 // The projection of the V vector to the Y axis plus the gs.cnt gives the eye's Y
-                removeThis + gs.cnt.y() + gs.vDist * Math.cos(gs.phi) * Math.sin(gs.theta),
+                removeThis - gs.cnt.y() + gs.vDist * Math.cos(gs.phi) * Math.sin(gs.theta),
                 // The projection of the V vector to the Z axis plus the gs.cnt gives the eye's Z
-                removeThis + gs.cnt.z() + gs.vDist * Math.sin(gs.phi));
+                removeThis - gs.cnt.z() + gs.vDist * Math.sin(gs.phi));
         
         /** The point to which the camera is looking. 
          * This point was set to be the origin, but according to the 
@@ -639,6 +658,14 @@ public class RobotRace extends Base {
      */
     public static void main(String args[]) {
         RobotRace robotRace = new RobotRace();
+    }
+    
+    public void setMaterialColor(float r, float g, float b, float a, float shininess){
+        float[] rgba = {r, g, b, a};
+        gl.glMaterialfv(GL_FRONT, GL_AMBIENT, rgba, 0);
+        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, rgba, 0);
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, rgba, 0);
+        gl.glMaterialf(GL_FRONT, GL_SHININESS, shininess);    
     }
     
 }
