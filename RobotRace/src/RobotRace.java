@@ -209,7 +209,14 @@ public class RobotRace extends Base {
         
         // Draw the first robot
         robots[0].draw(true);
-        
+        //robots[0].material;
+        //robots[1].draw(true);
+        //robots[1].material;
+        //robots[2].draw(true);
+        //robots[2].material;
+        //robots[3]..draw(true);
+        //robots[3].material
+
         // Draw race track
         raceTrack.draw(gs.trackNr);
         
@@ -363,10 +370,10 @@ public class RobotRace extends Base {
      * Represents a Robot, to be implemented according to the Assignments.
      */
     private class Robot {
-        float tx, ty, tz; //used for translation
-        int angle; //angle for rotation
-        float rx, ry, rz; //used for rotation
-        float sx, sy, sz; //used for scaling
+        private float tx, ty, tz; //used for translation
+        private int angle; //angle for rotation
+        private float rx, ry, rz; //used for rotation
+        private float sx, sy, sz; //used for scaling
         /** The material from which this robot is built. */
         private final Material material;
         
@@ -389,21 +396,21 @@ public class RobotRace extends Base {
             if (gs.showStick == true) {
                 //Head
                 gl.glPushMatrix();
-                gl.glTranslatef(1f, 0.05f, 1.9f);
+                gl.glTranslatef(0f, 0.05f, 1.9f);
                 gl.glScalef(0.10f, 0.10f, 0.20f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Shoulders
                 gl.glPushMatrix();
-                gl.glTranslatef(1f, 0, 1.7f);
+                gl.glTranslatef(0f, 0, 1.7f);
                 gl.glScalef(0.7f, 0.05f, 0.05f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Left hand
                 gl.glPushMatrix();
-                gl.glTranslatef(1.3f, 0, 1.25f);
+                gl.glTranslatef(0.3f, 0, 1.25f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(0.9f, 0.05f, 0.05f);
                 glut.glutSolidCube(1);
@@ -411,7 +418,7 @@ public class RobotRace extends Base {
                 
                 //Right hand
                 gl.glPushMatrix();
-                gl.glTranslatef(0.7f, 0, 1.25f);
+                gl.glTranslatef(-0.2f, 0, 1.25f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(0.9f, 0.05f, 0.05f);
                 glut.glutSolidCube(1);
@@ -419,7 +426,7 @@ public class RobotRace extends Base {
                 
                 //Torso
                 gl.glPushMatrix();                
-                gl.glTranslatef(1f, 0, 1.4f);
+                gl.glTranslatef(0f, 0, 1.4f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(0.75f, 0.05f, 0.05f);           
                 glut.glutSolidCube(1);
@@ -427,14 +434,14 @@ public class RobotRace extends Base {
                 
                 //Bottom
                 gl.glPushMatrix();
-                gl.glTranslatef(1f, 0, 1f);
+                gl.glTranslatef(0f, 0, 1f);
                 gl.glScalef(0.43f, 0.05f, 0.05f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Left leg
                 gl.glPushMatrix();
-                gl.glTranslatef(1.1f, 0, 0.5f);
+                gl.glTranslatef(0.1f, 0, 0.5f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(1f, 0.05f, 0.05f);
                 glut.glutSolidCube(1);
@@ -442,7 +449,7 @@ public class RobotRace extends Base {
                 
                 //Right leg
                 gl.glPushMatrix();
-                gl.glTranslatef(0.9f, 0, 0.5f);
+                gl.glTranslatef(-0.1f, 0, 0.5f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(1f, 0.05f, 0.05f);
                 glut.glutSolidCube(1);
@@ -452,21 +459,21 @@ public class RobotRace extends Base {
             else {
                 //Head
                 gl.glPushMatrix();
-                gl.glTranslatef(1f, 0.05f, 2.0f);
+                gl.glTranslatef(0f, 0.05f, 2.0f);
                 gl.glScalef(0.25f, 0.25f, 0.30f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Shoulders
                 gl.glPushMatrix();
-                gl.glTranslatef(1f, 0, 1.7f);
+                gl.glTranslatef(0f, 0, 1.7f);
                 gl.glScalef(0.8f, 0.20f, 0.20f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Left hand
                 gl.glPushMatrix();
-                gl.glTranslatef(1.3f, 0, 1.25f);
+                gl.glTranslatef(0.3f, 0, 1.25f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(0.9f, 0.15f, 0.15f);
                 glut.glutSolidCube(1);
@@ -474,7 +481,7 @@ public class RobotRace extends Base {
                 
                 //Right hand
                 gl.glPushMatrix();
-                gl.glTranslatef(0.7f, 0, 1.25f);
+                gl.glTranslatef(-0.3f, 0, 1.25f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(0.9f, 0.15f, 0.15f);
                 glut.glutSolidCube(1);
@@ -482,7 +489,7 @@ public class RobotRace extends Base {
                 
                 //Torso
                 gl.glPushMatrix();                
-                gl.glTranslatef(1f, 0, 1.4f);
+                gl.glTranslatef(0f, 0, 1.4f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(0.6f, 0.20f, 0.40f);           
                 glut.glutSolidCube(1);
@@ -490,14 +497,14 @@ public class RobotRace extends Base {
                 
                 //Bottom
                 gl.glPushMatrix();
-                gl.glTranslatef(1f, 0, 1f);
+                gl.glTranslatef(0f, 0, 1f);
                 gl.glScalef(0.43f, 0.20f, 0.20f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Left leg
                 gl.glPushMatrix();
-                gl.glTranslatef(1.1f, 0, 0.5f);
+                gl.glTranslatef(0.1f, 0, 0.5f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(1f, 0.18f, 0.18f);
                 glut.glutSolidCube(1);
@@ -505,7 +512,7 @@ public class RobotRace extends Base {
                 
                 //Right leg
                 gl.glPushMatrix();
-                gl.glTranslatef(0.9f, 0, 0.5f);
+                gl.glTranslatef(-0.1f, 0, 0.5f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(1f, 0.18f, 0.18f);
                 glut.glutSolidCube(1);
