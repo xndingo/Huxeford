@@ -168,7 +168,7 @@ public class RobotRace extends Base {
 
         // Set the perspective.
         // Modify this to meet the requirements in the assignment.
-        glu.gluPerspective(fovy, (float)gs.w / (float)gs.h, 0.1*gs.vDist, 100*gs.vDist);
+        glu.gluPerspective(fovy, (float)gs.w / (float)gs.h, 0.1*gs.vDist, 10.0*gs.vDist);
 
         // Set camera.
         gl.glMatrixMode(GL_MODELVIEW);
@@ -386,11 +386,11 @@ public class RobotRace extends Base {
         public void draw(boolean stickFigure) {
             //Draw robot as stick figure
             setMaterialColor(0.2f, 0.5f, 0.8f, 1, 0.8f);
-            if (gs.showStick == false) {
+            if (gs.showStick == true) {
                 //Head
                 gl.glPushMatrix();
-                gl.glTranslatef(1f, 0, 1.9f);
-                gl.glScalef(0.25f, 0.25f, 0.25f);
+                gl.glTranslatef(1f, 0.05f, 1.9f);
+                gl.glScalef(0.10f, 0.10f, 0.20f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
@@ -428,13 +428,13 @@ public class RobotRace extends Base {
                 //Bottom
                 gl.glPushMatrix();
                 gl.glTranslatef(1f, 0, 1f);
-                gl.glScalef(0.5f, 0.05f, 0.05f);
+                gl.glScalef(0.43f, 0.05f, 0.05f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Left leg
                 gl.glPushMatrix();
-                gl.glTranslatef(1.2f, 0, 0.5f);
+                gl.glTranslatef(1.1f, 0, 0.5f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(1f, 0.05f, 0.05f);
                 glut.glutSolidCube(1);
@@ -442,7 +442,7 @@ public class RobotRace extends Base {
                 
                 //Right leg
                 gl.glPushMatrix();
-                gl.glTranslatef(0.8f, 0, 0.5f);
+                gl.glTranslatef(0.9f, 0, 0.5f);
                 gl.glRotatef(90, 0, 1, 0);
                 gl.glScalef(1f, 0.05f, 0.05f);
                 glut.glutSolidCube(1);
@@ -450,6 +450,66 @@ public class RobotRace extends Base {
                 
             } //Draw robot fully
             else {
+                //Head
+                gl.glPushMatrix();
+                gl.glTranslatef(1f, 0.05f, 2.0f);
+                gl.glScalef(0.25f, 0.25f, 0.30f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Shoulders
+                gl.glPushMatrix();
+                gl.glTranslatef(1f, 0, 1.7f);
+                gl.glScalef(0.8f, 0.20f, 0.20f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Left hand
+                gl.glPushMatrix();
+                gl.glTranslatef(1.3f, 0, 1.25f);
+                gl.glRotatef(90, 0, 1, 0);
+                gl.glScalef(0.9f, 0.15f, 0.15f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Right hand
+                gl.glPushMatrix();
+                gl.glTranslatef(0.7f, 0, 1.25f);
+                gl.glRotatef(90, 0, 1, 0);
+                gl.glScalef(0.9f, 0.15f, 0.15f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Torso
+                gl.glPushMatrix();                
+                gl.glTranslatef(1f, 0, 1.4f);
+                gl.glRotatef(90, 0, 1, 0);
+                gl.glScalef(0.6f, 0.20f, 0.40f);           
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Bottom
+                gl.glPushMatrix();
+                gl.glTranslatef(1f, 0, 1f);
+                gl.glScalef(0.43f, 0.20f, 0.20f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Left leg
+                gl.glPushMatrix();
+                gl.glTranslatef(1.1f, 0, 0.5f);
+                gl.glRotatef(90, 0, 1, 0);
+                gl.glScalef(1f, 0.18f, 0.18f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();
+                
+                //Right leg
+                gl.glPushMatrix();
+                gl.glTranslatef(0.9f, 0, 0.5f);
+                gl.glRotatef(90, 0, 1, 0);
+                gl.glScalef(1f, 0.18f, 0.18f);
+                glut.glutSolidCube(1);
+                gl.glPopMatrix();                
                 
             }
         }
