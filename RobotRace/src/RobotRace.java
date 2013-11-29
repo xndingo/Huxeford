@@ -257,9 +257,15 @@ public class RobotRace extends Base {
         float base = 0.1f; //Base radius of cones
         float height = 0.2f; //Height of cones
         float shininess = 1f; //Shininess coefficient
+        float[] xAxisColor = {1f, 0f, 0f, 1f};
+        float[] yAxisColor = {0f, 1f, 0f, 1f};
+        float[] zAxisColor = {0f, 0f, 1f, 1f};
+        float[] sphereColor = {1f, 1f, 0f, 1f};
+        
+        
         
         // Draw the (red) X axis.
-        setMaterialColor(1f, 0f, 0f, 1, shininess);
+        setMaterialColor(xAxisColor, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(0.5f, 0, 0);
         gl.glScalef(1, 0.05f, 0.05f);
@@ -267,7 +273,7 @@ public class RobotRace extends Base {
         gl.glPopMatrix();
         
         // Draw the (green) Y axis.
-        setMaterialColor(0f, 1f, 0f, 1, shininess);
+        setMaterialColor(yAxisColor, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0.5f, 0);
         gl.glScalef(0.05f, 1, 0.05f);
@@ -275,7 +281,7 @@ public class RobotRace extends Base {
         gl.glPopMatrix();
         
         // Draw the (blue) Z axis.
-        setMaterialColor(0f, 0f, 1f, 1, shininess);
+        setMaterialColor(zAxisColor, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 0.5f);
         gl.glScalef(0.05f, 0.05f, 1);
@@ -283,7 +289,7 @@ public class RobotRace extends Base {
         gl.glPopMatrix();
         
         // Draw the cone for the X axis (red).
-        setMaterialColor(1f, 0f, 0f, 1, shininess);
+        setMaterialColor(xAxisColor, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(1, 0, 0);
         gl.glRotatef(90, 0, 1, 0);
@@ -291,7 +297,7 @@ public class RobotRace extends Base {
         gl.glPopMatrix();
         
         // Draw the cone for the Y axis (green).
-        setMaterialColor(0f, 1f, 0f, 1, shininess);
+        setMaterialColor(yAxisColor, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(0, 1, 0);
         gl.glRotatef(90, -1, 0, 0);
@@ -299,14 +305,14 @@ public class RobotRace extends Base {
         gl.glPopMatrix();
         
         // Draw the cone for the Z axis (blue).
-        setMaterialColor(0f, 0f, 1f, 1, shininess);
+        setMaterialColor(zAxisColor, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 1);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
         //Origin sphere
-        setMaterialColor(1f, 1f, 0f, 1, shininess);
+        setMaterialColor(sphereColor, shininess);
         gl.glPushMatrix();
         gl.glScalef(2, 2, 2);
         glut.glutSolidSphere(radius, numSlices, numStacks);
@@ -327,8 +333,8 @@ public class RobotRace extends Base {
          * Modify the default values to make it look like gold.
          */
         GOLD (
-            new float[] {0.8f, 0.8f, 0.8f, 1.0f},
-            new float[] {0.0f, 0.0f, 0.0f, 1.0f}),
+            new float[] {0.75f, 0.6f, 0.23f, 1.0f},
+            new float[] {0.63f, 0.55f, 0.37f, 1.0f}),
         
         /**
          * Silver material properties.
@@ -336,7 +342,7 @@ public class RobotRace extends Base {
          */
         SILVER (
             new float[] {0.8f, 0.8f, 0.8f, 1.0f},
-            new float[] {0.0f, 0.0f, 0.0f, 1.0f}),
+            new float[] {1f, 1f, 1f, 1.0f}),
         
         /** 
          * Wood material properties.
@@ -395,7 +401,6 @@ public class RobotRace extends Base {
          */
         public void draw(boolean stickFigure) {
             //Draw robot as stick figure
-            setMaterialColor(0.2f, 0.5f, 0.8f, 1, 0.8f);
             if (gs.showStick == true) {
                 //Head
                 gl.glPushMatrix();
@@ -528,6 +533,13 @@ public class RobotRace extends Base {
                 gl.glPopMatrix();                
                 
             }
+        }
+        
+        public void setMaterialColor(float[] ambient, float[] diffuse, float[] specular, float shininess){
+            gl.glMaterialfv(GL_FRONT, GL_AMBIENT, ambient, 0);
+            gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse, 0);
+            gl.glMaterialfv(GL_FRONT, GL_SPECULAR, specular, 0);
+            gl.glMaterialf(GL_FRONT, GL_SHININESS, shininess);    
         }
     }
     
@@ -724,8 +736,7 @@ public class RobotRace extends Base {
         RobotRace robotRace = new RobotRace();
     }
     
-    public void setMaterialColor(float r, float g, float b, float a, float shininess){
-        float[] rgba = {r, g, b, a};
+    public void setMaterialColor(float[] rgba, float shininess){
         gl.glMaterialfv(GL_FRONT, GL_AMBIENT, rgba, 0);
         gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, rgba, 0);
         gl.glMaterialfv(GL_FRONT, GL_SPECULAR, rgba, 0);
