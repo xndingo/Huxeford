@@ -157,7 +157,7 @@ public class RobotRace extends Base {
     public void setView() {
         /** Calculating the fovy angle. First calculate the hight with the 
          * expression = gs.vWidth * (gs.w/gs.h). This expression is a proportion
-         * related to the aspect of the view. Second, caltulate the atan of
+         * related to the aspect of the view. Second, calculate the atan of
          * (height/2)/gs.vDist, to determine half of the angle. Third, double
          * the angle and convert it from radians to degrees. */
         double fovy = (180/PI) * (2 * atan(gs.vWidth * (gs.w/gs.h) / (2 * gs.vDist))); 
@@ -180,25 +180,16 @@ public class RobotRace extends Base {
         // Update the view according to the camera mode
         camera.update(gs.camMode);
         
-        // The definition of the camera variables is in the Camera class.
+        // The definition of each variable is in the camera class.
         glu.gluLookAt(
             // ===== Eye position =====
-            // The projection of the V vector to the X axis plus the gs.cnt gives the eye's X
-            gs.vDist * Math.cos(gs.phi) * Math.cos(gs.theta),
-            // The projection of the V vector to the Y axis plus the gs.cnt gives the eye's Y
-            -gs.vDist * Math.cos(gs.phi) * Math.sin(gs.theta),
-            // The projection of the V vector to the Z axis plus the gs.cnt gives the eye's Z
-            gs.vDist * Math.sin(gs.phi),
+            camera.eye.x(),         camera.eye.y(),          camera.eye.z(),
             
             // ===== Center position =====
-            gs.cnt.x(),
-            gs.cnt.y(),
-            gs.cnt.z(),
+            camera.center.x(),      camera.center.y(),       camera.center.z(),
             
             // ===== Up vector =====
-            camera.up.x(),
-            camera.up.y(),
-            camera.up.z());
+            camera.up.x(),          camera.up.y(),           camera.up.z());
 
     }
     
@@ -228,19 +219,19 @@ public class RobotRace extends Base {
         
         // Draw the first robot
         robots[0].setMaterialColor();
-        robots[0].draw(true);
+        robots[0].draw(false);
         robots[0].tx = 0f;
         //robots[0].material;
         robots[1].setMaterialColor();
-        robots[1].draw(true);
+        robots[1].draw(false);
         robots[1].tx = 2f;
         //robots[1].material;
         robots[2].setMaterialColor();
-        robots[2].draw(true);
+        robots[2].draw(false);
         robots[2].tx = 4f;
         //robots[2].material;
         robots[3].setMaterialColor();
-        robots[3].draw(true);
+        robots[3].draw(false);
         robots[3].tx = -2f;
         //robots[3].material
 
@@ -274,68 +265,64 @@ public class RobotRace extends Base {
      * and origin (yellow).
      */
     public void drawAxisFrame() {
-        float radius = 0.1f; //Sphere radius
-        int numSlices = 10; //Number of slices
-        int numStacks = 10; //Number of stacks
-        float base = 0.1f; //Base radius of cones
-        float height = 0.2f; //Height of cones
-        float shininess = 1f; //Shininess coefficient
+        float radius = 0.1f;    //Sphere radius
+        int numSlices = 10;     //Number of slices
+        int numStacks = 10;     //Number of stacks
+        float base = 0.1f;      //Base radius of cones
+        float height = 0.2f;    //Height of cones
+        // Definition of the colors to be given to each axis
         float[] xAxisColor = {1f, 0f, 0f, 1f};
         float[] yAxisColor = {0f, 1f, 0f, 1f};
         float[] zAxisColor = {0f, 0f, 1f, 1f};
         float[] sphereColor = {1f, 1f, 0f, 1f};
         
-        // Draw the (red) X axis and the cone.
+        // Draw the red X axis
         setMaterialColor(xAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0.5f, 0, 0);
         gl.glScalef(1, 0.05f, 0.05f);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
-        
+        // Draw the red cone
         gl.glPushMatrix();
         gl.glTranslatef(1, 0, 0);
         gl.glRotatef(90, 0, 1, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the (green) Y axis and cone.
+        // Draw the green Y axis
         setMaterialColor(yAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0.5f, 0);
         gl.glScalef(0.05f, 1, 0.05f);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
-        
+        // Draw the green cone
         gl.glPushMatrix();
         gl.glTranslatef(0, 1, 0);
         gl.glRotatef(90, -1, 0, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the (blue) Z axis and cone.
+        // Draw the blue Z axis
         setMaterialColor(zAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 0.5f);
         gl.glScalef(0.05f, 0.05f, 1);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
-        
+        // Draw the blue cone
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 1);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        //Origin sphere
+        // Draw the sphere in the origin
         setMaterialColor(sphereColor);
         gl.glPushMatrix();
         gl.glScalef(2, 2, 2);
         glut.glutSolidSphere(radius, numSlices, numStacks);
         gl.glPopMatrix();
-        
-        // The light is defined after creating the axis in order to be
-        // able to apply the directions in the new configuration.
-        
     }
     
     /**
@@ -345,7 +332,6 @@ public class RobotRace extends Base {
         
         /** 
          * Gold material properties.
-         * Modify the default values to make it look like gold.
          */
         GOLD (
             new float[] {0.75f, 0.6f, 0.23f, 1.0f},
@@ -354,7 +340,6 @@ public class RobotRace extends Base {
         
         /**
          * Silver material properties.
-         * Modify the default values to make it look like silver.
          */
         SILVER (
             new float[] {0.51f, 0.51f, 0.51f, 1.0f},
@@ -363,7 +348,6 @@ public class RobotRace extends Base {
         
         /** 
          * Wood material properties.
-         * Modify the default values to make it look like wood.
          */
         WOOD (
             new float[] {0.4f, 0.25f, 0f, 1.0f},
@@ -372,7 +356,6 @@ public class RobotRace extends Base {
         
         /**
          * Orange material properties.
-         * Modify the default values to make it look like orange.
          */
         ORANGE (
             new float[] {1f, 0.4f, 0f, 1.0f},
@@ -398,10 +381,10 @@ public class RobotRace extends Base {
      * Represents a Robot, to be implemented according to the Assignments.
      */
     private class Robot {
-        private float tx, ty, tz; //used for translation
-        private int angle; //angle for rotation
-        private float rx, ry, rz; //used for rotation
-        private float sx, sy, sz; //used for scaling
+        private float tx, ty, tz;   //used for translation
+        private int angle;          //angle for rotation
+        private float rx, ry, rz;   //used for rotation
+        private float sx, sy, sz;   //used for scaling
         /** The material from which this robot is built. */
         private final Material material;
         
@@ -562,14 +545,11 @@ public class RobotRace extends Base {
      * Implementation of a camera with a position and orientation. 
      */
     private class Camera {
-        /** The position of the camera. 
-        */
-        public Vector eye = new Vector(3f, 6f, 5f);
+        /** The position of the camera.*/
+        public Vector eye = getEyePosition();
         
-        /** The point to which the camera is looking. 
-         * This point was set to be the origin, but according to the 
-         * instructions it is supposed to be the center defined by gs.cnt. */
-        public Vector center = Vector.O;
+        /** The point to which the camera is looking. */
+        public Vector center = getCenterPosition();
         
         /** The up vector. */
         public Vector up = Vector.Z;
@@ -580,6 +560,9 @@ public class RobotRace extends Base {
          */
         public void update(int mode) {
             robots[0].toString();
+            
+            eye = getEyePosition();
+            center = getCenterPosition();
             
             // Helicopter mode
             if (1 == mode) {  
@@ -635,6 +618,24 @@ public class RobotRace extends Base {
             // code goes here ...
         }
         
+        private Vector getEyePosition() {
+            return new Vector(
+                // The projection of the V vector to the X axis plus the gs.cnt gives the eye's X
+                gs.cnt.x() + gs.vDist * Math.cos(gs.phi) * Math.cos(gs.theta),
+                // The projection of the V vector to the Y axis plus the gs.cnt gives the eye's Y
+                gs.cnt.y() + gs.vDist * Math.cos(gs.phi) * Math.sin(gs.theta),
+                // The projection of the V vector to the Z axis plus the gs.cnt gives the eye's Z
+                gs.cnt.z() + gs.vDist * Math.sin(gs.phi)
+            );
+        }
+        
+        private Vector getCenterPosition() {
+            return new Vector(
+                gs.cnt.x(),
+                gs.cnt.y(),
+                gs.cnt.z()
+            );
+        }
     }
     
     /**
