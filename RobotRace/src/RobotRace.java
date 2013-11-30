@@ -97,19 +97,20 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0
-        robots[0] = new Robot(Material.GOLD, new Vector(1,0,0)
+        
+            robots[0] = new Robot(Material.GOLD, new Vector(1,0,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, new Vector(2,0,0)
+        robots[1] = new Robot(Material.SILVER, new Vector(2,1,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, new Vector(-1,0,0)
+        robots[2] = new Robot(Material.WOOD, new Vector(-1,2,0)
             /* add other parameters that characterize this robot */);
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE, new Vector(-2,0,0)
+        robots[3] = new Robot(Material.ORANGE, new Vector(-2,-2,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize the camera
@@ -224,7 +225,7 @@ public class RobotRace extends Base {
         //robots[0].material;
         robots[1].setMaterialColor();
         robots[1].draw(false);
-        robots[1].tx = 2f;
+        robots[1].tx = 7f;
         //robots[1].material;
         robots[2].setMaterialColor();
         robots[2].draw(false);
