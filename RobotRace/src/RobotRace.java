@@ -748,32 +748,36 @@ public class RobotRace extends Base {
     }
     
     public void configureLighting(){
-        /* Enable lightning choosing the color, intensity and position of all
-         * tree different types of light. Besides, place the light source above
+        /* Enable lightning of all tree different types of light. 
+         * Besides, place the light source above
          * and to the left of the eye/camera, as required.
          */
-        float lightPositionX = (float)camera.eye.x();
-        float lightPositionY = (float)camera.eye.y();
-        float lightPositionZ = (float)camera.eye.z();
+        float lightPositionX = -20 + (float)camera.eye.x();
+        float lightPositionY = 15 + (float)camera.eye.y();
+        float lightPositionZ = 20 + (float)camera.eye.z();
         float[] ambientLight = {0.3f, 0.3f, 0.3f, 1.0f};
         float[] diffuseLight = {1f, 1f, 1f, 1.0f};
         float[] specularLight = {1f, 1f, 1f, 1.0f};
         float[] lightPosition = {lightPositionX, lightPositionY, lightPositionZ, 1};
-//        float[] lightDirection = {-1, 0, 0, 0};
         gl.glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight, 0);
         gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight, 0);
         gl.glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight, 0);
         gl.glLightfv(GL_LIGHT0, GL_POSITION, lightPosition, 0);
-//        gl.glLightfv(GL_LIGHT0, GL_POSITION, lightDirection, 0);
         gl.glLightModelfv(GL_AMBIENT, new float[] {0.2f, 0.2f, 0.2f, 1f}, 0);
         gl.glEnable(GL_LIGHT0);
         gl.glEnable(GL_LIGHTING);
         
+        /**Configure the lighting in order to be able to define ambient and
+         * diffuse colors using the glColor command (enabled with the
+         * glEnable(GL_COLOR_MATERIAL)). The shininess is also defined for all
+         * elements at once. If it is necessary to change it, it can be called
+         * elsewhere.
+         */
         gl.glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
         gl.glEnable(GL_COLOR_MATERIAL);
         gl.glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 10);
         
-        // Normalize the normals
+        // Ajust the normals so that it is not necessary to define each one.
         gl.glEnable(GL_NORMALIZE);
     }
 }
