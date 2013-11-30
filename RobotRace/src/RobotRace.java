@@ -97,19 +97,19 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0
-        robots[0] = new Robot(Material.GOLD
+        robots[0] = new Robot(Material.GOLD, new Vector(1,0,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER
+        robots[1] = new Robot(Material.SILVER, new Vector(2,0,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD
+        robots[2] = new Robot(Material.WOOD, new Vector(-1,0,0)
             /* add other parameters that characterize this robot */);
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE
+        robots[3] = new Robot(Material.ORANGE, new Vector(-2,0,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize the camera
@@ -388,80 +388,102 @@ public class RobotRace extends Base {
         /** The material from which this robot is built. */
         private final Material material;
         
+        private Vector headPosition = new Vector(0, 0, 1.9);
+        private Vector shoulderPosition = new Vector(0, 0, 1.7);
+        private Vector leftArmPosition = new Vector(0.3, 0, 1.25);
+        private Vector rightArmPosition = new Vector(-0.3, 0, 1.25);
+        private Vector torsoPosition = new Vector(0, 0, 1.4);
+        private Vector bottomPosition = new Vector(0, 0, 1);
+        private Vector leftLegPosition = new Vector(0.1, 0, 0.5);
+        private Vector rightLegPosition = new Vector(-0.1, 0, 0.5);
+        
+        private Vector basePosition;
+        
         /**
          * Constructs the robot with initial parameters.
          */
-        public Robot(Material material
-            /* add other parameters that characterize this robot */) {
+        public Robot(Material material, Vector basePosition) {
             this.material = material;
-            // code goes here ...
+            this.basePosition = basePosition;
         }
         
         /**
          * Draws this robot (as a {@code stickfigure} if specified).
          */
         public void draw(boolean stickFigure) {
+            /**Here each part is drawn taking the basePosition as the main
+             * position of the robot and translating regarding to it.
+             */
+            Vector temp;
             //Draw robot as stick figure
             if (gs.showStick == true) {
                 //Head
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx+0f, this.ty+0.05f, this.tz+1.9f);
+                temp = basePosition.add(headPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
                 gl.glScalef(this.sx+0.10f, this.sy+0.10f, this.sz+0.20f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Shoulders
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx+0f, this.ty+0, this.tz+1.7f);
-                gl.glRotatef(this.rx, this.ry, this.rz, this.angle);
+                temp = basePosition.add(shoulderPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle, this.rx, this.ry, this.rz);
                 gl.glScalef(this.sx+0.7f, this.sy+0.05f, this.sz+0.05f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Left hand
+                //Left arm
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx+0.3f, this.ty+0, this.tz+1.25f);
-                gl.glRotatef(this.rx+90, this.ry+0, this.rz+1, this.angle+0);
+                temp = basePosition.add(leftArmPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle+90, this.rx+0, this.ry+1, this.rz+0);
                 gl.glScalef(this.sx+0.9f, this.sy+0.05f, this.sz+0.05f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Right hand
+                //Right arm
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx-0.3f, this.ty+0, this.tz+1.25f);
-                gl.glRotatef(this.rx+90, this.ry+0, this.rz+1, this.angle+0);
+                temp = basePosition.add(rightArmPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle+90, this.rx+0, this.ry+1, this.rz+0);
                 gl.glScalef(this.sx+0.9f, this.sy+0.05f, this.sz+0.05f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Torso
                 gl.glPushMatrix();                
-                gl.glTranslatef(this.tx+0f, this.ty+0, this.tz+1.4f);
-                gl.glRotatef(this.rx+90, this.ry+0, this.rz+1, this.angle+0);
-                gl.glScalef(this.sx+0.75f, this.sy+0.05f, this.sz+0.05f);           
+                temp = basePosition.add(torsoPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle+90, this.rx+0, this.ry+1, this.rz+0);
+                gl.glScalef(this.sx+0.8f, this.sy+0.05f, this.sz+0.05f);           
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Bottom
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx+0f, this.ty+0, this.tz+1f);
-                gl.glRotatef(this.rx, this.ry, this.rz, this.angle);
+                temp = basePosition.add(bottomPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle, this.rx, this.ry, this.rz);
                 gl.glScalef(this.sx+0.43f, this.sy+0.05f, this.sz+0.05f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Left leg
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx+0.1f, this.ty+0, this.tz+0.5f);
-                gl.glRotatef(this.rx+90, this.ry+0, this.rz+1, this.angle+0);
+                temp = basePosition.add(leftLegPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle+90, this.rx+0, this.ry+1, this.rz+0);
                 gl.glScalef(this.sx+1f, this.sy+0.05f, this.sz+0.05f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Right leg
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx-0.1f, this.ty+0, this.tz+0.5f);
-                gl.glRotatef(this.rx+90, this.ry+0, this.rz+1, this.angle+0);
+                temp = basePosition.add(rightLegPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle+90, this.rx+0, this.ry+1, this.rz+0);
                 gl.glScalef(this.sx+1f, this.sy+0.05f, this.sz+0.05f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
@@ -470,67 +492,76 @@ public class RobotRace extends Base {
             else {
                 //Head
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx+0f, this.ty+0.05f, this.tz+2.0f);
-                gl.glRotatef(this.rx, this.ry, this.rz, this.angle);
+                temp = basePosition.add(headPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle, this.rx, this.ry, this.rz);
                 gl.glScalef(this.sx+0.25f, this.sy+0.25f, this.sz+0.30f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Shoulders
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx+0f, this.ty+0, this.tz+1.7f);
-                gl.glRotatef(this.rx, this.ry, this.rz, this.angle);
+                temp = basePosition.add(shoulderPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle, this.rx, this.ry, this.rz);
                 gl.glScalef(this.sx+0.8f, this.sy+0.20f, this.sz+0.20f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Left hand
+                //Left arm
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx+0.3f, this.ty+0, this.tz+1.25f);
-                gl.glRotatef(this.rx+90, this.ry+0, this.rz+1, this.angle+0);
+                temp = basePosition.add(leftArmPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle+90, this.rx+0, this.ry+1, this.rz+0);
                 gl.glScalef(this.sx+0.9f, this.sy+0.15f, this.sz+0.15f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Right hand
+                //Right arm
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx-0.3f, this.ty+0, this.tz+1.25f);
-                gl.glRotatef(this.rx+90, this.ry+0, this.rz+1, this.angle+0);
+                temp = basePosition.add(rightArmPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle+90, this.rx+0, this.ry+1, this.rz+0);
                 gl.glScalef(this.sx+0.9f, this.sy+0.15f, this.sz+0.15f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Torso
                 gl.glPushMatrix();                
-                gl.glTranslatef(this.tx+0f, this.ty+0, this.tz+1.4f);
-                gl.glRotatef(this.rx+90, this.ry+0, this.rz+1, this.angle+0);
-                gl.glScalef(this.sx+0.6f, this.sy+0.20f, this.sz+0.40f);           
+                temp = basePosition.add(torsoPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle+90, this.rx+0, this.ry+1, this.rz+0);
+                gl.glScalef(this.sx+0.8f, this.sy+0.20f, this.sz+0.40f);           
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Bottom
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx+0f, this.ty+0, this.tz+1f);
-                gl.glRotatef(this.rx, this.ry, this.rz, this.angle);
+                temp = basePosition.add(bottomPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle, this.rx, this.ry, this.rz);
                 gl.glScalef(this.sx+0.43f, this.sy+0.20f, this.sz+0.20f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Left leg
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx+0.1f, this.ty+0, this.tz+0.5f);
-                gl.glRotatef(this.rx+90, this.ry+0, this.rz+1, this.angle+0);
+                temp = basePosition.add(leftLegPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(angle+90, this.rx+0, this.ry+1, this.rz+0);
                 gl.glScalef(this.sx+1f, this.sy+0.18f, this.sz+0.18f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
                 //Right leg
                 gl.glPushMatrix();
-                gl.glTranslatef(this.tx-0.1f, this.ty+0, this.tz+0.5f);
-                gl.glRotatef(this.rx+90, this.ry+0, this.rz+1, this.angle+0);
+                temp = basePosition.add(rightLegPosition);
+                gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(angle+90, rx+0, ry+1, rz+0);
                 gl.glScalef(this.sx+1f, this.sy+0.18f, this.sz+0.18f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();                
+                
                 
             }
         }
