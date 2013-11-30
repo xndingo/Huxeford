@@ -335,7 +335,7 @@ public class RobotRace extends Base {
          */
         GOLD (
             new float[] {0.75f, 0.6f, 0.23f, 1.0f},
-            new float[] {1f, 1f, 1f, 1.0f}
+            new float[] {0.8f, 0.8f, 0.8f, 1.0f}
         ),
         
         /**
@@ -351,7 +351,7 @@ public class RobotRace extends Base {
          */
         WOOD (
             new float[] {0.4f, 0.25f, 0f, 1.0f},
-            new float[] {1f, 1f, 1f, 1.0f}
+            new float[] {0f, 0f, 0f, 1.0f}
         ),
         
         /**
@@ -359,7 +359,7 @@ public class RobotRace extends Base {
          */
         ORANGE (
             new float[] {1f, 0.4f, 0f, 1.0f},
-            new float[] {1f, 0.5f, 0f, 1.0f}
+            new float[] {0.5f, 0.2f, 0f, 1.0f}
         );
         
         /** The diffuse RGBA reflectance of the material. */
