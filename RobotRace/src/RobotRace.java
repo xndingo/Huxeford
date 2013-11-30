@@ -98,7 +98,7 @@ public class RobotRace extends Base {
         
         // Initialize robot 0
         
-            robots[0] = new Robot(Material.GOLD, new Vector(1,0,0)
+            robots[0] = new Robot(Material.GOLD, new Vector(1,2,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 1
@@ -106,7 +106,7 @@ public class RobotRace extends Base {
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, new Vector(-1,2,0)
+        robots[2] = new Robot(Material.WOOD, new Vector(-1,0,0)
             /* add other parameters that characterize this robot */);
 
         // Initialize robot 3
@@ -178,17 +178,15 @@ public class RobotRace extends Base {
         gl.glMatrixMode(GL_MODELVIEW);
         gl.glLoadIdentity();
                
-        // Update the view according to the camera mode
+        // Update the view according to the camera mode.
         camera.update(gs.camMode);
         
         // The definition of each variable is in the camera class.
         glu.gluLookAt(
             // ===== Eye position =====
             camera.eye.x(),         camera.eye.y(),          camera.eye.z(),
-            
             // ===== Center position =====
             camera.center.x(),      camera.center.y(),       camera.center.z(),
-            
             // ===== Up vector =====
             camera.up.x(),          camera.up.y(),           camera.up.z());
 
@@ -213,28 +211,20 @@ public class RobotRace extends Base {
         
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         
-        // Draw the axis frame
+        // Draw the axis frame.
         if (gs.showAxes) {
             drawAxisFrame();
         }
         
-        // Draw the first robot
-        robots[0].setMaterialColor();
+        // Draw the 4 robots.
+        robots[0].setMaterialColor(); //GOLD
         robots[0].draw(false);
-        robots[0].tx = 0f;
-        //robots[0].material;
-        robots[1].setMaterialColor();
+        robots[1].setMaterialColor(); //SILVER
         robots[1].draw(false);
-        robots[1].tx = 7f;
-        //robots[1].material;
-        robots[2].setMaterialColor();
+        robots[2].setMaterialColor(); //WOOD
         robots[2].draw(false);
-        robots[2].tx = 4f;
-        //robots[2].material;
-        robots[3].setMaterialColor();
+        robots[3].setMaterialColor(); //ORANGE
         robots[3].draw(false);
-        robots[3].tx = -2f;
-        //robots[3].material
 
         // Draw race track
         raceTrack.draw(gs.trackNr);
@@ -242,7 +232,7 @@ public class RobotRace extends Base {
         // Draw terrain
         terrain.draw();
         
-        /*
+        /* Example code.
         // Unit box around origin.
         glut.glutWireCube(1f);
 
@@ -277,35 +267,35 @@ public class RobotRace extends Base {
         float[] zAxisColor = {0f, 0f, 1f, 1f};
         float[] sphereColor = {1f, 1f, 0f, 1f};
         
-        // Draw the red X axis
+        // Draw the red X axis.
         setMaterialColor(xAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0.5f, 0, 0);
         gl.glScalef(1, 0.05f, 0.05f);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
-        // Draw the red cone
+        // Draw the red cone.
         gl.glPushMatrix();
         gl.glTranslatef(1, 0, 0);
         gl.glRotatef(90, 0, 1, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the green Y axis
+        // Draw the green Y axis.
         setMaterialColor(yAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0.5f, 0);
         gl.glScalef(0.05f, 1, 0.05f);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
-        // Draw the green cone
+        // Draw the green cone.
         gl.glPushMatrix();
         gl.glTranslatef(0, 1, 0);
         gl.glRotatef(90, -1, 0, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the blue Z axis
+        // Draw the blue Z axis.
         setMaterialColor(zAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 0.5f);
@@ -318,7 +308,7 @@ public class RobotRace extends Base {
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the sphere in the origin
+        // Draw the yellow origin sphere.
         setMaterialColor(sphereColor);
         gl.glPushMatrix();
         gl.glScalef(2, 2, 2);
