@@ -7,8 +7,10 @@ import static java.lang.Math.*;
 import static java.lang.System.out;
 import java.nio.FloatBuffer;
 import static javax.media.opengl.GL.GL_FRONT;
+import static javax.media.opengl.GL.GL_FRONT_AND_BACK;
 import static javax.media.opengl.GL.GL_TRUE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHT1;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
@@ -145,6 +147,7 @@ public class RobotRace extends Base {
         gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         gl.glBindTexture(GL_TEXTURE_2D, 0);
         
+        configureLighting();
     }
     
     /**
@@ -157,7 +160,7 @@ public class RobotRace extends Base {
          * related to the aspect of the view. Second, caltulate the atan of
          * (height/2)/gs.vDist, to determine half of the angle. Third, double
          * the angle and convert it from radians to degrees. */
-        double fovy = (180/Math.PI) * (2 * Math.atan(gs.vWidth * (gs.w/gs.h) / (2 * gs.vDist))); 
+        double fovy = (180/PI) * (2 * atan(gs.vWidth * (gs.w/gs.h) / (2 * gs.vDist))); 
 
         // Select part of window.
         gl.glViewport(0, 0, gs.w, gs.h);
@@ -178,9 +181,25 @@ public class RobotRace extends Base {
         camera.update(gs.camMode);
         
         // The definition of the camera variables is in the Camera class.
-        glu.gluLookAt(camera.eye.x(),    camera.eye.y(),    camera.eye.z(),
-                      camera.center.x(), camera.center.y(), camera.center.z(),
-                      camera.up.x(),     camera.up.y(),     camera.up.z());
+        glu.gluLookAt(
+            // ===== Eye position =====
+            // The projection of the V vector to the X axis plus the gs.cnt gives the eye's X
+            gs.vDist * Math.cos(gs.phi) * Math.cos(gs.theta),
+            // The projection of the V vector to the Y axis plus the gs.cnt gives the eye's Y
+            -gs.vDist * Math.cos(gs.phi) * Math.sin(gs.theta),
+            // The projection of the V vector to the Z axis plus the gs.cnt gives the eye's Z
+            gs.vDist * Math.sin(gs.phi),
+            
+            // ===== Center position =====
+            gs.cnt.x(),
+            gs.cnt.y(),
+            gs.cnt.z(),
+            
+            // ===== Up vector =====
+            camera.up.x(),
+            camera.up.y(),
+            camera.up.z());
+
     }
     
     /**
@@ -208,15 +227,19 @@ public class RobotRace extends Base {
         }
         
         // Draw the first robot
+        robots[0].setMaterialColor();
         robots[0].draw(true);
         robots[0].tx = 0f;
         //robots[0].material;
+        robots[1].setMaterialColor();
         robots[1].draw(true);
         robots[1].tx = 2f;
         //robots[1].material;
+        robots[2].setMaterialColor();
         robots[2].draw(true);
         robots[2].tx = 4f;
         //robots[2].material;
+        robots[3].setMaterialColor();
         robots[3].draw(true);
         robots[3].tx = -2f;
         //robots[3].material
@@ -227,7 +250,7 @@ public class RobotRace extends Base {
         // Draw terrain
         terrain.draw();
         
-        /**
+        /*
         // Unit box around origin.
         glut.glutWireCube(1f);
 
@@ -262,57 +285,49 @@ public class RobotRace extends Base {
         float[] zAxisColor = {0f, 0f, 1f, 1f};
         float[] sphereColor = {1f, 1f, 0f, 1f};
         
-        
-        
-        // Draw the (red) X axis.
-        setMaterialColor(xAxisColor, shininess);
+        // Draw the (red) X axis and the cone.
+        setMaterialColor(xAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0.5f, 0, 0);
         gl.glScalef(1, 0.05f, 0.05f);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
         
-        // Draw the (green) Y axis.
-        setMaterialColor(yAxisColor, shininess);
-        gl.glPushMatrix();
-        gl.glTranslatef(0, 0.5f, 0);
-        gl.glScalef(0.05f, 1, 0.05f);
-        glut.glutSolidCube(1);
-        gl.glPopMatrix();
-        
-        // Draw the (blue) Z axis.
-        setMaterialColor(zAxisColor, shininess);
-        gl.glPushMatrix();
-        gl.glTranslatef(0, 0, 0.5f);
-        gl.glScalef(0.05f, 0.05f, 1);
-        glut.glutSolidCube(1);
-        gl.glPopMatrix();
-        
-        // Draw the cone for the X axis (red).
-        setMaterialColor(xAxisColor, shininess);
         gl.glPushMatrix();
         gl.glTranslatef(1, 0, 0);
         gl.glRotatef(90, 0, 1, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the cone for the Y axis (green).
-        setMaterialColor(yAxisColor, shininess);
+        // Draw the (green) Y axis and cone.
+        setMaterialColor(yAxisColor);
+        gl.glPushMatrix();
+        gl.glTranslatef(0, 0.5f, 0);
+        gl.glScalef(0.05f, 1, 0.05f);
+        glut.glutSolidCube(1);
+        gl.glPopMatrix();
+        
         gl.glPushMatrix();
         gl.glTranslatef(0, 1, 0);
         gl.glRotatef(90, -1, 0, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the cone for the Z axis (blue).
-        setMaterialColor(zAxisColor, shininess);
+        // Draw the (blue) Z axis and cone.
+        setMaterialColor(zAxisColor);
+        gl.glPushMatrix();
+        gl.glTranslatef(0, 0, 0.5f);
+        gl.glScalef(0.05f, 0.05f, 1);
+        glut.glutSolidCube(1);
+        gl.glPopMatrix();
+        
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 1);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
         //Origin sphere
-        setMaterialColor(sphereColor, shininess);
+        setMaterialColor(sphereColor);
         gl.glPushMatrix();
         gl.glScalef(2, 2, 2);
         glut.glutSolidSphere(radius, numSlices, numStacks);
@@ -320,7 +335,7 @@ public class RobotRace extends Base {
         
         // The light is defined after creating the axis in order to be
         // able to apply the directions in the new configuration.
-        configureLighting();
+        
     }
     
     /**
@@ -334,31 +349,35 @@ public class RobotRace extends Base {
          */
         GOLD (
             new float[] {0.75f, 0.6f, 0.23f, 1.0f},
-            new float[] {0.63f, 0.55f, 0.37f, 1.0f}),
+            new float[] {1f, 1f, 1f, 1.0f}
+        ),
         
         /**
          * Silver material properties.
          * Modify the default values to make it look like silver.
          */
         SILVER (
-            new float[] {0.8f, 0.8f, 0.8f, 1.0f},
-            new float[] {1f, 1f, 1f, 1.0f}),
+            new float[] {0.51f, 0.51f, 0.51f, 1.0f},
+            new float[] {0.8f, 0.8f, 0.8f, 1.0f}
+        ),
         
         /** 
          * Wood material properties.
          * Modify the default values to make it look like wood.
          */
         WOOD (
-            new float[] {0.8f, 0.8f, 0.8f, 1.0f},
-            new float[] {0.0f, 0.0f, 0.0f, 1.0f}),
+            new float[] {0.4f, 0.25f, 0f, 1.0f},
+            new float[] {1f, 1f, 1f, 1.0f}
+        ),
         
         /**
          * Orange material properties.
          * Modify the default values to make it look like orange.
          */
         ORANGE (
-            new float[] {0.8f, 0.8f, 0.8f, 1.0f},
-            new float[] {0.0f, 0.0f, 0.0f, 1.0f});
+            new float[] {1f, 0.4f, 0f, 1.0f},
+            new float[] {1f, 0.5f, 0f, 1.0f}
+        );
         
         /** The diffuse RGBA reflectance of the material. */
         float[] diffuse;
@@ -392,7 +411,6 @@ public class RobotRace extends Base {
         public Robot(Material material
             /* add other parameters that characterize this robot */) {
             this.material = material;
-            
             // code goes here ...
         }
         
@@ -405,7 +423,6 @@ public class RobotRace extends Base {
                 //Head
                 gl.glPushMatrix();
                 gl.glTranslatef(this.tx+0f, this.ty+0.05f, this.tz+1.9f);
-                gl.glRotatef(this.rx, this.ry, this.rz, this.angle);
                 gl.glScalef(this.sx+0.10f, this.sy+0.10f, this.sz+0.20f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
@@ -535,11 +552,9 @@ public class RobotRace extends Base {
             }
         }
         
-        public void setMaterialColor(float[] ambient, float[] diffuse, float[] specular, float shininess){
-            gl.glMaterialfv(GL_FRONT, GL_AMBIENT, ambient, 0);
-            gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse, 0);
-            gl.glMaterialfv(GL_FRONT, GL_SPECULAR, specular, 0);
-            gl.glMaterialf(GL_FRONT, GL_SHININESS, shininess);    
+        public void setMaterialColor(){
+            gl.glColor3fv(material.diffuse, 0);
+            gl.glMaterialfv(GL_FRONT, GL_SPECULAR, material.specular, 0);
         }
     }
     
@@ -547,20 +562,9 @@ public class RobotRace extends Base {
      * Implementation of a camera with a position and orientation. 
      */
     private class Camera {
-        // TODO: remove this variable!!!
-        int removeThis = 10; // Just to facilitate visualisation. 
-        
         /** The position of the camera. 
-         * This point is calculated considering the Vector V (from gs.cnt to
-         * the eye).
-         */
-        public Vector eye = new Vector(
-                // The projection of the V vector to the X axis plus the gs.cnt gives the eye's X
-                - gs.cnt.x() + gs.vDist * Math.cos(gs.phi) * Math.cos(gs.theta),
-                // The projection of the V vector to the Y axis plus the gs.cnt gives the eye's Y
-                removeThis - gs.cnt.y() + gs.vDist * Math.cos(gs.phi) * Math.sin(gs.theta),
-                // The projection of the V vector to the Z axis plus the gs.cnt gives the eye's Z
-                removeThis - gs.cnt.z() + gs.vDist * Math.sin(gs.phi));
+        */
+        public Vector eye = new Vector(3f, 6f, 5f);
         
         /** The point to which the camera is looking. 
          * This point was set to be the origin, but according to the 
@@ -736,11 +740,10 @@ public class RobotRace extends Base {
         RobotRace robotRace = new RobotRace();
     }
     
-    public void setMaterialColor(float[] rgba, float shininess){
-        gl.glMaterialfv(GL_FRONT, GL_AMBIENT, rgba, 0);
-        gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, rgba, 0);
-        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, rgba, 0);
-        gl.glMaterialf(GL_FRONT, GL_SHININESS, shininess);    
+    public void setMaterialColor(float[] ambientAndDiffuse){
+        float[] specular = {1, 1, 1, 1};
+        gl.glColor3fv(ambientAndDiffuse, 0);
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, specular, 0);
     }
     
     public void configureLighting(){
@@ -748,21 +751,26 @@ public class RobotRace extends Base {
          * tree different types of light. Besides, place the light source above
          * and to the left of the eye/camera, as required.
          */
-        float lightPositionX = 30 + (float)camera.eye.x();
+        float lightPositionX = (float)camera.eye.x();
         float lightPositionY = (float)camera.eye.y();
         float lightPositionZ = (float)camera.eye.z();
-        float[] ambientLight = {0.2f, 0.2f, 0.2f, 1.0f};
-        float[] diffuseLight = {0.8f, 0.8f, 0.8f, 1.0f};
+        float[] ambientLight = {0.3f, 0.3f, 0.3f, 1.0f};
+        float[] diffuseLight = {1f, 1f, 1f, 1.0f};
         float[] specularLight = {1f, 1f, 1f, 1.0f};
         float[] lightPosition = {lightPositionX, lightPositionY, lightPositionZ, 1};
 //        float[] lightDirection = {-1, 0, 0, 0};
-        gl.glLightfv(GL_LIGHT1, GL_AMBIENT, ambientLight, 0);
-        gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuseLight, 0);
-        gl.glLightfv(GL_LIGHT1, GL_SPECULAR, specularLight, 0);
-        gl.glLightfv(GL_LIGHT1, GL_POSITION, lightPosition, 0);
-//        gl.glLightfv(GL_LIGHT1, GL_POSITION, lightDirection, 0);
-        gl.glEnable(GL_LIGHT1);
+        gl.glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight, 0);
+        gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight, 0);
+        gl.glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight, 0);
+        gl.glLightfv(GL_LIGHT0, GL_POSITION, lightPosition, 0);
+//        gl.glLightfv(GL_LIGHT0, GL_POSITION, lightDirection, 0);
+        gl.glLightModelfv(GL_AMBIENT, new float[] {0.2f, 0.2f, 0.2f, 1f}, 0);
+        gl.glEnable(GL_LIGHT0);
         gl.glEnable(GL_LIGHTING);
+        
+        gl.glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        gl.glEnable(GL_COLOR_MATERIAL);
+        gl.glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 10);
         
         // Normalize the normals
         gl.glEnable(GL_NORMALIZE);
