@@ -1,4 +1,9 @@
 
+/**
+ * Assignment for course 2IV60 Computer Graphics of students:
+ * Theodoros Margomenos & Marcelo Almeida
+ */
+
 import javax.media.opengl.GL;
 import static javax.media.opengl.GL2.*;
 import robotrace.Base;
