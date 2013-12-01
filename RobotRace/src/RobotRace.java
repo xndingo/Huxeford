@@ -384,6 +384,10 @@ public class RobotRace extends Base {
         /** The material from which this robot is built. */
         private final Material material;
         
+        /**
+         * The positions where where each body part of a robot is 
+         * initially placed at.
+         */
         private Vector headPosition = new Vector(0, 0, 1.9);
         private Vector shoulderPosition = new Vector(0, 0, 1.7);
         private Vector leftArmPosition = new Vector(0.3, 0, 1.25);
