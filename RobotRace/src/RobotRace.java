@@ -103,7 +103,7 @@ public class RobotRace extends Base {
         
         // Initialize robot 0
         
-            robots[0] = new Robot(Material.GOLD, new Vector(1,2,0)
+        robots[0] = new Robot(Material.GOLD, new Vector(1,2,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 1
@@ -161,10 +161,10 @@ public class RobotRace extends Base {
      */
     @Override
     public void setView() {
-        /** Calculating the fovy angle. First calculate the hight with the 
+        /** Calculating the fovy angle. First calculate the height with the 
          * expression = gs.vWidth * (gs.w/gs.h). This expression is a proportion
-         * related to the aspect of the view. Second, calculate the atan of
-         * (height/2)/gs.vDist, to determine half of the angle. Third, double
+         * related to the aspect of the view. Then, calculates the atan of
+         * (height/2)/gs.vDist, to determine half of the angle. Then, double
          * the angle and convert it from radians to degrees. */
         double fovy = (180/PI) * (2 * atan(gs.vWidth * (gs.w/gs.h) / (2 * gs.vDist))); 
 
