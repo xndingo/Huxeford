@@ -561,7 +561,9 @@ public class RobotRace extends Base {
         }
         
         public void setMaterialColor(){
+            //Sets the current color from an already existing array of color values.
             gl.glColor3fv(material.diffuse, 0);
+            //Specifies material parameters for the lighting model.
             gl.glMaterialfv(GL_FRONT, GL_SPECULAR, material.specular, 0);
         }
     }
@@ -655,6 +657,9 @@ public class RobotRace extends Base {
         }
         
         private Vector getCenterPosition() {
+            /**
+             * Returns the center position of the global state.
+             */
             return new Vector(
                 gs.cnt.x(),
                 gs.cnt.y(),
