@@ -232,16 +232,15 @@ public class RobotRace extends Base {
         // Draw terrain
         terrain.draw();
     }
-    
-    
+       
     /**
      * Draws the x-axis (red), y-axis (green), z-axis (blue),
      * and origin (yellow).
      */
     public void drawAxisFrame() {
         float radius = 0.1f;    //Sphere radius
-        int numSlices = 10;     //Number of slices
-        int numStacks = 10;     //Number of stacks
+        int numSlices = 20;     //Number of slices
+        int numStacks = 20;     //Number of stacks
         float base = 0.1f;      //Base radius of cones
         float height = 0.2f;    //Height of cones
         // Definition of the colors to be given to each axis
