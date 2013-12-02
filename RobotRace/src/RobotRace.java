@@ -242,54 +242,54 @@ public class RobotRace extends Base {
         int numStacks = 20;     //Number of stacks
         float base = 0.1f;      //Base radius of cones
         float height = 0.2f;    //Height of cones
-        // Definition of the colors to be given to each axis
+        /** Definition of the colors to be given to each axis */
         float[] xAxisColor = {1f, 0f, 0f, 1f};
         float[] yAxisColor = {0f, 1f, 0f, 1f};
         float[] zAxisColor = {0f, 0f, 1f, 1f};
         float[] sphereColor = {1f, 1f, 0f, 1f};
         
-        // Draw the red X axis.
+        /** Draw the red X axis.  */
         setMaterialColor(xAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0.5f, 0, 0);
         gl.glScalef(1, 0.05f, 0.05f);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
-        // Draw the red cone.
+        /** Draw the red cone.  */
         gl.glPushMatrix();
         gl.glTranslatef(1, 0, 0);
         gl.glRotatef(90, 0, 1, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the green Y axis.
+        /** Draw the green Y axis.  */
         setMaterialColor(yAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0.5f, 0);
         gl.glScalef(0.05f, 1, 0.05f);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
-        // Draw the green cone.
+        /** Draw the green cone.  */
         gl.glPushMatrix();
         gl.glTranslatef(0, 1, 0);
         gl.glRotatef(90, -1, 0, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the blue Z axis.
+        /** Draw the blue Z axis.  */
         setMaterialColor(zAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 0.5f);
         gl.glScalef(0.05f, 0.05f, 1);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
-        // Draw the blue cone
+        /** Draw the blue cone  */
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 1);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the yellow origin sphere.
+        /** Draw the yellow origin sphere.  */
         setMaterialColor(sphereColor);
         gl.glPushMatrix();
         gl.glScalef(2, 2, 2);
@@ -382,10 +382,10 @@ public class RobotRace extends Base {
          * Constructs the robot with initial parameters.
          */
         public Robot(Material material, Vector basePosition) {
-            this.material = material; //sets the material of the robot to the 
-            //given material.
-            this.basePosition = basePosition; //sets the position where the 
-            // robot is placed at the given basePosition.
+            this.material = material; /** Sets the material of the robot to the 
+            given material. */
+            this.basePosition = basePosition; /** Sets the position where the 
+            robot is placed at the given basePosition. */
             
         }
         
@@ -401,21 +401,25 @@ public class RobotRace extends Base {
              * Draw robot as a stick figure.
              */
             if (gs.showStick == true) {
-                //Head
-                gl.glPushMatrix(); //Push matrix on the stack.
-                //Initialize temp variable with the coordinates of where the
-                //head should be positioned at.
+                /** Head */
+                /** Push matrix on the stack. */ 
+                gl.glPushMatrix(); /** Push matrix on the stack. */
+                /** Initialize temp variable with the coordinates of where the
+                head should be positioned at.*/
                 temp = basePosition.add(headPosition); 
-                //Move the head to the coordinates specified in the basePosition vector.
+                /** Translates the head from the headPosition to the coordinates
+                 * specified in the basePosition vector. */
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
-                //Rotate the head by the specified values.
+                /** Rotate the head by the specified values. */
                 gl.glRotatef(this.angle, this.rx, this.ry, this.rz);
-                //Resize the head by the specified values.
+                /** Resize the head by the specified values. */
                 gl.glScalef(this.sx+0.10f, this.sy+0.10f, this.sz+0.20f);
-                glut.glutSolidCube(1); //Renders a solid cube.
-                gl.glPopMatrix(); //Pop matrix from the stack.
+                 /** Renders a solid cube. */
+                glut.glutSolidCube(1);
+                /** Pop matrix from the stack. */
+                gl.glPopMatrix(); 
                 
-                //Shoulders
+                /** Shoulders */
                 gl.glPushMatrix();
                 temp = basePosition.add(shoulderPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -424,7 +428,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Left arm
+                /** Left arm */
                 gl.glPushMatrix();
                 temp = basePosition.add(leftArmPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -433,7 +437,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Right arm
+                /** Right arm */
                 gl.glPushMatrix();
                 temp = basePosition.add(rightArmPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -442,7 +446,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Torso
+                /** Torso */
                 gl.glPushMatrix();                
                 temp = basePosition.add(torsoPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -451,7 +455,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Bottom
+                /** Bottom */
                 gl.glPushMatrix();
                 temp = basePosition.add(bottomPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -460,7 +464,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Left leg
+                /** Left leg */
                 gl.glPushMatrix();
                 temp = basePosition.add(leftLegPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -469,7 +473,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Right leg
+                /** Right leg */
                 gl.glPushMatrix();
                 temp = basePosition.add(rightLegPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -482,7 +486,7 @@ public class RobotRace extends Base {
              * Draw robot fully.
              */
             else {
-                //Head
+                /** Head */
                 gl.glPushMatrix();
                 temp = basePosition.add(headPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -491,7 +495,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Shoulders
+                /** Shoulders */
                 gl.glPushMatrix();
                 temp = basePosition.add(shoulderPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -500,7 +504,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Left arm
+                /** Left arm */
                 gl.glPushMatrix();
                 temp = basePosition.add(leftArmPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -509,7 +513,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Right arm
+                /** Right arm */
                 gl.glPushMatrix();
                 temp = basePosition.add(rightArmPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -518,7 +522,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Torso
+                /** Torso */
                 gl.glPushMatrix();                
                 temp = basePosition.add(torsoPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -527,7 +531,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Bottom
+                /** Bottom */
                 gl.glPushMatrix();
                 temp = basePosition.add(bottomPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -536,7 +540,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Left leg
+                /** Left leg */
                 gl.glPushMatrix();
                 temp = basePosition.add(leftLegPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -545,7 +549,7 @@ public class RobotRace extends Base {
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
                 
-                //Right leg
+                /** Right leg */
                 gl.glPushMatrix();
                 temp = basePosition.add(rightLegPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
@@ -764,8 +768,10 @@ public class RobotRace extends Base {
     
     public void setMaterialColor(float[] ambientAndDiffuse){
         float[] specular = {1, 1, 1, 1};
+        //Sets the current color from an already existing array of color values.
         gl.glColor3fv(ambientAndDiffuse, 0);
-        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, specular, 0);
+        //Specifies material parameters for the lighting model.
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, specular, 0); //specifies material parameters for the lighting model.
     }
     
     public void configureLighting(){
