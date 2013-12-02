@@ -361,8 +361,7 @@ public class RobotRace extends Base {
         private final Material material;
         
         /**
-         * The positions where where each body part of a robot is 
-         * initially placed at.
+         * Defining the structure of the robot.
          */
         private Vector headPosition = new Vector(0, 0, 1.9);
         private Vector shoulderPosition = new Vector(0, 0, 1.7);
@@ -373,14 +372,21 @@ public class RobotRace extends Base {
         private Vector leftLegPosition = new Vector(0.1, 0, 0.5);
         private Vector rightLegPosition = new Vector(-0.1, 0, 0.5);
         
-        private Vector basePosition; //The coordinates where the robot is at.
+        /**
+         * The coordinates where the robot is initially placed at, specified 
+         * at the constructor of RobotRace.
+         */
+        private Vector basePosition; 
         
         /**
          * Constructs the robot with initial parameters.
          */
         public Robot(Material material, Vector basePosition) {
-            this.material = material;
-            this.basePosition = basePosition;
+            this.material = material; //sets the material of the robot to the 
+            //given material.
+            this.basePosition = basePosition; //sets the position where the 
+            // robot is placed at the given basePosition.
+            
         }
         
         /**
@@ -396,13 +402,18 @@ public class RobotRace extends Base {
              */
             if (gs.showStick == true) {
                 //Head
-                gl.glPushMatrix();
-                temp = basePosition.add(headPosition);
+                gl.glPushMatrix(); //Push matrix on the stack.
+                //Initialize temp variable with the coordinates of where the
+                //head should be positioned at.
+                temp = basePosition.add(headPosition); 
+                //Move the head to the coordinates specified in the basePosition vector.
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                //Rotate the head by the specified values.
                 gl.glRotatef(this.angle, this.rx, this.ry, this.rz);
+                //Resize the head by the specified values.
                 gl.glScalef(this.sx+0.10f, this.sy+0.10f, this.sz+0.20f);
-                glut.glutSolidCube(1);
-                gl.glPopMatrix();
+                glut.glutSolidCube(1); //Renders a solid cube.
+                gl.glPopMatrix(); //Pop matrix from the stack.
                 
                 //Shoulders
                 gl.glPushMatrix();
