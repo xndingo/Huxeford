@@ -1,7 +1,8 @@
 
 /**
  * Assignment for course 2IV60 Computer Graphics of students:
- * Theodoros Margomenos & Marcelo Almeida
+ * Theodoros Margomenos 0770638 
+ * Marcelo Almeida
  */
 
 import javax.media.opengl.GL;
@@ -137,13 +138,7 @@ public class RobotRace extends Base {
         // Enable blending.
         gl.glEnable(GL_BLEND);
         gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        
-        // Enable anti-aliasing.
-        gl.glEnable(GL_LINE_SMOOTH);
-        gl.glEnable(GL_POLYGON_SMOOTH);
-        gl.glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-        gl.glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-        
+             
         // Enable depth testing.
         gl.glEnable(GL_DEPTH_TEST);
         gl.glDepthFunc(GL_LESS);
@@ -223,36 +218,19 @@ public class RobotRace extends Base {
         
         // Draw the 4 robots.
         robots[0].setMaterialColor(); //GOLD
-        robots[0].draw(false);
+        robots[0].draw(false); //Draw robot fully initially.
         robots[1].setMaterialColor(); //SILVER
-        robots[1].draw(false);
+        robots[1].draw(false); //Draw robot fully initially.
         robots[2].setMaterialColor(); //WOOD
-        robots[2].draw(false);
+        robots[2].draw(false); //Draw robot fully initially.
         robots[3].setMaterialColor(); //ORANGE
-        robots[3].draw(false);
-
+        robots[3].draw(false); //Draw robot fully initially.
+ 
         // Draw race track
         raceTrack.draw(gs.trackNr);
         
         // Draw terrain
         terrain.draw();
-        
-        /* Example code.
-        // Unit box around origin.
-        glut.glutWireCube(1f);
-
-        // Move in x-direction.
-        gl.glTranslatef(2f, 0f, 0f);
-        
-        // Rotate 30 degrees, around z-axis.
-        gl.glRotatef(30f, 0f, 0f, 1f);
-        
-        // Scale in z-direction.
-        gl.glScalef(1f, 1f, 2f);
-
-        // Translated, rotated, scaled box.
-        glut.glutWireCube(1f);
-        */
     }
     
     
@@ -415,7 +393,9 @@ public class RobotRace extends Base {
              * position of the robot and translating regarding to it.
              */
             Vector temp;
-            //Draw robot as stick figure
+            /**
+             * Draw robot as a stick figure.
+             */
             if (gs.showStick == true) {
                 //Head
                 gl.glPushMatrix();
@@ -486,9 +466,11 @@ public class RobotRace extends Base {
                 gl.glRotatef(this.angle+90, this.rx+0, this.ry+1, this.rz+0);
                 gl.glScalef(this.sx+1f, this.sy+0.05f, this.sz+0.05f);
                 glut.glutSolidCube(1);
-                gl.glPopMatrix();
-                
-            } //Draw robot fully
+                gl.glPopMatrix();             
+            } 
+            /**
+             * Draw robot fully.
+             */
             else {
                 //Head
                 gl.glPushMatrix();
@@ -561,8 +543,6 @@ public class RobotRace extends Base {
                 gl.glScalef(this.sx+1f, this.sy+0.18f, this.sz+0.18f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();                
-                
-                
             }
         }
         
