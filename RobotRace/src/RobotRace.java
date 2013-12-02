@@ -102,8 +102,7 @@ public class RobotRace extends Base {
         // Create a new array of four robots
         robots = new Robot[4];
         
-        // Initialize robot 0
-        
+        // Initialize robot 0        
         robots[0] = new Robot(Material.GOLD, new Vector(1,2,0)
             /* add other parameters that characterize this robot */);
         
@@ -374,7 +373,7 @@ public class RobotRace extends Base {
         private Vector leftLegPosition = new Vector(0.1, 0, 0.5);
         private Vector rightLegPosition = new Vector(-0.1, 0, 0.5);
         
-        private Vector basePosition;
+        private Vector basePosition; //The coordinates where the robot is at.
         
         /**
          * Constructs the robot with initial parameters.
@@ -400,6 +399,7 @@ public class RobotRace extends Base {
                 gl.glPushMatrix();
                 temp = basePosition.add(headPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
+                gl.glRotatef(this.angle, this.rx, this.ry, this.rz);
                 gl.glScalef(this.sx+0.10f, this.sy+0.10f, this.sz+0.20f);
                 glut.glutSolidCube(1);
                 gl.glPopMatrix();
