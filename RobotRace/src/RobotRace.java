@@ -1,7 +1,7 @@
 
 /**
  * Assignment for course 2IV60 Computer Graphics of students:
- * Theodoros Margomenos 0770638 
+ * Theodoros Margomenos
  * Marcelo Almeida
  */
 
@@ -237,11 +237,11 @@ public class RobotRace extends Base {
      * and origin (yellow).
      */
     public void drawAxisFrame() {
-        float radius = 0.1f;    //Sphere radius
-        int numSlices = 20;     //Number of slices
-        int numStacks = 20;     //Number of stacks
-        float base = 0.1f;      //Base radius of cones
-        float height = 0.2f;    //Height of cones
+        float radius = 0.1f; //Sphere radius
+        int numSlices = 20; //Number of slices
+        int numStacks = 20; //Number of stacks
+        float base = 0.1f; //Base radius of cones
+        float height = 0.2f; //Height of cones
         /** Definition of the colors to be given to each axis */
         float[] xAxisColor = {1f, 0f, 0f, 1f};
         float[] yAxisColor = {0f, 1f, 0f, 1f};
