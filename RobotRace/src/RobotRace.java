@@ -307,7 +307,7 @@ public class RobotRace extends Base {
          */
         GOLD (
             new float[] {0.75f, 0.6f, 0.23f, 1.0f},
-            new float[] {0.8f, 0.8f, 0.8f, 1.0f}
+            new float[] {1f, 1f, 0f, 1.0f}
         ),
         
         /**
@@ -315,7 +315,7 @@ public class RobotRace extends Base {
          */
         SILVER (
             new float[] {0.51f, 0.51f, 0.51f, 1.0f},
-            new float[] {0.8f, 0.8f, 0.8f, 1.0f}
+            new float[] {0.6f, 0.6f, 0.6f, 1.0f}
         ),
         
         /** 
@@ -581,15 +581,15 @@ public class RobotRace extends Base {
         /** The up vector. */
         public Vector up = Vector.Z;
         
+        private int robotToFocus = 0;
+        private int changeRobotToFocus = 0;
+        private int iterationsToChangeCamera = 100;
         /**
          * Updates the camera viewpoint and direction based on the
          * selected camera mode.
          */
         public void update(int mode) {
             robots[0].toString();
-            
-            eye = getEyePosition();
-            center = getCenterPosition();
             
             // Helicopter mode
             if (1 == mode) {  
@@ -618,7 +618,9 @@ public class RobotRace extends Base {
          * on the camera's default mode.
          */
         private void setDefaultMode() {
-            // code goes here ...
+            eye = getEyePosition();
+            center = getCenterPosition();
+            up = Vector.Z;
         }
         
         /**
@@ -626,7 +628,10 @@ public class RobotRace extends Base {
          * on the helicopter mode.
          */
         private void setHelicopterMode() {
-            // code goes here ...
+            eye = robots[robotToFocus].basePosition.add(new Vector(0,0,10));
+            center = robots[robotToFocus].basePosition;
+            up = Vector.Y;
+            updateFocusedRobot();
         }
         
         /**
@@ -634,7 +639,10 @@ public class RobotRace extends Base {
          * on the motorcycle mode.
          */
         private void setMotorCycleMode() {
-            // code goes here ...
+            eye = robots[robotToFocus].basePosition.add(new Vector(10,0,0));
+            center = robots[robotToFocus].basePosition;
+            up = Vector.Z;
+            updateFocusedRobot();
         }
         
         /**
@@ -642,7 +650,12 @@ public class RobotRace extends Base {
          * on the first person mode.
          */
         private void setFirstPersonMode() {
-            // code goes here ...
+            Vector headPosition = robots[robotToFocus].basePosition.add(
+                    new Vector(0, -3, robots[robotToFocus].headPosition.z()));
+            eye = headPosition;
+            center = headPosition.add(new Vector(0,2,0));
+            up = Vector.Z;
+            updateFocusedRobot();
         }
         
         private Vector getEyePosition() {
@@ -665,6 +678,23 @@ public class RobotRace extends Base {
                 gs.cnt.y(),
                 gs.cnt.z()
             );
+        }
+        
+        private void updateFocusedRobot(){
+            changeRobotToFocus++;
+            if(changeRobotToFocus == iterationsToChangeCamera){
+                robotToFocus = 1;
+            }
+            else if(changeRobotToFocus == 2 * iterationsToChangeCamera){
+                robotToFocus = 2;
+            }
+            else if(changeRobotToFocus == 3 * iterationsToChangeCamera){
+                robotToFocus = 3;
+            }
+            else if(changeRobotToFocus == 4 * iterationsToChangeCamera){
+                robotToFocus = 0;
+                changeRobotToFocus = 0;
+            }
         }
     }
     
