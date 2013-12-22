@@ -738,30 +738,52 @@ public class RobotRace extends Base {
          * Draws this track, based on the selected track number.
          */
         public void draw(int trackNr) {
-            int i, j ;
+            float ctrlpoints[][] = new float[][]
+            {
+            { -4.0f, -4.0f, 0.0f },
+            { -2.0f, 4.0f, 0.0f },
+            { 2.0f, -4.0f, 0.0f },
+            { 4.0f, 4.0f, 0.0f } };
+            FloatBuffer ctrlpointBuf = //
+            FloatBuffer.allocate(ctrlpoints[0].length * ctrlpoints.length);
+            
+
+            // need to convert 2d array to buffer type
+            for (int i = 0; i < ctrlpoints.length; i++)
+            {
+              for (int j = 0; j < 3; j++)
+              {
+                ctrlpointBuf.put(ctrlpoints[i][j]);
+              }
+            }
+            ctrlpointBuf.rewind();
+
+            gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            gl.glShadeModel(GL_FLAT);
+            gl.glMap1f(GL_MAP1_VERTEX_3, 0.0f, 1.0f, 3, 4, ctrlpointBuf);
+            gl.glEnable(GL_MAP1_VERTEX_3);
+    
             // The test track is selected
             if (0 == trackNr) {
-                // Clear background.
-            gl.glClear(GL_COLOR_BUFFER_BIT);
-
-            // Clear depth buffer.
-            gl.glClear(GL_DEPTH_BUFFER_BIT);
-            
-            gl.glColor3f((float) 1.0, (float) 1.0, (float) 1.0);
-            gl.glPushMatrix ();
-            gl.glRotatef((float) 85.0, (float) 1.0, (float) 1.0, (float) 1.0);
-            for (j = 0; j <= 8; j++) {
-               gl.glBegin(GL_LINE_STRIP);
-               for (i = 0; i <= 30; i++)
-                  gl.glEvalCoord2f( (float) (i/30.0), (float)(j/8.0));
-               gl.glEnd();
-               gl.glBegin(GL_LINE_STRIP);
-               for (i = 0; i <= 30; i++)
-                  gl.glEvalCoord2f((float) (j/8.0), (float) (i/30.0));
-               gl.glEnd();
-            }
-            gl.glPopMatrix ();
-            gl.glFlush();
+                gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+                gl.glColor3f(1.0f, 1.0f, 1.0f);
+                gl.glBegin(GL.GL_LINE_STRIP);
+                for (int i = 0; i <= 30; i++)
+                {
+                  gl.glEvalCoord1f((float) i / (float) 30.0);
+                }
+                gl.glEnd();
+                /* The following code displays the control points as dots. */
+                gl.glPointSize(5.0f);
+                gl.glColor3f(1.0f, 1.0f, 0.0f);
+                gl.glBegin(GL.GL_POINTS);
+                for (int i = 0; i < 4; i++)
+                {
+                  gl.glVertex3fv(ctrlpointBuf);
+                  ctrlpointBuf.position(i * 3);
+                }
+                gl.glEnd();
+                gl.glFlush();
                 
             // The O-track is selected
             } else if (1 == trackNr) {
