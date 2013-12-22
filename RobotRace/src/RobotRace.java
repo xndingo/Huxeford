@@ -109,19 +109,19 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0        
-        robots[0] = new Robot(Material.GOLD, new Vector(1,2,0)
+        robots[0] = new Robot(Material.GOLD, new Vector(5,0,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, new Vector(2,1,0)
+        robots[1] = new Robot(Material.SILVER, new Vector(6,0,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, new Vector(-1,0,0)
+        robots[2] = new Robot(Material.WOOD, new Vector(7,0,0)
             /* add other parameters that characterize this robot */);
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE, new Vector(-2,-2,0)
+        robots[3] = new Robot(Material.ORANGE, new Vector(8,0,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize the camera
@@ -759,7 +759,7 @@ public class RobotRace extends Base {
             ctrlpointBuf.rewind();
 
             //gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); //makes stuff black
-            gl.glShadeModel(GL_FLAT);
+            //gl.glShadeModel(GL_FLAT); //makes it look all trippy
             gl.glMap1f(GL_MAP1_VERTEX_3, 0.0f, 1.0f, 3, 4, ctrlpointBuf);
             gl.glEnable(GL_MAP1_VERTEX_3);
     
@@ -776,7 +776,7 @@ public class RobotRace extends Base {
                 /* The following code displays the control points as dots. */
                 gl.glPointSize(5.0f);
                 gl.glColor3f(1.0f, 1.0f, 0.0f);
-                gl.glBegin(GL.GL_POINTS);
+                gl.glBegin(GL_POINTS);
                 for (int i = 0; i < 4; i++)
                 {
                   gl.glVertex3fv(ctrlpointBuf);
@@ -788,14 +788,14 @@ public class RobotRace extends Base {
                 
             // The O-track is selected
             } else if (1 == trackNr) {
-                int radius = 2;
-                //gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-                gl.glColor3f(1.0f, 1.0f, 1.0f);
-                gl.glBegin(GL.GL_LINE_LOOP);
-                for (int i=0; i < 360; i++)
+                float radius = (float) 8.5; //track radius
+                //int width = 8; //width of the track
+                gl.glColor3f(1.0f, 0.0f, 2.0f);
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                float curves = (int) radius*100; //The number of curves used
+                for (int i=0; i < curves; i++)
                 {
-                   float degInRad = i;
-                   gl.glVertex2f((float) (cos(degInRad)*radius), (float) sin(degInRad)*radius);
+                   gl.glVertex2f(radius * (float) cos(i), radius * (float) sin(i));
                 }
                 gl.glEnd();
                 gl.glFlush();
