@@ -758,14 +758,14 @@ public class RobotRace extends Base {
             }
             ctrlpointBuf.rewind();
 
-            gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            //gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); //makes stuff black
             gl.glShadeModel(GL_FLAT);
             gl.glMap1f(GL_MAP1_VERTEX_3, 0.0f, 1.0f, 3, 4, ctrlpointBuf);
             gl.glEnable(GL_MAP1_VERTEX_3);
     
             // The test track is selected
             if (0 == trackNr) {
-                gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+                //gl.glClear(GL.GL_COLOR_BUFFER_BIT);
                 gl.glColor3f(1.0f, 1.0f, 1.0f);
                 gl.glBegin(GL.GL_LINE_STRIP);
                 for (int i = 0; i <= 30; i++)
