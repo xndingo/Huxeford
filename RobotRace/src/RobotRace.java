@@ -12,12 +12,18 @@ import robotrace.Vector;
 import static java.lang.Math.*;
 import static java.lang.System.out;
 import java.nio.FloatBuffer;
+import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
+import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
+import static javax.media.opengl.GL.GL_DEPTH_TEST;
 import static javax.media.opengl.GL.GL_FRONT;
 import static javax.media.opengl.GL.GL_FRONT_AND_BACK;
+import static javax.media.opengl.GL.GL_LINE_STRIP;
 import static javax.media.opengl.GL.GL_TRUE;
+import javax.media.opengl.GL2;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_FLAT;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHT1;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_NORMALIZE;
@@ -719,18 +725,44 @@ public class RobotRace extends Base {
          * Constructs the race track, sets up display lists.
          */
         public RaceTrack() {
-            // code goes here ...
+
+            
+            
+            
+
+            
+            
         }
         
         /**
          * Draws this track, based on the selected track number.
          */
         public void draw(int trackNr) {
-            
+            int i, j ;
             // The test track is selected
             if (0 == trackNr) {
-                // code goes here ...
+                // Clear background.
+            gl.glClear(GL_COLOR_BUFFER_BIT);
+
+            // Clear depth buffer.
+            gl.glClear(GL_DEPTH_BUFFER_BIT);
             
+            gl.glColor3f((float) 1.0, (float) 1.0, (float) 1.0);
+            gl.glPushMatrix ();
+            gl.glRotatef((float) 85.0, (float) 1.0, (float) 1.0, (float) 1.0);
+            for (j = 0; j <= 8; j++) {
+               gl.glBegin(GL_LINE_STRIP);
+               for (i = 0; i <= 30; i++)
+                  gl.glEvalCoord2f( (float) (i/30.0), (float)(j/8.0));
+               gl.glEnd();
+               gl.glBegin(GL_LINE_STRIP);
+               for (i = 0; i <= 30; i++)
+                  gl.glEvalCoord2f((float) (j/8.0), (float) (i/30.0));
+               gl.glEnd();
+            }
+            gl.glPopMatrix ();
+            gl.glFlush();
+                
             // The O-track is selected
             } else if (1 == trackNr) {
                 // code goes here ...
