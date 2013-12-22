@@ -785,9 +785,20 @@ public class RobotRace extends Base {
                 gl.glEnd();
                 gl.glFlush();
                 
+                
             // The O-track is selected
             } else if (1 == trackNr) {
-                // code goes here ...
+                int radius = 2;
+                //gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+                gl.glColor3f(1.0f, 1.0f, 1.0f);
+                gl.glBegin(GL.GL_LINE_LOOP);
+                for (int i=0; i < 360; i++)
+                {
+                   float degInRad = i;
+                   gl.glVertex2f((float) (cos(degInRad)*radius), (float) sin(degInRad)*radius);
+                }
+                gl.glEnd();
+                gl.glFlush();
                 
             // The L-track is selected
             } else if (2 == trackNr) {
