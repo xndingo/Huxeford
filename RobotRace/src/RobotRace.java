@@ -1,4 +1,10 @@
 
+/**
+ * Assignment for course 2IV60 Computer Graphics of students:
+ * Theodoros Margomenos
+ * Marcelo Almeida
+ */
+
 import javax.media.opengl.GL;
 import static javax.media.opengl.GL2.*;
 import robotrace.Base;
@@ -6,12 +12,18 @@ import robotrace.Vector;
 import static java.lang.Math.*;
 import static java.lang.System.out;
 import java.nio.FloatBuffer;
+import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
+import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
+import static javax.media.opengl.GL.GL_DEPTH_TEST;
 import static javax.media.opengl.GL.GL_FRONT;
 import static javax.media.opengl.GL.GL_FRONT_AND_BACK;
+import static javax.media.opengl.GL.GL_LINE_STRIP;
 import static javax.media.opengl.GL.GL_TRUE;
+import javax.media.opengl.GL2;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_FLAT;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHT1;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_NORMALIZE;
@@ -96,21 +108,20 @@ public class RobotRace extends Base {
         // Create a new array of four robots
         robots = new Robot[4];
         
-        // Initialize robot 0
-        
-            robots[0] = new Robot(Material.GOLD, new Vector(1,2,0)
+        // Initialize robot 0        
+        robots[0] = new Robot(Material.GOLD, new Vector(5,0,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, new Vector(2,1,0)
+        robots[1] = new Robot(Material.SILVER, new Vector(6,0,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, new Vector(-1,0,0)
+        robots[2] = new Robot(Material.WOOD, new Vector(7,0,0)
             /* add other parameters that characterize this robot */);
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE, new Vector(-2,-2,0)
+        robots[3] = new Robot(Material.ORANGE, new Vector(8,0,0)
             /* add other parameters that characterize this robot */);
         
         // Initialize the camera
@@ -132,13 +143,7 @@ public class RobotRace extends Base {
         // Enable blending.
         gl.glEnable(GL_BLEND);
         gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        
-        // Enable anti-aliasing.
-        gl.glEnable(GL_LINE_SMOOTH);
-        gl.glEnable(GL_POLYGON_SMOOTH);
-        gl.glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-        gl.glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-        
+             
         // Enable depth testing.
         gl.glEnable(GL_DEPTH_TEST);
         gl.glDepthFunc(GL_LESS);
@@ -156,10 +161,10 @@ public class RobotRace extends Base {
      */
     @Override
     public void setView() {
-        /** Calculating the fovy angle. First calculate the hight with the 
+        /** Calculating the fovy angle. First calculate the height with the 
          * expression = gs.vWidth * (gs.w/gs.h). This expression is a proportion
-         * related to the aspect of the view. Second, calculate the atan of
-         * (height/2)/gs.vDist, to determine half of the angle. Third, double
+         * related to the aspect of the view. Then, calculates the atan of
+         * (height/2)/gs.vDist, to determine half of the angle. Then, double
          * the angle and convert it from radians to degrees. */
         double fovy = (180/PI) * (2 * atan(gs.vWidth * (gs.w/gs.h) / (2 * gs.vDist))); 
 
@@ -218,97 +223,79 @@ public class RobotRace extends Base {
         
         // Draw the 4 robots.
         robots[0].setMaterialColor(); //GOLD
-        robots[0].draw(false);
+        robots[0].draw(false); //Draw robot fully initially.
         robots[1].setMaterialColor(); //SILVER
-        robots[1].draw(false);
+        robots[1].draw(false); //Draw robot fully initially.
         robots[2].setMaterialColor(); //WOOD
-        robots[2].draw(false);
+        robots[2].draw(false); //Draw robot fully initially.
         robots[3].setMaterialColor(); //ORANGE
-        robots[3].draw(false);
-
+        robots[3].draw(false); //Draw robot fully initially.
+ 
         // Draw race track
         raceTrack.draw(gs.trackNr);
         
         // Draw terrain
         terrain.draw();
-        
-        /* Example code.
-        // Unit box around origin.
-        glut.glutWireCube(1f);
-
-        // Move in x-direction.
-        gl.glTranslatef(2f, 0f, 0f);
-        
-        // Rotate 30 degrees, around z-axis.
-        gl.glRotatef(30f, 0f, 0f, 1f);
-        
-        // Scale in z-direction.
-        gl.glScalef(1f, 1f, 2f);
-
-        // Translated, rotated, scaled box.
-        glut.glutWireCube(1f);
-        */
     }
-    
-    
+       
     /**
      * Draws the x-axis (red), y-axis (green), z-axis (blue),
      * and origin (yellow).
      */
     public void drawAxisFrame() {
-        float radius = 0.1f;    //Sphere radius
-        int numSlices = 10;     //Number of slices
-        int numStacks = 10;     //Number of stacks
-        float base = 0.1f;      //Base radius of cones
-        float height = 0.2f;    //Height of cones
-        // Definition of the colors to be given to each axis
+        float radius = 0.1f; //Sphere radius
+        int numSlices = 20; //Number of slices
+        int numStacks = 20; //Number of stacks
+        float base = 0.1f; //Base radius of cones
+        float height = 0.2f; //Height of cones
+        /** Definition of the colors to be given to each axis */
         float[] xAxisColor = {1f, 0f, 0f, 1f};
         float[] yAxisColor = {0f, 1f, 0f, 1f};
         float[] zAxisColor = {0f, 0f, 1f, 1f};
         float[] sphereColor = {1f, 1f, 0f, 1f};
         
-        // Draw the red X axis.
+        /** Draw the red X axis.  */
         setMaterialColor(xAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0.5f, 0, 0);
         gl.glScalef(1, 0.05f, 0.05f);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
-        // Draw the red cone.
+        /** Draw the red cone.  */
         gl.glPushMatrix();
         gl.glTranslatef(1, 0, 0);
         gl.glRotatef(90, 0, 1, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the green Y axis.
+        /** Draw the green Y axis.  */
         setMaterialColor(yAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0.5f, 0);
         gl.glScalef(0.05f, 1, 0.05f);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
-        // Draw the green cone.
+        /** Draw the green cone.  */
         gl.glPushMatrix();
         gl.glTranslatef(0, 1, 0);
         gl.glRotatef(90, -1, 0, 0);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the blue Z axis.
+        /** Draw the blue Z axis.  */
         setMaterialColor(zAxisColor);
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 0.5f);
         gl.glScalef(0.05f, 0.05f, 1);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
-        // Draw the blue cone
+        /** Draw the blue cone  */
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 1);
         glut.glutSolidCone(base, height, numSlices, numStacks);
         gl.glPopMatrix();
         
-        // Draw the yellow origin sphere.
+        /** Draw the yellow origin sphere.  */
         setMaterialColor(sphereColor);
         gl.glPushMatrix();
         gl.glScalef(2, 2, 2);
@@ -379,6 +366,9 @@ public class RobotRace extends Base {
         /** The material from which this robot is built. */
         private final Material material;
         
+        /**
+         * Defining the structure of the robot.
+         */
         private Vector headPosition = new Vector(0, 0, 1.9);
         private Vector shoulderPosition = new Vector(0, 0, 1.7);
         private Vector leftArmPosition = new Vector(0.3, 0, 1.25);
@@ -394,13 +384,20 @@ public class RobotRace extends Base {
         private Vector rightLegJoint = new Vector(-0.1, 0, 1);       
         
         private Vector basePosition;
+        /**
+         * The coordinates where the robot is initially placed at, specified 
+         * at the constructor of RobotRace.
+         */
         
         /**
          * Constructs the robot with initial parameters.
          */
         public Robot(Material material, Vector basePosition) {
-            this.material = material;
-            this.basePosition = basePosition;
+            this.material = material; /** Sets the material of the robot to the 
+            given material. */
+            this.basePosition = basePosition; /** Sets the position where the 
+            robot is placed at the given basePosition. */
+            
         }
         
         /**
@@ -534,15 +531,15 @@ public class RobotRace extends Base {
         /** The up vector. */
         public Vector up = Vector.Z;
         
+        private int robotToFocus = 0;
+        private int changeRobotToFocus = 0;
+        private int iterationsToChangeCamera = 100;
         /**
          * Updates the camera viewpoint and direction based on the
          * selected camera mode.
          */
         public void update(int mode) {
             robots[0].toString();
-            
-            eye = getEyePosition();
-            center = getCenterPosition();
             
             // Helicopter mode
             if (1 == mode) {  
@@ -571,7 +568,9 @@ public class RobotRace extends Base {
          * on the camera's default mode.
          */
         private void setDefaultMode() {
-            // code goes here ...
+            eye = getEyePosition();
+            center = getCenterPosition();
+            up = Vector.Z;
         }
         
         /**
@@ -579,7 +578,10 @@ public class RobotRace extends Base {
          * on the helicopter mode.
          */
         private void setHelicopterMode() {
-            // code goes here ...
+            eye = robots[robotToFocus].basePosition.add(new Vector(0,0,10));
+            center = robots[robotToFocus].basePosition;
+            up = Vector.Y;
+            updateFocusedRobot();
         }
         
         /**
@@ -587,7 +589,10 @@ public class RobotRace extends Base {
          * on the motorcycle mode.
          */
         private void setMotorCycleMode() {
-            // code goes here ...
+            eye = robots[robotToFocus].basePosition.add(new Vector(10,0,0));
+            center = robots[robotToFocus].basePosition;
+            up = Vector.Z;
+            updateFocusedRobot();
         }
         
         /**
@@ -595,7 +600,12 @@ public class RobotRace extends Base {
          * on the first person mode.
          */
         private void setFirstPersonMode() {
-            // code goes here ...
+            Vector headPosition = robots[robotToFocus].basePosition.add(
+                    new Vector(0, -3, robots[robotToFocus].headPosition.z()));
+            eye = headPosition;
+            center = headPosition.add(new Vector(0,2,0));
+            up = Vector.Z;
+            updateFocusedRobot();
         }
         
         private Vector getEyePosition() {
@@ -610,11 +620,31 @@ public class RobotRace extends Base {
         }
         
         private Vector getCenterPosition() {
+            /**
+             * Returns the center position of the global state.
+             */
             return new Vector(
                 gs.cnt.x(),
                 gs.cnt.y(),
                 gs.cnt.z()
             );
+        }
+        
+        private void updateFocusedRobot(){
+            changeRobotToFocus++;
+            if(changeRobotToFocus == iterationsToChangeCamera){
+                robotToFocus = 1;
+            }
+            else if(changeRobotToFocus == 2 * iterationsToChangeCamera){
+                robotToFocus = 2;
+            }
+            else if(changeRobotToFocus == 3 * iterationsToChangeCamera){
+                robotToFocus = 3;
+            }
+            else if(changeRobotToFocus == 4 * iterationsToChangeCamera){
+                robotToFocus = 0;
+                changeRobotToFocus = 0;
+            }
         }
     }
     
@@ -639,21 +669,80 @@ public class RobotRace extends Base {
          * Constructs the race track, sets up display lists.
          */
         public RaceTrack() {
-            // code goes here ...
+
+            
+            
+            
+
+            
+            
         }
         
         /**
          * Draws this track, based on the selected track number.
          */
         public void draw(int trackNr) {
+            float ctrlpoints[][] = new float[][]
+            {
+            { -4.0f, -4.0f, 0.0f },
+            { -2.0f, 4.0f, 0.0f },
+            { 2.0f, -4.0f, 0.0f },
+            { 4.0f, 4.0f, 0.0f } };
+            FloatBuffer ctrlpointBuf = //
+            FloatBuffer.allocate(ctrlpoints[0].length * ctrlpoints.length);
             
+
+            // need to convert 2d array to buffer type
+            for (int i = 0; i < ctrlpoints.length; i++)
+            {
+              for (int j = 0; j < 3; j++)
+              {
+                ctrlpointBuf.put(ctrlpoints[i][j]);
+              }
+            }
+            ctrlpointBuf.rewind();
+
+            //gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); //makes stuff black
+            //gl.glShadeModel(GL_FLAT); //makes it look all trippy
+            gl.glMap1f(GL_MAP1_VERTEX_3, 0.0f, 1.0f, 3, 4, ctrlpointBuf);
+            gl.glEnable(GL_MAP1_VERTEX_3);
+    
             // The test track is selected
             if (0 == trackNr) {
-                // code goes here ...
-            
+                //gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+                gl.glColor3f(1.0f, 1.0f, 1.0f);
+                gl.glBegin(GL.GL_LINE_STRIP);
+                for (int i = 0; i <= 30; i++)
+                {
+                  gl.glEvalCoord1f((float) i / (float) 30.0);
+                }
+                gl.glEnd();
+                /* The following code displays the control points as dots. */
+                gl.glPointSize(5.0f);
+                gl.glColor3f(1.0f, 1.0f, 0.0f);
+                gl.glBegin(GL_POINTS);
+                for (int i = 0; i < 4; i++)
+                {
+                  gl.glVertex3fv(ctrlpointBuf);
+                  ctrlpointBuf.position(i * 3);
+                }
+                gl.glEnd();
+                gl.glFlush();
+                
+                
             // The O-track is selected
             } else if (1 == trackNr) {
-                // code goes here ...
+                float radius = (float) 8.5; //track radius
+                //int width = 8; //width of the track
+                gl.glColor3f(1.0f, 0.0f, 2.0f);
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                float curves = (int) radius*100; //The number of curves used
+                for (int i=0; i < curves; i++)
+                {
+                   gl.glVertex2f(radius * (float) cos(i), radius * (float) sin(i));
+                }
+                gl.glEnd();
+                gl.glFlush();
                 
             // The L-track is selected
             } else if (2 == trackNr) {
@@ -723,8 +812,10 @@ public class RobotRace extends Base {
     
     public void setMaterialColor(float[] ambientAndDiffuse){
         float[] specular = {1, 1, 1, 1};
+        //Sets the current color from an already existing array of color values.
         gl.glColor3fv(ambientAndDiffuse, 0);
-        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, specular, 0);
+        //Specifies material parameters for the lighting model.
+        gl.glMaterialfv(GL_FRONT, GL_SPECULAR, specular, 0); //specifies material parameters for the lighting model.
     }
     
     public void configureLighting(){
