@@ -360,7 +360,7 @@ public class RobotRace extends Base {
      */
     private class Robot {
         private float tx, ty, tz;   //used for translation
-        private int angle;          //angle for rotation
+        private float angle = 0;          //angle for rotation
         private float rx, ry, rz;   //used for rotation
         private float sx, sy, sz;   //used for scaling
         /** The material from which this robot is built. */
@@ -407,15 +407,17 @@ public class RobotRace extends Base {
             /**Here each part is drawn taking the basePosition as the main
              * position of the robot and translating regarding to it.
              */
+            float limbStartAngle = 45f;
+            
             boolean showStick = gs.showStick;
             drawHead(showStick);
             drawShoulder(showStick);
-            drawArm(leftArmPosition, leftShoulderJoint, showStick);
-            drawArm(rightArmPosition, rightShoulderJoint, showStick);
+            drawArm(leftArmPosition, leftShoulderJoint, limbStartAngle, showStick);
+            drawArm(rightArmPosition, rightShoulderJoint, -limbStartAngle, showStick);
             drawTorso(showStick);
             drawBottom(showStick);
-            drawLeg(leftLegPosition, leftLegJoint, showStick);
-            drawLeg(rightLegPosition, rightLegJoint, showStick);
+            drawLeg(leftLegPosition, leftLegJoint, limbStartAngle, showStick);
+            drawLeg(rightLegPosition, rightLegJoint, -limbStartAngle, showStick);
         }
         
         public void setMaterialColor(){
@@ -423,12 +425,12 @@ public class RobotRace extends Base {
             gl.glMaterialfv(GL_FRONT, GL_SPECULAR, material.specular, 0);
         }
         
-        private void drawArm(Vector armPosition, Vector jointPosition, boolean showStick){
+        private void drawArm(Vector armPosition, Vector jointPosition, float initialAngle, boolean showStick){
             Vector temp;
             gl.glPushMatrix();
                 temp = basePosition.add(jointPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
-                gl.glRotatef(100*gs.tAnim, 1, 0, 0);
+                gl.glRotatef(defineLimbRotation(initialAngle), 1, 0, 0);
                 gl.glTranslatef(-(float)temp.x(), -(float)temp.y(), -(float)temp.z());
                 gl.glPushMatrix();
                     temp = basePosition.add(armPosition);
@@ -496,12 +498,12 @@ public class RobotRace extends Base {
             gl.glPopMatrix();
         }
         
-        private void drawLeg(Vector legPosition, Vector jointPosition, boolean showStick){
+        private void drawLeg(Vector legPosition, Vector jointPosition, float initialAngle, boolean showStick){
             Vector temp;
             gl.glPushMatrix();
                 temp = basePosition.add(jointPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
-                gl.glRotatef(10*gs.tAnim, 1, 0, 0);
+                gl.glRotatef(defineLimbRotation(initialAngle), 1, 0, 0);
                 gl.glTranslatef(-(float)temp.x(), -(float)temp.y(), -(float)temp.z());
                 gl.glPushMatrix();
                     temp = basePosition.add(legPosition);
@@ -515,6 +517,18 @@ public class RobotRace extends Base {
                     gl.glPopMatrix();
                 gl.glPopMatrix();
             gl.glPopMatrix();
+        }
+        
+        private float defineLimbRotation(float initialAngle) {
+            float limitAngle = 45f;
+            float angle = (100*gs.tAnim + initialAngle) % (4 * limitAngle);
+            if (angle >= limitAngle && angle < 3 * limitAngle) {
+                angle = 2 * limitAngle - angle;
+            }
+            else if (angle >= 3 * limitAngle && angle < 5 * limitAngle) {
+                angle = angle - 4 * limitAngle;
+            }
+            return angle;
         }
     }
     
@@ -613,7 +627,7 @@ public class RobotRace extends Base {
                 // The projection of the V vector to the X axis plus the gs.cnt gives the eye's X
                 gs.cnt.x() + gs.vDist * Math.cos(gs.phi) * Math.cos(gs.theta),
                 // The projection of the V vector to the Y axis plus the gs.cnt gives the eye's Y
-                gs.cnt.y() + gs.vDist * Math.cos(gs.phi) * Math.sin(gs.theta),
+                gs.cnt.y() - gs.vDist * Math.cos(gs.phi) * Math.sin(gs.theta),
                 // The projection of the V vector to the Z axis plus the gs.cnt gives the eye's Z
                 gs.cnt.z() + gs.vDist * Math.sin(gs.phi)
             );
