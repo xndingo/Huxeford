@@ -18,6 +18,8 @@ import static javax.media.opengl.GL.GL_DEPTH_TEST;
 import static javax.media.opengl.GL.GL_FRONT;
 import static javax.media.opengl.GL.GL_FRONT_AND_BACK;
 import static javax.media.opengl.GL.GL_LINE_STRIP;
+import static javax.media.opengl.GL.GL_POINTS;
+import static javax.media.opengl.GL.GL_TRIANGLE_STRIP;
 import static javax.media.opengl.GL.GL_TRUE;
 import javax.media.opengl.GL2;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
@@ -416,8 +418,8 @@ public class RobotRace extends Base {
             drawArm(rightArmPosition, rightShoulderJoint, -limbStartAngle, showStick);
             drawTorso(showStick);
             drawBottom(showStick);
-            drawLeg(leftLegPosition, leftLegJoint, limbStartAngle, showStick);
-            drawLeg(rightLegPosition, rightLegJoint, -limbStartAngle, showStick);
+            drawLeg(leftLegPosition, leftLegJoint, -limbStartAngle, showStick);
+            drawLeg(rightLegPosition, rightLegJoint, limbStartAngle, showStick);
         }
         
         public void setMaterialColor(){
@@ -682,13 +684,7 @@ public class RobotRace extends Base {
         /**
          * Constructs the race track, sets up display lists.
          */
-        public RaceTrack() {
-
-            
-            
-            
-
-            
+        public RaceTrack() {   
             
         }
         
@@ -723,6 +719,46 @@ public class RobotRace extends Base {
     
             // The test track is selected
             if (0 == trackNr) {
+                float a = (float) 0.3;
+                float b = (float) 0.0;
+                float c = (float) 0.0;
+                float radius = (float) 8.5; //track radius
+                //int width = 8; //width of the track
+                gl.glColor3f(1.0f, 0.0f, 2.0f);
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                float curves = (int) radius*100; //The number of curves used
+                for (int i=0; i < curves; i++)
+                {
+                   gl.glVertex2f(radius * (float) (cos((i))), radius * (float) (sin((i))));
+                }
+                gl.glEnd();
+                gl.glFlush();
+                
+            // The O-track is selected
+            } else if (1 == trackNr) {
+                float radius = (float) 8.5; //track radius
+                //int width = 8; //width of the track
+                gl.glColor3f(1.0f, 0.0f, 2.0f);
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                float curves = (int) radius*100; //The number of curves used
+                for (int i=0; i < curves; i++)
+                {
+                   gl.glVertex2f(radius * (float) cos(i), radius * (float) sin(i));
+                }
+                gl.glEnd();
+                gl.glFlush();
+                
+            // The L-track is selected
+            } else if (2 == trackNr) {
+                
+                
+            // The C-track is selected
+            } else if (3 == trackNr) {
+                // code goes here ...
+                
+            // The custom track is selected
+            } else if (4 == trackNr) {
+                // code goes here ...
                 //gl.glClear(GL.GL_COLOR_BUFFER_BIT);
                 gl.glColor3f(1.0f, 1.0f, 1.0f);
                 gl.glBegin(GL.GL_LINE_STRIP);
@@ -742,33 +778,6 @@ public class RobotRace extends Base {
                 }
                 gl.glEnd();
                 gl.glFlush();
-                
-                
-            // The O-track is selected
-            } else if (1 == trackNr) {
-                float radius = (float) 8.5; //track radius
-                //int width = 8; //width of the track
-                gl.glColor3f(1.0f, 0.0f, 2.0f);
-                gl.glBegin(GL_TRIANGLE_STRIP);
-                float curves = (int) radius*100; //The number of curves used
-                for (int i=0; i < curves; i++)
-                {
-                   gl.glVertex2f(radius * (float) cos(i), radius * (float) sin(i));
-                }
-                gl.glEnd();
-                gl.glFlush();
-                
-            // The L-track is selected
-            } else if (2 == trackNr) {
-                // code goes here ...
-                
-            // The C-track is selected
-            } else if (3 == trackNr) {
-                // code goes here ...
-                
-            // The custom track is selected
-            } else if (4 == trackNr) {
-                // code goes here ...
                 
             }
         }
