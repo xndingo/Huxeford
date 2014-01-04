@@ -18,10 +18,17 @@ import static javax.media.opengl.GL.GL_DEPTH_TEST;
 import static javax.media.opengl.GL.GL_FRONT;
 import static javax.media.opengl.GL.GL_FRONT_AND_BACK;
 import static javax.media.opengl.GL.GL_LINE_STRIP;
+import static javax.media.opengl.GL.GL_NICEST;
 import static javax.media.opengl.GL.GL_POINTS;
+import static javax.media.opengl.GL.GL_TEXTURE_2D;
 import static javax.media.opengl.GL.GL_TRIANGLE_STRIP;
 import static javax.media.opengl.GL.GL_TRUE;
 import javax.media.opengl.GL2;
+import static javax.media.opengl.GL2ES1.GL_DECAL;
+import static javax.media.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
+import static javax.media.opengl.GL2ES1.GL_TEXTURE_ENV;
+import static javax.media.opengl.GL2ES1.GL_TEXTURE_ENV_MODE;
+import static javax.media.opengl.GL2GL3.GL_QUADS;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
@@ -154,6 +161,13 @@ public class RobotRace extends Base {
         gl.glEnable(GL_TEXTURE_2D);
         gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         gl.glBindTexture(GL_TEXTURE_2D, 0);
+        
+        gl.glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        
         
         configureLighting();
     }
@@ -450,15 +464,34 @@ public class RobotRace extends Base {
         
         private void drawHead(boolean showStick){
             Vector temp;
+            float[] scaleFactors;
+            if (showStick)
+                scaleFactors = new float[] {0.10f, 0.10f, 0.20f};
+            else
+                scaleFactors = new float[] {0.25f, 0.25f, 0.30f};
             gl.glPushMatrix();
                 temp = basePosition.add(headPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
-                if(showStick)
-                    gl.glScalef(0.10f, 0.10f, 0.20f);
-                else
-                    gl.glScalef(0.25f, 0.25f, 0.30f);
+                gl.glScalef(scaleFactors[0], scaleFactors[1], scaleFactors[2]);
                 glut.glutSolidCube(1);
             gl.glPopMatrix();
+            
+            gl.glEnable(GL_TEXTURE_2D);
+            gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+            gl.glBindTexture(GL_TEXTURE_2D, head.getTextureObject());
+            head.bind(gl);
+            gl.glBegin(GL_QUADS);
+                gl.glTexCoord2d(0, 0);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glTexCoord2d(1, 0);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glTexCoord2d(1, 1);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
+                gl.glTexCoord2d(0, 1);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
+            gl.glEnd(); 
+            gl.glDisable(GL_TEXTURE_2D);
+            
         }
         
         private void drawShoulder(boolean showStick){
@@ -489,15 +522,45 @@ public class RobotRace extends Base {
         
         private void drawTorso(boolean showStick){
             Vector temp;
+            float[] scaleFactors;
+            if (showStick)
+                scaleFactors = new float[] {0.05f, 0.05f, 0.8f};
+            else
+                scaleFactors = new float[] {0.4f, 0.2f, 0.8f};
             gl.glPushMatrix();                
                 temp = basePosition.add(torsoPosition);
                 gl.glTranslatef((float)temp.x(), (float)temp.y(), (float)temp.z());
-                if(showStick)
-                    gl.glScalef(0.05f, 0.05f, 0.8f);
-                else
-                    gl.glScalef(0.4f, 0.2f, 0.8f);           
+                gl.glScalef(scaleFactors[0], scaleFactors[1], scaleFactors[2]);
                 glut.glutSolidCube(1);
             gl.glPopMatrix();
+            
+            gl.glEnable(GL_TEXTURE_2D);
+            gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+            //gl.glBindTexture(GL_TEXTURE_2D, torso.getTextureObject());
+            torso.bind(gl);
+            gl.glBegin(GL_QUADS);
+                gl.glTexCoord2d(0, 0);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glTexCoord2d(1, 0);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glTexCoord2d(1, 1);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
+                gl.glTexCoord2d(0, 1);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
+            gl.glEnd(); 
+            
+            gl.glBegin(GL_QUADS);
+                gl.glTexCoord2d(0, 0);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, - scaleFactors[1]/2 - 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glTexCoord2d(1, 0);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2, - scaleFactors[1]/2 - 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glTexCoord2d(1, 1);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2, - scaleFactors[1]/2 - 0.0001f, temp.z() + scaleFactors[2]/2);
+                gl.glTexCoord2d(0, 1);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, - scaleFactors[1]/2 - 0.0001f, temp.z() + scaleFactors[2]/2);
+            gl.glEnd(); 
+            
+            gl.glDisable(GL_TEXTURE_2D);
         }
         
         private void drawLeg(Vector legPosition, Vector jointPosition, float initialAngle, boolean showStick){
