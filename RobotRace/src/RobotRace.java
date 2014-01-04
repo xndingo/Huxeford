@@ -877,7 +877,7 @@ public class RobotRace extends Base {
          * Can be used to set up a display list.
          */
         public Terrain() {
-           buildDigitalNumbers();
+           
         }
         
         /**
