@@ -5,6 +5,8 @@
  * Marcelo Almeida
  */
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.media.opengl.GL;
 import static javax.media.opengl.GL2.*;
 import robotrace.Base;
@@ -12,11 +14,14 @@ import robotrace.Vector;
 import static java.lang.Math.*;
 import static java.lang.System.out;
 import java.nio.FloatBuffer;
+import java.util.Calendar;
 import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static javax.media.opengl.GL.GL_DEPTH_TEST;
+import static javax.media.opengl.GL.GL_FALSE;
 import static javax.media.opengl.GL.GL_FRONT;
 import static javax.media.opengl.GL.GL_FRONT_AND_BACK;
+import static javax.media.opengl.GL.GL_LINES;
 import static javax.media.opengl.GL.GL_LINE_STRIP;
 import static javax.media.opengl.GL.GL_NICEST;
 import static javax.media.opengl.GL.GL_POINTS;
@@ -40,6 +45,7 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import javax.swing.Timer;
 
 /**
  * Handles all of the RobotRace graphics functionality,
@@ -866,18 +872,22 @@ public class RobotRace extends Base {
      */
     private class Terrain {
         
+        Integer[] numbersList = new Integer[10];
         /**
          * Can be used to set up a display list.
          */
         public Terrain() {
-            // code goes here ...
+           buildDigitalNumbers();
         }
         
         /**
          * Draws the terrain.
          */
         public void draw() {
-            // code goes here ...
+            drawTree(new Vector(0,0,0), 1, 1, 1);
+            drawTree(new Vector(-5,0,0), 1.5, 1.5, 1.5);
+            drawTree(new Vector(-10,0,0), 2, 2, 2);
+            drawClock();
         }
         
         /**
@@ -885,6 +895,102 @@ public class RobotRace extends Base {
          */
         public float heightAt(float x, float y) {
             return 0; // <- code goes here
+        }
+        
+        private void drawTree(Vector basePosition, double cilinderScale, double firstConeScale, double secondConeScale){
+            double cylinderRadius = 0.3;
+            double cylinderHeight = 3;
+            double coneBase = 1.5;
+            double coneHeight = 2;
+            int slices = 100;
+            int stacks = 10;
+            gl.glPushMatrix();
+                gl.glTranslated(basePosition.x(), basePosition.y(), basePosition.z());
+                gl.glPushMatrix();
+                    gl.glColor3f(0.4f, 0.2f, 0f);
+                    gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, new float[] {0, 0, 0}, 0);
+                    gl.glScaled(cilinderScale, cilinderScale, cilinderScale);
+                    glut.glutSolidCylinder(cylinderRadius, cylinderHeight, slices, stacks);
+                gl.glPopMatrix();
+                gl.glTranslated(0, 0, cilinderScale * cylinderHeight/2);
+                gl.glPushMatrix();
+                    gl.glColor3f(0.23f, 0.37f, 0.04f);
+                    gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, new float[] {0.23f, 0.37f, 0.04f}, 0);
+                    gl.glScaled(firstConeScale, firstConeScale, firstConeScale);
+                    glut.glutSolidCone(coneBase, coneHeight, slices, stacks);
+                gl.glPopMatrix();
+                gl.glTranslated(0, 0, cilinderScale * cylinderHeight/4);
+                gl.glPushMatrix();
+                    gl.glColor3f(0.23f, 0.37f, 0.04f);
+                    gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, new float[] {0.23f, 0.37f, 0.04f}, 0);
+                    gl.glScaled(secondConeScale, secondConeScale, secondConeScale);
+                    glut.glutSolidCone(coneBase/2, coneHeight, slices, stacks);
+                gl.glPopMatrix();
+                
+            gl.glPopMatrix();
+        }
+        
+        private void drawClock(){
+            gl.glMatrixMode(GL_PROJECTION);
+            gl.glPushMatrix();
+                gl.glLoadIdentity();
+                gl.glOrtho(0, 100, 0, 100, -1, 1);
+                gl.glMatrixMode(GL_MODELVIEW);
+                gl.glPushMatrix();
+                    gl.glLoadIdentity();
+                    drawHours();
+                    drawMinutes();
+                    drawSeconds();
+                gl.glPopMatrix();
+            gl.glMatrixMode(GL_PROJECTION);
+            gl.glPopMatrix();
+            
+        }
+        
+        private void drawHours() {
+            
+        }
+        
+        private void drawMinutes() {
+            
+        }
+        
+        private void drawSeconds() {
+            drawTime();
+        }
+        
+        private void drawTime() {
+            gl.glLineWidth(5);
+            gl.glBegin(GL_LINES);
+                gl.glVertex2d(0, 1);
+                gl.glVertex2d(0, 6);
+
+                gl.glVertex2d(0, 8);
+                gl.glVertex2d(0, 12);
+
+                gl.glVertex2d(1, 13);
+                gl.glVertex2d(6, 13);
+
+                gl.glVertex2d(7, 12);
+                gl.glVertex2d(7, 8);
+
+                gl.glVertex2d(7, 6);
+                gl.glVertex2d(7, 1);
+
+                gl.glVertex2d(1, 0);
+                gl.glVertex2d(6, 0);
+
+            gl.glEnd();
+        }
+        
+        private void buildDigitalNumbers(){
+            for (int i = 0; i <= 9; i++){
+                numbersList[i] = gl.glGenLists(i);
+            }
+            gl.glListBase(10);
+            gl.glNewList(numbersList[0], GL_COMPILE);
+                
+            gl.glEndList();
         }
     }
     
