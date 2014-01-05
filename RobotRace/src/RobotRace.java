@@ -124,19 +124,19 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0        
-        robots[0] = new Robot(Material.GOLD, new Vector(5,0,0)
+        robots[0] = new Robot(Material.GOLD, new Vector(5,0,1)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, new Vector(6,0,0)
+        robots[1] = new Robot(Material.SILVER, new Vector(6,0,1)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, new Vector(7,0,0)
+        robots[2] = new Robot(Material.WOOD, new Vector(7,0,1)
             /* add other parameters that characterize this robot */);
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE, new Vector(8,0,0)
+        robots[3] = new Robot(Material.ORANGE, new Vector(8,0,1)
             /* add other parameters that characterize this robot */);
         
         // Initialize the camera
@@ -788,31 +788,96 @@ public class RobotRace extends Base {
     
             // The test track is selected
             if (0 == trackNr) {
-                float a = (float) 0.3;
-                float b = (float) 0.0;
-                float c = (float) 0.0;
                 float radius = (float) 8.5; //track radius
-                //int width = 8; //width of the track
-                gl.glColor3f(1.0f, 0.0f, 2.0f);
-                gl.glBegin(GL_TRIANGLE_STRIP);
                 float curves = (int) radius*100; //The number of curves used
+                float v = 1; //height               
+                
+                // Track bottom
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                gl.glColor4f(1.0f, 0.0f, 0.0f, 1.0f);                
                 for (int i=0; i < curves; i++)
                 {
-                   gl.glVertex2f(radius * (float) (cos((i))), radius * (float) (sin((i))));
+                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
                 }
                 gl.glEnd();
                 gl.glFlush();
                 
+                // Track top
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                gl.glColor4f(0.0f, 0.0f, 1.0f, 1.0f);                
+                for (int i=0; i < curves; i++)
+                {
+                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
+                }
+                gl.glEnd();
+                gl.glFlush();
+                
+                // Track outer sides
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
+                for (int i=0; i < curves+120; i++)
+                {
+                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
+                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
+                }
+                gl.glEnd();
+                gl.glFlush();
+                
+                // Track inner sides
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
+                for (int i=0; i < curves; i++)
+                {
+                   gl.glVertex3f((float) ((radius-3.5) * cos(i)), (float) ((radius-3.5) * sin(i)), (float) 0.0);
+                   gl.glVertex3f((float) ((radius-3.5) * cos(i)), (float) ((radius-3.5) * sin(i)), (float) v);
+                }
+                gl.glEnd();
+                gl.glFlush();                
+                
             // The O-track is selected
             } else if (1 == trackNr) {
                 float radius = (float) 8.5; //track radius
-                //int width = 8; //width of the track
-                gl.glColor3f(1.0f, 0.0f, 2.0f);
-                gl.glBegin(GL_TRIANGLE_STRIP);
                 float curves = (int) radius*100; //The number of curves used
+                float v = 1; //height               
+                
+                // Track bottom
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                gl.glColor4f(1.0f, 0.0f, 0.0f, 1.0f);                
                 for (int i=0; i < curves; i++)
                 {
-                   gl.glVertex2f(radius * (float) cos(i), radius * (float) sin(i));
+                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
+                }
+                gl.glEnd();
+                gl.glFlush();
+                
+                // Track top
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                gl.glColor4f(0.0f, 0.0f, 1.0f, 1.0f);                
+                for (int i=0; i < curves; i++)
+                {
+                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
+                }
+                gl.glEnd();
+                gl.glFlush();
+                
+                // Track outer sides
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
+                for (int i=0; i < curves+120; i++)
+                {
+                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
+                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
+                }
+                gl.glEnd();
+                gl.glFlush();
+                
+                // Track inner sides
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
+                for (int i=0; i < curves; i++)
+                {
+                   gl.glVertex3f((float) ((radius-3.5) * cos(i)), (float) ((radius-3.5) * sin(i)), (float) 0.0);
+                   gl.glVertex3f((float) ((radius-3.5) * cos(i)), (float) ((radius-3.5) * sin(i)), (float) v);
                 }
                 gl.glEnd();
                 gl.glFlush();
@@ -884,9 +949,9 @@ public class RobotRace extends Base {
          * Draws the terrain.
          */
         public void draw() {
-            drawTree(new Vector(0,0,0), 1, 1, 1);
-            drawTree(new Vector(-5,0,0), 1.5, 1.5, 1.5);
-            drawTree(new Vector(-10,0,0), 2, 2, 2);
+            drawTree(new Vector(-1,0,1), 1, 1, 1);
+            drawTree(new Vector(8,-9,1), 1.5, 1.5, 1.5);
+            drawTree(new Vector(-10,0,1), 2, 2, 2);
             drawClock();
         }
         
