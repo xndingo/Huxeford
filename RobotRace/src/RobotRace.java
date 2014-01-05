@@ -5,8 +5,11 @@
  * Marcelo Almeida
  */
 
+import com.jogamp.opengl.util.texture.TextureData;
+import com.jogamp.opengl.util.texture.TextureIO;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.InputStream;
 import javax.media.opengl.GL;
 import static javax.media.opengl.GL2.*;
 import robotrace.Base;
@@ -21,15 +24,20 @@ import static javax.media.opengl.GL.GL_DEPTH_TEST;
 import static javax.media.opengl.GL.GL_FALSE;
 import static javax.media.opengl.GL.GL_FRONT;
 import static javax.media.opengl.GL.GL_FRONT_AND_BACK;
+import static javax.media.opengl.GL.GL_LINEAR;
 import static javax.media.opengl.GL.GL_LINES;
 import static javax.media.opengl.GL.GL_LINE_STRIP;
 import static javax.media.opengl.GL.GL_NICEST;
 import static javax.media.opengl.GL.GL_POINTS;
+import static javax.media.opengl.GL.GL_REPEAT;
 import static javax.media.opengl.GL.GL_TEXTURE_2D;
+import static javax.media.opengl.GL.GL_TEXTURE_MIN_FILTER;
+import static javax.media.opengl.GL.GL_TEXTURE_WRAP_S;
 import static javax.media.opengl.GL.GL_TRIANGLE_STRIP;
 import static javax.media.opengl.GL.GL_TRUE;
 import javax.media.opengl.GL2;
 import static javax.media.opengl.GL2ES1.GL_DECAL;
+import static javax.media.opengl.GL2ES1.GL_MODULATE;
 import static javax.media.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
 import static javax.media.opengl.GL2ES1.GL_TEXTURE_ENV;
 import static javax.media.opengl.GL2ES1.GL_TEXTURE_ENV_MODE;
@@ -496,8 +504,7 @@ public class RobotRace extends Base {
                 gl.glTexCoord2d(0, 1);
                 gl.glVertex3d(temp.x() + scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
             gl.glEnd(); 
-            gl.glDisable(GL_TEXTURE_2D);
-            
+            gl.glDisable(GL_TEXTURE_2D);    
         }
         
         private void drawShoulder(boolean showStick){
@@ -790,7 +797,7 @@ public class RobotRace extends Base {
             if (0 == trackNr) {
                 float radius = (float) 8.5; //track radius
                 float curves = (int) radius*100; //The number of curves used
-                float v = 1; //height               
+                float v = 1; //height    
                 
                 // Track bottom
                 gl.glBegin(GL_TRIANGLE_STRIP);
@@ -967,16 +974,33 @@ public class RobotRace extends Base {
          * Draws a 2d square in z=0, as a ground area of with
          * sides of length 2*groundScale.
          */
-        private void drawGround(float groundScale){           
+        private void drawGround(float groundScale){
+            // Texture for the ground
+            gl.glEnable(GL_TEXTURE_2D);
+            gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+            gl.glBindTexture(GL_TEXTURE_2D, brick.getTextureObject());
+            brick.bind(gl);
+            gl.glBegin(GL_QUADS);
+                gl.glTexCoord2d(0, 0);
+                gl.glVertex3d(-50, -50, 0);
+                gl.glTexCoord2d(1, 0);
+                gl.glVertex3d(50, -50, 0 );
+                gl.glTexCoord2d(1, 1);
+                gl.glVertex3d(50, 50, 0);
+                gl.glTexCoord2d(0, 1);
+                gl.glVertex3d(-50, 50, 0);
+            gl.glEnd(); 
+            gl.glDisable(GL_TEXTURE_2D);    
+            
             // Draws the ground
             gl.glBegin(GL_QUADS);
-            gl.glColor3f(0.1f, 0.8f, 0f);
+            gl.glColor3f(0.1f, 0.8f, 0f); //not shown if texture is enabled
             gl.glVertex2f(-groundScale, -groundScale);
             gl.glVertex2f(groundScale, -groundScale);
             gl.glVertex2f(groundScale, groundScale);
             gl.glVertex2f(-groundScale, groundScale);
-            gl.glEnd();
-            gl.glFlush();                
+            gl.glEnd();         
+            gl.glFlush();      
         }
         
         /**
