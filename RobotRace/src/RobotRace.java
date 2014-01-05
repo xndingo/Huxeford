@@ -815,7 +815,7 @@ public class RobotRace extends Base {
                 // Track outer sides
                 gl.glBegin(GL_TRIANGLE_STRIP);
                 gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
-                for (int i=0; i < curves+120; i++)
+                for (int i=0; i < curves; i++)
                 {
                    gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
                    gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
@@ -828,8 +828,8 @@ public class RobotRace extends Base {
                 gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
                 for (int i=0; i < curves; i++)
                 {
-                   gl.glVertex3f((float) ((radius-3.5) * cos(i)), (float) ((radius-3.5) * sin(i)), (float) 0.0);
-                   gl.glVertex3f((float) ((radius-3.5) * cos(i)), (float) ((radius-3.5) * sin(i)), (float) v);
+                   gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) 0.0);
+                   gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) v);
                 }
                 gl.glEnd();
                 gl.glFlush();                
@@ -863,7 +863,7 @@ public class RobotRace extends Base {
                 // Track outer sides
                 gl.glBegin(GL_TRIANGLE_STRIP);
                 gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
-                for (int i=0; i < curves+120; i++)
+                for (int i=0; i < curves; i++)
                 {
                    gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
                    gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
@@ -876,8 +876,8 @@ public class RobotRace extends Base {
                 gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
                 for (int i=0; i < curves; i++)
                 {
-                   gl.glVertex3f((float) ((radius-3.5) * cos(i)), (float) ((radius-3.5) * sin(i)), (float) 0.0);
-                   gl.glVertex3f((float) ((radius-3.5) * cos(i)), (float) ((radius-3.5) * sin(i)), (float) v);
+                   gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) 0.0);
+                   gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) v);
                 }
                 gl.glEnd();
                 gl.glFlush();
@@ -949,9 +949,10 @@ public class RobotRace extends Base {
          * Draws the terrain.
          */
         public void draw() {
-            drawTree(new Vector(-1,0,1), 1, 1, 1);
-            drawTree(new Vector(8,-9,1), 1.5, 1.5, 1.5);
-            drawTree(new Vector(-10,0,1), 2, 2, 2);
+            drawGround(50);
+            drawTree(new Vector(-1,0,0), 1, 1, 2);
+            drawTree(new Vector(8,-9,0), 1.5, 1, 1.5);
+            drawTree(new Vector(-10,0,0), 2, 2, 3);
             drawClock();
         }
         
@@ -962,6 +963,26 @@ public class RobotRace extends Base {
             return 0; // <- code goes here
         }
         
+        /**
+         * Draws a 2d square in z=0, as a ground area of with
+         * sides of length 2*groundScale.
+         */
+        private void drawGround(float groundScale){           
+            // Draws the ground
+            gl.glBegin(GL_QUADS);
+            gl.glColor3f(0.1f, 0.8f, 0f);
+            gl.glVertex2f(-groundScale, -groundScale);
+            gl.glVertex2f(groundScale, -groundScale);
+            gl.glVertex2f(groundScale, groundScale);
+            gl.glVertex2f(-groundScale, groundScale);
+            gl.glEnd();
+            gl.glFlush();                
+        }
+        
+        /**
+         * Draws a tree at a certain position with different
+         * scales of cylinders as specified when called.
+         */
         private void drawTree(Vector basePosition, double cilinderScale, double firstConeScale, double secondConeScale){
             double cylinderRadius = 0.3;
             double cylinderHeight = 3;
