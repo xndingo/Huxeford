@@ -53,6 +53,7 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import javax.swing.Timer;
 
 /**
@@ -122,6 +123,8 @@ public class RobotRace extends Base {
     /** Instance of the terrain. */
     private final Terrain terrain;
     
+    private final Clock clock;
+    
     /**
      * Constructs this robot race by initializing robots,
      * camera, track, and terrain.
@@ -155,6 +158,8 @@ public class RobotRace extends Base {
         
         // Initialize the terrain
         terrain = new Terrain();
+        
+        clock = new Clock();
     }
     
     /**
@@ -266,6 +271,8 @@ public class RobotRace extends Base {
         
         // Draw terrain
         terrain.draw();
+        
+        clock.draw();
     }
        
     /**
@@ -944,7 +951,6 @@ public class RobotRace extends Base {
      */
     private class Terrain {
         
-        Integer[] numbersList = new Integer[10];
         /**
          * Can be used to set up a display list.
          */
@@ -960,7 +966,6 @@ public class RobotRace extends Base {
             drawTree(new Vector(-1,0,0), 1, 1, 2);
             drawTree(new Vector(8,-9,0), 1.5, 1, 1.5);
             drawTree(new Vector(-10,0,0), 2, 2, 3);
-            drawClock();
         }
         
         /**
@@ -1040,70 +1045,261 @@ public class RobotRace extends Base {
             gl.glPopMatrix();
         }
         
-        private void drawClock(){
+        
+    }
+    
+    public class Clock {
+        
+        int[] numbersList = new int[10];
+        Calendar calendar;
+        int lineSize = 2;
+        
+        public Clock () {
+            
+        }
+        
+        public void draw (){
             gl.glMatrixMode(GL_PROJECTION);
             gl.glPushMatrix();
                 gl.glLoadIdentity();
-                gl.glOrtho(0, 100, 0, 100, -1, 1);
+                gl.glOrtho(0, 500, 0, 500, -1, 1);
                 gl.glMatrixMode(GL_MODELVIEW);
                 gl.glPushMatrix();
                     gl.glLoadIdentity();
-                    drawHours();
-                    drawMinutes();
-                    drawSeconds();
+                    drawClock();
                 gl.glPopMatrix();
             gl.glMatrixMode(GL_PROJECTION);
             gl.glPopMatrix();
+        }
+        
+        private void drawClock() {
+            calendar = Calendar.getInstance();
+            Integer hour = calendar.get(Calendar.HOUR_OF_DAY);
+            Integer minute = calendar.get(Calendar.MINUTE);
+            Integer second = calendar.get(Calendar.SECOND);
             
+            drawTime(hour, true);
+            drawTime(minute, true);
+            drawTime(second, false);
         }
         
-        private void drawHours() {
-            
-        }
-        
-        private void drawMinutes() {
-            
-        }
-        
-        private void drawSeconds() {
-            drawTime();
-        }
-        
-        private void drawTime() {
-            gl.glLineWidth(5);
-            gl.glBegin(GL_LINES);
-                gl.glVertex2d(0, 1);
-                gl.glVertex2d(0, 6);
-
-                gl.glVertex2d(0, 8);
-                gl.glVertex2d(0, 12);
-
-                gl.glVertex2d(1, 13);
-                gl.glVertex2d(6, 13);
-
-                gl.glVertex2d(7, 12);
-                gl.glVertex2d(7, 8);
-
-                gl.glVertex2d(7, 6);
-                gl.glVertex2d(7, 1);
-
-                gl.glVertex2d(1, 0);
-                gl.glVertex2d(6, 0);
-
+        private void drawSeparatingPoints(){
+            gl.glTranslated(1, 0, 0);
+            gl.glPointSize(lineSize);
+            gl.glBegin(GL_POINTS);
+                gl.glVertex2d(0, 4);
+                gl.glVertex2d(0, 10);
             gl.glEnd();
+            gl.glTranslated(1, 0, 0);
+
         }
         
-        private void buildDigitalNumbers(){
-            for (int i = 0; i <= 9; i++){
-                numbersList[i] = gl.glGenLists(i);
+        private void drawTime(Integer time, boolean includePoints) {
+            // Draw minute
+            int time1 = -1;
+            int time2 = -1;
+            String min = time.toString();
+            if (min.length() == 1){
+                time1 = 0;
+                time2 = Integer.parseInt(min);
             }
-            gl.glListBase(10);
-            gl.glNewList(numbersList[0], GL_COMPILE);
-                
-            gl.glEndList();
+            else {
+                time1 = Integer.parseInt(min.substring(0, 1));
+                time2 = Integer.parseInt(min.substring(1));
+            }
+            buildDigitalNumber(time1);
+            buildDigitalNumber(time2);
+            if (includePoints) {
+                drawSeparatingPoints();
+            }
         }
+        
+        private void buildDigitalNumber(int number){
+            gl.glColor3f(1, 1, 1);
+            int numberOffset = 10;
+            gl.glLineWidth(lineSize);
+            if (number == 0) {
+                gl.glBegin(GL_LINES);
+                    gl.glVertex2d(0, 1);
+                    gl.glVertex2d(0, 6);
+
+                    gl.glVertex2d(0, 8);
+                    gl.glVertex2d(0, 12);
+
+                    gl.glVertex2d(1, 13);
+                    gl.glVertex2d(6, 13);
+
+                    gl.glVertex2d(7, 12);
+                    gl.glVertex2d(7, 8);
+
+                    gl.glVertex2d(7, 6);
+                    gl.glVertex2d(7, 1);
+
+                    gl.glVertex2d(1, 0);
+                    gl.glVertex2d(6, 0);
+                gl.glEnd();
+            }
+            else if (number == 1) {
+                gl.glBegin(GL_LINES);
+                    gl.glVertex2d(7, 12);
+                    gl.glVertex2d(7, 8);
+
+                    gl.glVertex2d(7, 6);
+                    gl.glVertex2d(7, 1);
+                gl.glEnd();
+            }
+            else if (number == 2) {
+                gl.glBegin(GL_LINES);
+                    gl.glVertex2d(0, 1);
+                    gl.glVertex2d(0, 6);
+
+                    gl.glVertex2d(1, 13);
+                    gl.glVertex2d(6, 13);
+
+                    gl.glVertex2d(7, 12);
+                    gl.glVertex2d(7, 8);
+                    
+                    gl.glVertex2d(1, 7);
+                    gl.glVertex2d(6, 7);
+                    
+                    gl.glVertex2d(1, 0);
+                    gl.glVertex2d(6, 0);
+                gl.glEnd();
+            }
+            else if (number == 3) {
+                gl.glBegin(GL_LINES);
+                    gl.glVertex2d(1, 7);
+                    gl.glVertex2d(6, 7);
+
+                    gl.glVertex2d(1, 13);
+                    gl.glVertex2d(6, 13);
+
+                    gl.glVertex2d(7, 12);
+                    gl.glVertex2d(7, 8);
+
+                    gl.glVertex2d(7, 6);
+                    gl.glVertex2d(7, 1);
+
+                    gl.glVertex2d(1, 0);
+                    gl.glVertex2d(6, 0);
+                gl.glEnd();
+            }
+            else if (number == 4) {
+                gl.glBegin(GL_LINES);
+                    gl.glVertex2d(0, 8);
+                    gl.glVertex2d(0, 12);
+
+                    gl.glVertex2d(1, 7);
+                    gl.glVertex2d(6, 7);
+
+                    gl.glVertex2d(7, 12);
+                    gl.glVertex2d(7, 8);
+
+                    gl.glVertex2d(7, 6);
+                    gl.glVertex2d(7, 1);
+                gl.glEnd();
+            }
+            else if (number == 5) {
+                gl.glBegin(GL_LINES);
+                    gl.glVertex2d(0, 8);
+                    gl.glVertex2d(0, 12);
+
+                    gl.glVertex2d(1, 13);
+                    gl.glVertex2d(6, 13);
+
+                    gl.glVertex2d(1, 7);
+                    gl.glVertex2d(6, 7);
+
+                    gl.glVertex2d(7, 6);
+                    gl.glVertex2d(7, 1);
+
+                    gl.glVertex2d(1, 0);
+                    gl.glVertex2d(6, 0);
+                gl.glEnd();
+            }
+            else if (number == 6) {
+                gl.glBegin(GL_LINES);
+                    gl.glVertex2d(0, 1);
+                    gl.glVertex2d(0, 6);
+
+                    gl.glVertex2d(0, 8);
+                    gl.glVertex2d(0, 12);
+
+                    gl.glVertex2d(1, 13);
+                    gl.glVertex2d(6, 13);
+
+                    gl.glVertex2d(1, 7);
+                    gl.glVertex2d(6, 7);
+
+                    gl.glVertex2d(7, 6);
+                    gl.glVertex2d(7, 1);
+
+                    gl.glVertex2d(1, 0);
+                    gl.glVertex2d(6, 0);
+                gl.glEnd();
+            }
+            else if (number == 7) {
+                gl.glBegin(GL_LINES);
+                    gl.glVertex2d(1, 13);
+                    gl.glVertex2d(6, 13);
+
+                    gl.glVertex2d(7, 12);
+                    gl.glVertex2d(7, 8);
+
+                    gl.glVertex2d(7, 6);
+                    gl.glVertex2d(7, 1);
+                gl.glEnd();
+            }
+            else if (number == 8) {
+                gl.glBegin(GL_LINES);
+                    gl.glVertex2d(0, 1);
+                    gl.glVertex2d(0, 6);
+
+                    gl.glVertex2d(0, 8);
+                    gl.glVertex2d(0, 12);
+
+                    gl.glVertex2d(1, 13);
+                    gl.glVertex2d(6, 13);
+                    
+                    gl.glVertex2d(1, 7);
+                    gl.glVertex2d(6, 7);
+
+                    gl.glVertex2d(7, 12);
+                    gl.glVertex2d(7, 8);
+
+                    gl.glVertex2d(7, 6);
+                    gl.glVertex2d(7, 1);
+
+                    gl.glVertex2d(1, 0);
+                    gl.glVertex2d(6, 0);
+                gl.glEnd();
+            }
+            else if (number == 9) {
+                gl.glBegin(GL_LINES);
+                    gl.glVertex2d(1, 7);
+                    gl.glVertex2d(6, 7);
+
+                    gl.glVertex2d(0, 8);
+                    gl.glVertex2d(0, 12);
+
+                    gl.glVertex2d(1, 13);
+                    gl.glVertex2d(6, 13);
+
+                    gl.glVertex2d(7, 12);
+                    gl.glVertex2d(7, 8);
+
+                    gl.glVertex2d(7, 6);
+                    gl.glVertex2d(7, 1);
+
+                    gl.glVertex2d(1, 0);
+                    gl.glVertex2d(6, 0);
+                gl.glEnd();
+            }
+            gl.glTranslated(numberOffset, 0, 0);
+        }
+        
+        
     }
-    
     /**
      * Main program execution body, delegates to an instance of
      * the RobotRace implementation.
