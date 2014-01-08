@@ -934,14 +934,22 @@ public class RobotRace extends Base {
          * Returns the position of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getPoint(double t) {
-            return Vector.O; // <- code goes here
+            if(t < 0){
+                return new Vector(0, 0, 0);
+            }
+            else if (t > 1){
+                return new Vector(1, 1, 1);
+            }
+            else {
+                return new Vector(Math.abs(1-t), Math.abs(1-t), 1); // <- code goes here
+            }            
         }
         
         /**
          * Returns the tangent of the curve at 0 <= {@code t} <= 1.
          */
-        public Vector getTangent(double t) {
-            return Vector.O; // <- code goes here
+        public Vector getTangent(double t) {            
+            return new Vector(Math.cos(2*Math.PI*t), Math.sin(2*Math.PI*t), 1); // <- code goes here
         }
         
     }
