@@ -952,6 +952,30 @@ public class RobotRace extends Base {
             return new Vector(Math.cos(2*Math.PI*t), Math.sin(2*Math.PI*t), 1); // <- code goes here
         }
         
+        /**
+         * Evaluates a cubic Bezier segment for parameter value t.
+         */
+        public double getCubicBezierPnt(double t, Vector P0, Vector P1, Vector P2, Vector P3){         
+            double s;
+            s = 1.0 - t;
+            double b0 = s*s*s;
+            double b1 = 3.0*t*s*s;
+            double b2 = 3.0*t*t*s;
+            double b3 = t*t*t;
+            double A,B,C,D;
+            A = P0.x()*b0 + P0.y()*b0 + P0.z()*b0;
+            B = P1.x()*b1 + P1.y()*b1 + P1.z()*b1;
+            C = P2.x()*b2 + P2.y()*b2 + P2.z()*b2;
+            D = P3.x()*b3 + P3.y()*b3 + P3.z()*b3;
+            return A+B+C+D;
+        }
+        
+        /**
+         * Evaluates the tangent of a cubic Bezier segment for parameter value t.
+         */
+        public double getCubicBezierTng(double t, Vector P0, Vector P1, Vector P2, Vector P3){
+            return 0; //code here            
+        }
     }
     
     /**
