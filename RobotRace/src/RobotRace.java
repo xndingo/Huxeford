@@ -16,8 +16,10 @@ import robotrace.Base;
 import robotrace.Vector;
 import static java.lang.Math.*;
 import static java.lang.System.out;
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.util.Calendar;
+import static javax.media.opengl.GL.GL_BLEND;
 import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static javax.media.opengl.GL.GL_DEPTH_TEST;
@@ -44,6 +46,7 @@ import static javax.media.opengl.GL2ES1.GL_TEXTURE_ENV_MODE;
 import static javax.media.opengl.GL2GL3.GL_QUADS;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
+import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_COLOR_MATERIAL;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_FLAT;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_LIGHT1;
@@ -421,6 +424,8 @@ public class RobotRace extends Base {
         private Vector rightLegJoint = new Vector(-0.1, 0, 1);       
         
         private Vector basePosition;
+        private float limbStartAngle = 45f;
+        private boolean showStick = gs.showStick;
         /**
          * The coordinates where the robot is initially placed at, specified 
          * at the constructor of RobotRace.
@@ -444,9 +449,6 @@ public class RobotRace extends Base {
             /**Here each part is drawn taking the basePosition as the main
              * position of the robot and translating regarding to it.
              */
-            float limbStartAngle = 45f;
-            
-            boolean showStick = gs.showStick;
             drawHead(showStick);
             drawShoulder(showStick);
             drawArm(leftArmPosition, leftShoulderJoint, limbStartAngle, showStick);
@@ -962,7 +964,8 @@ public class RobotRace extends Base {
          * Draws the terrain.
          */
         public void draw() {
-            drawGround(50);
+            //drawGround(50);
+            drawTerrain();
             drawTree(new Vector(-1,0,0), 1, 1, 2);
             drawTree(new Vector(8,-9,0), 1.5, 1, 1.5);
             drawTree(new Vector(-10,0,0), 2, 2, 3);
@@ -972,7 +975,52 @@ public class RobotRace extends Base {
          * Computes the elevation of the terrain at ({@code x}, {@code y}).
          */
         public float heightAt(float x, float y) {
-            return 0; // <- code goes here
+            return (float) (0.6f * cos(0.3 * x + 0.2 * y) + 0.4f * cos(x - 0.5 * y));
+        }
+        
+        public void drawTerrain(){
+            // Draw the water grey polygon
+            gl.glColor4d(0.6, 0.6, 0.6, 0.3);
+            gl.glBegin(GL_QUADS);
+                gl.glNormal3i(0, 0, 1);
+                gl.glVertex3d(-20, -20, 0);
+                gl.glVertex3d(20, -20, 0);
+                gl.glVertex3d(20, 20, 0);
+                gl.glVertex3d(-20, 20, 0);
+            gl.glEnd();
+            
+            // Draw the terrain
+            gl.glBegin(GL_TRIANGLES);
+            float step = 0.5f;
+            for (float j = -20; j <= 20; j=j+step){
+                for (float i = -20; i <= 20; i=i+step){
+                    Vector p1 = new Vector(i, j, heightAt(i,j));
+                    Vector p2 = new Vector(i+step, j, heightAt(i+step,j));
+                    Vector p3 = new Vector(i+step, j+step, heightAt(i+step,j+step));
+                    Vector diff1 = p1.subtract(p2);
+                    Vector diff2 = p2.subtract(p3);
+                    Vector norm = diff1.cross(diff2);
+                    Vector unitNorm = norm.normalized();
+                    gl.glNormal3d(unitNorm.x(), unitNorm.y(), unitNorm.z());
+                    gl.glVertex3d(p1.x(), p1.y(), p1.z());
+                    gl.glVertex3d(p2.x(), p2.y(), p2.z());
+                    gl.glVertex3d(p3.x(), p3.y(), p3.z());
+                    
+                    p1 = new Vector(i, j, heightAt(i,j));
+                    p2 = new Vector(i+step, j+step, heightAt(i+step,j+step));
+                    p3 = new Vector(i, j+step, heightAt(i,j+step));
+                    diff1 = p1.subtract(p2);
+                    diff2 = p2.subtract(p3);
+                    norm = diff1.cross(diff2);
+                    unitNorm = norm.normalized();
+                    gl.glNormal3d(unitNorm.x(), unitNorm.y(), unitNorm.z());
+                    gl.glVertex3d(p1.x(), p1.y(), p1.z());
+                    gl.glVertex3d(p2.x(), p2.y(), p2.z());
+                    gl.glVertex3d(p3.x(), p3.y(), p3.z());
+                }
+            }
+            gl.glEnd();
+            
         }
         
         /**
@@ -1052,7 +1100,7 @@ public class RobotRace extends Base {
         
         int[] numbersList = new int[10];
         Calendar calendar;
-        int lineSize = 2;
+        int lineSize = 3;
         
         public Clock () {
             
@@ -1062,10 +1110,11 @@ public class RobotRace extends Base {
             gl.glMatrixMode(GL_PROJECTION);
             gl.glPushMatrix();
                 gl.glLoadIdentity();
-                gl.glOrtho(0, 500, 0, 500, -1, 1);
+                gl.glOrtho(0, 300, 0, 300, 0, 1);
                 gl.glMatrixMode(GL_MODELVIEW);
                 gl.glPushMatrix();
                     gl.glLoadIdentity();
+                    gl.glTranslated(1, 1, 0);
                     drawClock();
                 gl.glPopMatrix();
             gl.glMatrixMode(GL_PROJECTION);
@@ -1084,13 +1133,13 @@ public class RobotRace extends Base {
         }
         
         private void drawSeparatingPoints(){
-            gl.glTranslated(1, 0, 0);
+            gl.glTranslated(-1, 0, 0);
             gl.glPointSize(lineSize);
             gl.glBegin(GL_POINTS);
                 gl.glVertex2d(0, 4);
                 gl.glVertex2d(0, 10);
             gl.glEnd();
-            gl.glTranslated(1, 0, 0);
+            gl.glTranslated(2, 0, 0);
 
         }
         
@@ -1115,7 +1164,7 @@ public class RobotRace extends Base {
         }
         
         private void buildDigitalNumber(int number){
-            gl.glColor3f(1, 1, 1);
+            gl.glColor3f(0.4f, 0.4f, 0.6f);
             int numberOffset = 10;
             gl.glLineWidth(lineSize);
             if (number == 0) {
