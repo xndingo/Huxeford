@@ -7,6 +7,7 @@
 
 import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.InputStream;
@@ -17,6 +18,8 @@ import robotrace.Vector;
 import static java.lang.Math.*;
 import static java.lang.System.out;
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.Calendar;
 import static javax.media.opengl.GL.GL_BLEND;
@@ -35,6 +38,7 @@ import static javax.media.opengl.GL.GL_REPEAT;
 import static javax.media.opengl.GL.GL_TEXTURE_2D;
 import static javax.media.opengl.GL.GL_TEXTURE_MIN_FILTER;
 import static javax.media.opengl.GL.GL_TEXTURE_WRAP_S;
+import static javax.media.opengl.GL.GL_TRIANGLES;
 import static javax.media.opengl.GL.GL_TRIANGLE_STRIP;
 import static javax.media.opengl.GL.GL_TRUE;
 import javax.media.opengl.GL2;
@@ -1011,18 +1015,28 @@ public class RobotRace extends Base {
         }
         
         public void drawTerrain(){
-            // Draw the water grey polygon
-            gl.glColor4d(0.6, 0.6, 0.6, 0.3);
-            gl.glBegin(GL_QUADS);
-                gl.glNormal3i(0, 0, 1);
+            // Draw the water (transparent and grey)
+            
+            gl.glColor4d(0.5, 0.5, 0.5, 0.3);
+            gl.glBegin(GL_TRIANGLES);
+                gl.glNormal3d(0, 0, 1);
                 gl.glVertex3d(-20, -20, 0);
                 gl.glVertex3d(20, -20, 0);
+                gl.glVertex3d(20, 20, 0);
+                
+                gl.glNormal3d(0, 0, 1);
+                gl.glVertex3d(-20, -20, 0);
                 gl.glVertex3d(20, 20, 0);
                 gl.glVertex3d(-20, 20, 0);
             gl.glEnd();
             
-            // Draw the terrain
+            // Draw the terrain with 1D texture coloring. NOT WORKING!
+            
+            // Call the configuration function
+            int a = create1DTexture(gl, new Color[] {new Color(1,0,0),new Color(0,1,0),new Color(0,0,1)});
             gl.glBegin(GL_TRIANGLES);
+            gl.glColor4d(0.8, 0.4, 0, 0.8);
+            gl.glMaterialfv(GL_FRONT, GL_SPECULAR, new float[]{0,0,0}, 0);
             float step = 0.5f;
             for (float j = -20; j <= 20; j=j+step){
                 for (float i = -20; i <= 20; i=i+step){
@@ -1034,8 +1048,11 @@ public class RobotRace extends Base {
                     Vector norm = diff1.cross(diff2);
                     Vector unitNorm = norm.normalized();
                     gl.glNormal3d(unitNorm.x(), unitNorm.y(), unitNorm.z());
+                    gl.glTexCoord1i(a);
                     gl.glVertex3d(p1.x(), p1.y(), p1.z());
+                    gl.glTexCoord1d(p2.z());
                     gl.glVertex3d(p2.x(), p2.y(), p2.z());
+                    gl.glTexCoord1d(p3.z());
                     gl.glVertex3d(p3.x(), p3.y(), p3.z());
                     
                     p1 = new Vector(i, j, heightAt(i,j));
@@ -1046,13 +1063,17 @@ public class RobotRace extends Base {
                     norm = diff1.cross(diff2);
                     unitNorm = norm.normalized();
                     gl.glNormal3d(unitNorm.x(), unitNorm.y(), unitNorm.z());
+                    gl.glTexCoord1d(p1.z());
                     gl.glVertex3d(p1.x(), p1.y(), p1.z());
+                    gl.glTexCoord1d(p2.z());
                     gl.glVertex3d(p2.x(), p2.y(), p2.z());
+                    gl.glTexCoord1d(p3.z());
                     gl.glVertex3d(p3.x(), p3.y(), p3.z());
+                
                 }
             }
             gl.glEnd();
-            
+            gl.glDisable(GL_TEXTURE_1D);
         }
         
         /**
@@ -1429,5 +1450,33 @@ public class RobotRace extends Base {
         
         // Ajust the normals so that it is not necessary to define each one.
         gl.glEnable(GL_NORMALIZE);
+    }
+    
+    /**
+    * Creates a new 1D - texture.
+    * @param gl
+    * @param colors
+    * @return the texture ID for the generated texture.
+    */
+    public int create1DTexture(GL2 gl, Color[] colors){
+        gl.glDisable(GL_TEXTURE_2D);
+        gl.glEnable(GL_TEXTURE_1D);
+        int[] texid = new int[]{-1};
+        gl.glGenTextures(1, texid, 0);
+        ByteBuffer bb = ByteBuffer.allocateDirect(colors.length * 4).order(ByteOrder.nativeOrder());
+        for (Color color : colors) {
+           int pixel = color.getRGB();
+           bb.put((byte) ((pixel >> 16) & 0xFF)); // Red component
+           bb.put((byte) ((pixel >> 8) & 0xFF));  // Green component
+           bb.put((byte) (pixel & 0xFF));         // Blue component
+           bb.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component
+        }
+        bb.flip();
+        gl.glBindTexture(GL_TEXTURE_1D, texid[0]);
+        gl.glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA8, colors.length, 0, GL_RGBA, GL_UNSIGNED_BYTE, bb);
+        gl.glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        gl.glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        gl.glBindTexture(GL_TEXTURE_1D, 0);
+        return texid[0];
     }
 }
