@@ -22,6 +22,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import static javax.media.opengl.GL.GL_BLEND;
 import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
@@ -61,7 +64,6 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SHININESS;
 import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
-import javax.swing.Timer;
 
 /**
  * Handles all of the RobotRace graphics functionality,
@@ -639,6 +641,9 @@ public class RobotRace extends Base {
         private int robotToFocus = 0;
         private int changeRobotToFocus = 0;
         private int iterationsToChangeCamera = 100;
+        
+        private int changeAutoModeInterval = 100;
+        private int changeAutoModeCounter = 0;
         /**
          * Updates the camera viewpoint and direction based on the
          * selected camera mode.
@@ -659,12 +664,31 @@ public class RobotRace extends Base {
                 setFirstPersonMode();
                 
             // Auto mode
-            } else if (4 == mode) { 
-                // code goes here...
-                
+            } else if (4 == mode) {
+                if (changeAutoModeCounter == changeAutoModeInterval){
+                    chooseRandomCameraMode();
+                    changeAutoModeCounter = 0;
+                }
+                else{
+                    changeAutoModeCounter++;
+                }
+                updateFocusedRobot();
             // Default mode
             } else {
                 setDefaultMode();
+            }
+        }
+        
+        private void chooseRandomCameraMode(){
+            long temp = Math.round(3*Math.random());
+            if (temp >= 0 && temp < 1){
+                setHelicopterMode();
+            }
+            else if (temp >= 1 && temp < 2){
+                setMotorCycleMode();
+            }
+            else if (temp >= 2 && temp < 3){
+                setFirstPersonMode();
             }
         }
         
