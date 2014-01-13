@@ -996,14 +996,14 @@ public class RobotRace extends Base {
          * Returns the position of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getPoint(double t) {
-            return new Vector(10 * Math.cos(Math.PI * 2 * t), 14 * Math.sin(Math.PI * 2 * t), 1);                
+            return new Vector(8.5 * Math.cos(Math.PI * 2 * t), 8.5 * Math.sin(Math.PI * 2 * t), 1);                
         }
         
         /**
          * Returns the tangent of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getTangent(double t) {            
-            return new Vector(-20 * Math.PI * Math.sin(2 * Math.PI * t), 28 * Math.PI * Math.cos(2 * Math.PI * t), 1);
+            return new Vector(-8.5 * Math.PI * Math.cos(2 * Math.PI * t), 8.5 * Math.PI * Math.sin(2 * Math.PI * t), 1);
         }
         
         /**
