@@ -17,12 +17,17 @@ import robotrace.Base;
 import robotrace.Vector;
 import static java.lang.Math.*;
 import static java.lang.System.out;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import static javax.media.opengl.GL.GL_BLEND;
@@ -964,50 +969,71 @@ public class RobotRace extends Base {
          * Returns the position of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getPoint(double t) {
-            if(t < 0){
-                return new Vector(0, 0, 0);
-            }
-            else if (t > 1){
-                return new Vector(1, 1, 1);
-            }
-            else {
-                return new Vector(Math.abs(1-t), Math.abs(1-t), 1); // <- code goes here
-            }            
+            return new Vector(10 * Math.cos(Math.PI * 2 * t), 14 * Math.sin(Math.PI * 2 * t), 1);                
         }
         
         /**
          * Returns the tangent of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getTangent(double t) {            
-            return new Vector(Math.cos(2*Math.PI*t), Math.sin(2*Math.PI*t), 1); // <- code goes here
+            return new Vector(-20 * Math.PI * Math.sin(2 * Math.PI * t), 28 * Math.PI * Math.cos(2 * Math.PI * t), 1);
         }
         
         /**
          * Evaluates a cubic Bezier segment for parameter value t.
          */
-        public double getCubicBezierPnt(double t, Vector P0, Vector P1, Vector P2, Vector P3){         
-            double s;
-            s = 1.0 - t;
-            double b0 = s*s*s;
-            double b1 = 3.0*t*s*s;
-            double b2 = 3.0*t*t*s;
-            double b3 = t*t*t;
-            double A,B,C,D;
-            A = P0.x()*b0 + P0.y()*b0 + P0.z()*b0;
-            B = P1.x()*b1 + P1.y()*b1 + P1.z()*b1;
-            C = P2.x()*b2 + P2.y()*b2 + P2.z()*b2;
-            D = P3.x()*b3 + P3.y()*b3 + P3.z()*b3;
-            return A+B+C+D;
+        public Vector getCubicBezierPnt(double t, Vector P0, Vector P1, Vector P2, Vector P3){         
+            Vector[] p = new Vector[]{P0, P1, P2, P3};
+            Vector result = Vector.O;
+            
+            if (t == 1) {
+                t = 0.99;
+            }
+            for (int i = 0; i < p.length; i++) {
+                p[i] = p[i].scale((double) (combinations(p.length, i)) * Math.pow((1 - t), p.length - i) * Math.pow(t, i));
+                result = result.add(p[i]);
+            }
+            return result;
         }
         
         /**
          * Evaluates the tangent of a cubic Bezier segment for parameter value t.
          */
-        public double getCubicBezierTng(double t, Vector P0, Vector P1, Vector P2, Vector P3){
-            return 0; //code here            
+        public Vector getCubicBezierTng(double t, Vector P0, Vector P1, Vector P2, Vector P3){
+            Vector[] p = new Vector[]{P0, P1, P2, P3};
+            Vector result = Vector.O;
+            
+            if (t == 1) {
+                t = 0.99;
+            }
+            for (int i = 0; i < p.length - 1; i++) {
+                double B = ((double) (combinations(p.length - 1, i)) * Math.pow((1 - t), p.length - 1 - i) * Math.pow(t, i));
+                Vector Qi = p[i + 1].subtract(p[i]).scale(p.length);
+                result = result.add(Qi.scale(B));
+            }
+            return result;       
+        }
+        
+        /*
+         * Returns a long representation of the Binomial Coefficient, 
+         * "n choose k", the number of k-element subsets that can be selected 
+         * from an n-element set.
+         * @pre: 0 <= k <= n
+         * @params: n - the size of the set, k - the size of the subsets to be counted
+         * @returns: n choose k
+         */
+        private long combinations(int n, int k) {
+		long coeff = 1;
+		for (int i = n - k + 1; i <= n; i++) {
+			coeff *= i;
+		}
+		for (int i = 1; i <= k; i++) {
+			coeff /= i;
+		}
+		return coeff;
         }
     }
-    
+       
     /**
      * Implementation of the terrain.
      */
