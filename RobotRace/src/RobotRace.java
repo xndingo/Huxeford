@@ -483,7 +483,7 @@ public class RobotRace extends Base {
         private void updateRobotRaceTrackPosition(){
             Vector trackPosition = raceTrack.getPoint(t);
             basePosition = trackPosition.add(initialPosition);
-            //updateRobotOrientation();
+            updateRobotOrientation();
             if (t < 1){
                 t += tStep;
             }
@@ -495,9 +495,9 @@ public class RobotRace extends Base {
         private void updateRobotOrientation(){
             Vector tan = raceTrack.getTangent(t).normalized();
             double angle = basePosition.normalized().dot(tan);
-            double angleDegrees = 180*angle/PI;
-            gl.glRotated(angleDegrees, 0, 1, 0);
-            System.out.println(angleDegrees);
+            double angleDegrees = PI*angle/180;
+            gl.glRotated(angle, 0, 0, 1);
+            //System.out.println(angleDegrees);
         }
         
         public void setMaterialColor(){
@@ -881,10 +881,17 @@ public class RobotRace extends Base {
                 gl.glColor4f(0.0f, 0.0f, 1.0f, 1.0f);                
                 for (int i=0; i < curves; i++)
                 {
-                   gl.glTexCoord2d(radius * cos(i), radius * sin(i));
-                   gl.glTexCoord2d(radius * cos(i), (radius * sin(i))+1);
-                   gl.glTexCoord2d((radius * cos(i))+1, (radius * sin(i))+1);
-                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
+                    float radian = (float) (360 * (PI/180.0f));
+
+                    float xcos = (float)cos(i);
+                    float ysin = (float)sin(i);
+                    float x = (float) (xcos * 8.5);
+                    float y = (float) (ysin * 8.5);
+                    float tx = (float) (xcos * 0.5 + 0.5);
+                    float ty = (float) (ysin * 0.5 + 0.5);
+
+                    gl.glTexCoord2f(tx, ty);
+                    gl.glVertex3f(x, y, 1);
                 }
                 gl.glEnd();
                 gl.glDisable(GL_TEXTURE_2D);
@@ -1009,7 +1016,7 @@ public class RobotRace extends Base {
          * Returns the position of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getPoint(double t) {
-            return new Vector( 8.5 * cos(2 * PI * t), 8.5 * sin(2 * PI * t), 0);                
+            return new Vector( (float) (4.5 * cos(2 * PI * t)), (float) (4.5 * sin(2 * PI * t)), 0);                
         }
         
         /**
