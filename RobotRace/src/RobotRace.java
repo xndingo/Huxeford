@@ -137,6 +137,7 @@ public class RobotRace extends Base {
     /** Instance of the terrain. */
     private final Terrain terrain;
     
+    /** Instance of the clock. */
     private final Clock clock;
     
     /**
@@ -173,6 +174,7 @@ public class RobotRace extends Base {
         // Initialize the terrain
         terrain = new Terrain();
         
+        // Initialize the clock
         clock = new Clock();
     }
     
@@ -354,6 +356,7 @@ public class RobotRace extends Base {
         gl.glPopMatrix();
     }
     
+    
     /**
      * Materials that can be used for the robots.
      */
@@ -440,7 +443,7 @@ public class RobotRace extends Base {
         private boolean showStick = gs.showStick;
         
         private float t = 0;
-        private float tStep = 0.01f;
+        private float tStep = 0.005f; //how fast the robots move
         /**
          * The coordinates where the robot is initially placed at, specified 
          * at the constructor of RobotRace.
@@ -493,7 +496,7 @@ public class RobotRace extends Base {
             Vector tan = raceTrack.getTangent(t).normalized();
             double angle = basePosition.normalized().dot(tan);
             double angleDegrees = 180*angle/PI;
-            gl.glRotated(angleDegrees, 0, 0, 1);
+            gl.glRotated(angleDegrees, 0, 1, 0);
             System.out.println(angleDegrees);
         }
         
@@ -987,8 +990,7 @@ public class RobotRace extends Base {
                   ctrlpointBuf.position(i * 3);
                 }
                 gl.glEnd();
-                gl.glFlush();
-                
+                gl.glFlush();                
             }
         }
         
@@ -996,14 +998,14 @@ public class RobotRace extends Base {
          * Returns the position of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getPoint(double t) {
-            return new Vector(8.5 * Math.cos(Math.PI * 2 * t), 8.5 * Math.sin(Math.PI * 2 * t), 1);                
+            return new Vector( 8.5 * cos(2 * PI * t), 8.5 * sin(2 * PI * t), 0);                
         }
         
         /**
          * Returns the tangent of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getTangent(double t) {            
-            return new Vector(-8.5 * Math.PI * Math.cos(2 * Math.PI * t), 8.5 * Math.PI * Math.sin(2 * Math.PI * t), 1);
+            return new Vector(-8.5 * Math.PI * Math.cos(2 * Math.PI * t), 8.5 * Math.PI * Math.sin(2 * Math.PI * t), 0);
         }
         
         /**
@@ -1060,6 +1062,7 @@ public class RobotRace extends Base {
 		return coeff;
         }
     }
+    
        
     /**
      * Implementation of the terrain.
@@ -1097,14 +1100,14 @@ public class RobotRace extends Base {
             gl.glColor4d(0.5, 0.5, 0.5, 0.3);
             gl.glBegin(GL_TRIANGLES);
                 gl.glNormal3d(0, 0, 1);
-                gl.glVertex3d(-20, -20, 0);
-                gl.glVertex3d(20, -20, 0);
-                gl.glVertex3d(20, 20, 0);
+                gl.glVertex3d(-30, -30, 0);
+                gl.glVertex3d(30, -30, 0);
+                gl.glVertex3d(30, 30, 0);
                 
                 gl.glNormal3d(0, 0, 1);
-                gl.glVertex3d(-20, -20, 0);
-                gl.glVertex3d(20, 20, 0);
-                gl.glVertex3d(-20, 20, 0);
+                gl.glVertex3d(-30, -30, 0);
+                gl.glVertex3d(30, 30, 0);
+                gl.glVertex3d(-30, 30, 0);
             gl.glEnd();
             
             // Draw the terrain with 1D texture coloring. NOT WORKING!
@@ -1115,8 +1118,8 @@ public class RobotRace extends Base {
             gl.glColor4d(0.8, 0.4, 0, 0.8);
             gl.glMaterialfv(GL_FRONT, GL_SPECULAR, new float[]{0,0,0}, 0);
             float step = 0.5f;
-            for (float j = -20; j <= 20; j=j+step){
-                for (float i = -20; i <= 20; i=i+step){
+            for (float j = -30; j <= 30; j=j+step){
+                for (float i = -30; i <= 30; i=i+step){
                     Vector p1 = new Vector(i, j, heightAt(i,j));
                     Vector p2 = new Vector(i+step, j, heightAt(i+step,j));
                     Vector p3 = new Vector(i+step, j+step, heightAt(i+step,j+step));
@@ -1145,8 +1148,7 @@ public class RobotRace extends Base {
                     gl.glTexCoord1d(p2.z());
                     gl.glVertex3d(p2.x(), p2.y(), p2.z());
                     gl.glTexCoord1d(p3.z());
-                    gl.glVertex3d(p3.x(), p3.y(), p3.z());
-                
+                    gl.glVertex3d(p3.x(), p3.y(), p3.z());                
                 }
             }
             gl.glEnd();
@@ -1165,13 +1167,13 @@ public class RobotRace extends Base {
             brick.bind(gl);
             gl.glBegin(GL_QUADS);
                 gl.glTexCoord2d(0, 0);
-                gl.glVertex3d(-50, -50, 0);
+                gl.glVertex3d(-500, -500, 0);
                 gl.glTexCoord2d(1, 0);
-                gl.glVertex3d(50, -50, 0 );
+                gl.glVertex3d(500, -500, 0 );
                 gl.glTexCoord2d(1, 1);
-                gl.glVertex3d(50, 50, 0);
+                gl.glVertex3d(500, 500, 0);
                 gl.glTexCoord2d(0, 1);
-                gl.glVertex3d(-50, 50, 0);
+                gl.glVertex3d(-500, 500, 0);
             gl.glEnd(); 
             gl.glDisable(GL_TEXTURE_2D);    
             
