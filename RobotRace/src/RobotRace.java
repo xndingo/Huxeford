@@ -144,19 +144,19 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0        
-        robots[0] = new Robot(Material.GOLD, new Vector(5,0,1)
+        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,1)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, new Vector(6,0,1)
+        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,1)
             /* add other parameters that characterize this robot */);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, new Vector(7,0,1)
+        robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,1)
             /* add other parameters that characterize this robot */);
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE, new Vector(8,0,1)
+        robots[3] = new Robot(Material.ORANGE, new Vector(1.5,0,1)
             /* add other parameters that characterize this robot */);
         
         // Initialize the camera
@@ -430,8 +430,12 @@ public class RobotRace extends Base {
         private Vector rightLegJoint = new Vector(-0.1, 0, 1);       
         
         private Vector basePosition;
+        private Vector initialPosition;
         private float limbStartAngle = 45f;
         private boolean showStick = gs.showStick;
+        
+        private float t = 0;
+        private float tStep = 0.01f;
         /**
          * The coordinates where the robot is initially placed at, specified 
          * at the constructor of RobotRace.
@@ -440,10 +444,10 @@ public class RobotRace extends Base {
         /**
          * Constructs the robot with initial parameters.
          */
-        public Robot(Material material, Vector basePosition) {
+        public Robot(Material material, Vector initialPosition) {
             this.material = material; /** Sets the material of the robot to the 
             given material. */
-            this.basePosition = basePosition; /** Sets the position where the 
+            this.initialPosition = initialPosition; /** Sets the position where the 
             robot is placed at the given basePosition. */
             
         }
@@ -452,6 +456,8 @@ public class RobotRace extends Base {
          * Draws this robot (as a {@code stickfigure} if specified).
          */
         public void draw(boolean stickFigure) {
+            gl.glPushMatrix();
+            updateRobotRaceTrackPosition();
             /**Here each part is drawn taking the basePosition as the main
              * position of the robot and translating regarding to it.
              */
@@ -463,6 +469,27 @@ public class RobotRace extends Base {
             drawBottom(showStick);
             drawLeg(leftLegPosition, leftLegJoint, -limbStartAngle, showStick);
             drawLeg(rightLegPosition, rightLegJoint, limbStartAngle, showStick);
+            gl.glPopMatrix();
+        }
+        
+        private void updateRobotRaceTrackPosition(){
+            Vector trackPosition = raceTrack.getPoint(t);
+            basePosition = trackPosition.add(initialPosition);
+            //updateRobotOrientation();
+            if (t < 1){
+                t += tStep;
+            }
+            else {
+                t = 0;
+            }
+        }
+        
+        private void updateRobotOrientation(){
+            Vector tan = raceTrack.getTangent(t).normalized();
+            double angle = basePosition.normalized().dot(tan);
+            double angleDegrees = 180*angle/PI;
+            gl.glRotated(angleDegrees, 0, 0, 1);
+            System.out.println(angleDegrees);
         }
         
         public void setMaterialColor(){
@@ -511,13 +538,13 @@ public class RobotRace extends Base {
             head.bind(gl);
             gl.glBegin(GL_QUADS);
                 gl.glTexCoord2d(0, 0);
-                gl.glVertex3d(temp.x() + scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2, temp.y() + scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
                 gl.glTexCoord2d(1, 0);
-                gl.glVertex3d(temp.x() - scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, temp.y() +  scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
                 gl.glTexCoord2d(1, 1);
-                gl.glVertex3d(temp.x() - scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, temp.y() +  scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
                 gl.glTexCoord2d(0, 1);
-                gl.glVertex3d(temp.x() + scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2, temp.y() +  scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
             gl.glEnd(); 
             gl.glDisable(GL_TEXTURE_2D);    
         }
@@ -568,24 +595,24 @@ public class RobotRace extends Base {
             torso.bind(gl);
             gl.glBegin(GL_QUADS);
                 gl.glTexCoord2d(0, 0);
-                gl.glVertex3d(temp.x() + scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2,  temp.y() +  scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
                 gl.glTexCoord2d(1, 0);
-                gl.glVertex3d(temp.x() - scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, temp.y() +  scaleFactors[1]/2 + 0.0001f, temp.z() - scaleFactors[2]/2);
                 gl.glTexCoord2d(1, 1);
-                gl.glVertex3d(temp.x() - scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, temp.y() +  scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
                 gl.glTexCoord2d(0, 1);
-                gl.glVertex3d(temp.x() + scaleFactors[0]/2, scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2, temp.y() + scaleFactors[1]/2 + 0.0001f, temp.z() + scaleFactors[2]/2);
             gl.glEnd(); 
             
             gl.glBegin(GL_QUADS);
                 gl.glTexCoord2d(0, 0);
-                gl.glVertex3d(temp.x() - scaleFactors[0]/2, - scaleFactors[1]/2 - 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, temp.y() +  - scaleFactors[1]/2 - 0.0001f, temp.z() - scaleFactors[2]/2);
                 gl.glTexCoord2d(1, 0);
-                gl.glVertex3d(temp.x() + scaleFactors[0]/2, - scaleFactors[1]/2 - 0.0001f, temp.z() - scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2, temp.y() +  - scaleFactors[1]/2 - 0.0001f, temp.z() - scaleFactors[2]/2);
                 gl.glTexCoord2d(1, 1);
-                gl.glVertex3d(temp.x() + scaleFactors[0]/2, - scaleFactors[1]/2 - 0.0001f, temp.z() + scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() + scaleFactors[0]/2, temp.y() +  - scaleFactors[1]/2 - 0.0001f, temp.z() + scaleFactors[2]/2);
                 gl.glTexCoord2d(0, 1);
-                gl.glVertex3d(temp.x() - scaleFactors[0]/2, - scaleFactors[1]/2 - 0.0001f, temp.z() + scaleFactors[2]/2);
+                gl.glVertex3d(temp.x() - scaleFactors[0]/2, temp.y() +  - scaleFactors[1]/2 - 0.0001f, temp.z() + scaleFactors[2]/2);
             gl.glEnd(); 
             
             gl.glDisable(GL_TEXTURE_2D);
@@ -964,22 +991,16 @@ public class RobotRace extends Base {
          * Returns the position of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getPoint(double t) {
-            if(t < 0){
-                return new Vector(0, 0, 0);
-            }
-            else if (t > 1){
-                return new Vector(1, 1, 1);
-            }
-            else {
-                return new Vector(Math.abs(1-t), Math.abs(1-t), 1); // <- code goes here
-            }            
+            double angleInRad = 2*PI*t;
+            return new Vector(8.5*Math.cos(angleInRad), 8.5*Math.sin(angleInRad), 0); // <- code goes here
         }
         
         /**
          * Returns the tangent of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getTangent(double t) {            
-            return new Vector(Math.cos(2*Math.PI*t), Math.sin(2*Math.PI*t), 1); // <- code goes here
+            double angleInRad = 2*PI*t;
+            return new Vector(-8.5*Math.sin(angleInRad), 8.5*Math.cos(angleInRad), 0); // <- code goes here
         }
         
         /**
