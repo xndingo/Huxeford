@@ -493,7 +493,22 @@ public class RobotRace extends Base {
         private void updateRobotRaceTrackPosition(){
             Vector trackPosition = raceTrack.getPoint(t);
             basePosition = trackPosition.add(initialPosition);
-            updateRobotOrientation();
+            //updateRobotOrientation();
+            double RADIUS = 1;
+            double INTERVAL = 0.1;
+            double theta = 5;
+            double alpha = 0;
+           // Vector tan = raceTrack.getTangent(t).normalized();
+            double ANGLE = 10;
+            ANGLE = PI*ANGLE/180;
+            double x = RADIUS * Math.cos(t);
+            double y = RADIUS * Math.sin(t);
+            double z = 0;
+            double deltaX = y * Math.cos(t) - x * Math.sin(t);
+            double deltaY = x * Math.cos(t) + y * Math.sin(t);
+            gl.glTranslatef((float) deltaX, (float) deltaY, (float) z);            
+            gl.glRotatef((float) ANGLE, 0, 0, 1);
+            //alpha += INTERVAL;
             if (t < 1){
                 t += tStep;
             }
@@ -1082,14 +1097,14 @@ public class RobotRace extends Base {
          * Returns the position of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getPoint(double t) {
-            return new Vector( (float) (4.5 * cos(2 * PI * t)), (float) (4.5 * sin(2 * PI * t)), 0);                
+            return new Vector( (float) (6.5 * cos(2 * PI * t)), (float) (6.5 * sin(2 * PI * t)), 0);                
         }
         
         /**
          * Returns the tangent of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getTangent(double t) {            
-            return new Vector(-8.5 * Math.PI * Math.cos(2 * Math.PI * t), 8.5 * Math.PI * Math.sin(2 * Math.PI * t), 0);
+            return new Vector(8.5 * Math.PI * Math.cos(2 * Math.PI * t), -8.5 * Math.PI * Math.sin(2 * Math.PI * t), 0);
         }
         
         /**
