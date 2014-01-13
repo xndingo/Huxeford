@@ -5,11 +5,14 @@
  * Marcelo Almeida
  */
 
+import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import javax.media.opengl.GL;
 import static javax.media.opengl.GL2.*;
@@ -30,6 +33,8 @@ import java.util.Date;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static javax.media.opengl.GL.GL_BLEND;
 import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
@@ -43,6 +48,7 @@ import static javax.media.opengl.GL.GL_LINE_STRIP;
 import static javax.media.opengl.GL.GL_NICEST;
 import static javax.media.opengl.GL.GL_POINTS;
 import static javax.media.opengl.GL.GL_REPEAT;
+import static javax.media.opengl.GL.GL_REPLACE;
 import static javax.media.opengl.GL.GL_TEXTURE_2D;
 import static javax.media.opengl.GL.GL_TEXTURE_MIN_FILTER;
 import static javax.media.opengl.GL.GL_TEXTURE_WRAP_S;
@@ -253,42 +259,46 @@ public class RobotRace extends Base {
      */
     @Override
     public void drawScene() {
-        // Background color.
-        gl.glClearColor(1f, 1f, 1f, 0f);
-        
-        // Clear background.
-        gl.glClear(GL_COLOR_BUFFER_BIT);
-        
-        // Clear depth buffer.
-        gl.glClear(GL_DEPTH_BUFFER_BIT);
-        
-        // Set color to black.
-        gl.glColor3f(0f, 0f, 0f);
-        
-        gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        
-        // Draw the axis frame.
-        if (gs.showAxes) {
-            drawAxisFrame();
+        try {
+            // Background color.
+            gl.glClearColor(1f, 1f, 1f, 0f);
+            
+            // Clear background.
+            gl.glClear(GL_COLOR_BUFFER_BIT);
+            
+            // Clear depth buffer.
+            gl.glClear(GL_DEPTH_BUFFER_BIT);
+            
+            // Set color to black.
+            gl.glColor3f(0f, 0f, 0f);
+            
+            gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            
+            // Draw the axis frame.
+            if (gs.showAxes) {
+                drawAxisFrame();
+            }
+            
+            // Draw the 4 robots.
+            robots[0].setMaterialColor(); //GOLD
+            robots[0].draw(false); //Draw robot fully initially.
+            robots[1].setMaterialColor(); //SILVER
+            robots[1].draw(false); //Draw robot fully initially.
+            robots[2].setMaterialColor(); //WOOD
+            robots[2].draw(false); //Draw robot fully initially.
+            robots[3].setMaterialColor(); //ORANGE
+            robots[3].draw(false); //Draw robot fully initially.
+     
+            // Draw race track
+            raceTrack.draw(gs.trackNr);
+            
+            // Draw terrain
+            terrain.draw();
+            
+            clock.draw();
+        } catch (IOException ex) {
+            Logger.getLogger(RobotRace.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        // Draw the 4 robots.
-        robots[0].setMaterialColor(); //GOLD
-        robots[0].draw(false); //Draw robot fully initially.
-        robots[1].setMaterialColor(); //SILVER
-        robots[1].draw(false); //Draw robot fully initially.
-        robots[2].setMaterialColor(); //WOOD
-        robots[2].draw(false); //Draw robot fully initially.
-        robots[3].setMaterialColor(); //ORANGE
-        robots[3].draw(false); //Draw robot fully initially.
- 
-        // Draw race track
-        raceTrack.draw(gs.trackNr);
-        
-        // Draw terrain
-        terrain.draw();
-        
-        clock.draw();
     }
        
     /**
@@ -839,7 +849,7 @@ public class RobotRace extends Base {
         /**
          * Draws this track, based on the selected track number.
          */
-        public void draw(int trackNr) {
+        public void draw(int trackNr) throws IOException {
             float ctrlpoints[][] = new float[][]
             {
             { -4.0f, -4.0f, 0.0f },
@@ -871,11 +881,11 @@ public class RobotRace extends Base {
                 float curves = (int) radius*100; //The number of curves used
                 float v = 1; //height    
                 
+                // Track track texture
                 gl.glEnable(GL_TEXTURE_2D);
                 gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
                 gl.glBindTexture(GL_TEXTURE_2D, track.getTextureObject());
-                track.bind(gl);                   
-                
+                track.bind(gl);                 
                 // Track top
                 gl.glBegin(GL_TRIANGLE_STRIP);
                 gl.glColor4f(0.0f, 0.0f, 1.0f, 1.0f);                
@@ -897,39 +907,95 @@ public class RobotRace extends Base {
                 gl.glDisable(GL_TEXTURE_2D);
                 gl.glFlush();
                 
+                // Track track texture
+                gl.glEnable(GL_TEXTURE_2D);
+                gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+                gl.glBindTexture(GL_TEXTURE_2D, track.getTextureObject());
+                track.bind(gl);       
                 // Track bottom
                 gl.glBegin(GL_TRIANGLE_STRIP);
                 gl.glColor4f(1.0f, 0.0f, 0.0f, 1.0f);                
                 for (int i=0; i < curves; i++)
                 {           
-                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
+                   float radian = (float) (360 * (PI/180.0f));
+
+                    float xcos = (float)cos(i);
+                    float ysin = (float)sin(i);
+                    float x = (float) (xcos * 8.5);
+                    float y = (float) (ysin * 8.5);
+                    float tx = (float) (xcos * 0.5 + 0.5);
+                    float ty = (float) (ysin * 0.5 + 0.5);
+
+                    gl.glTexCoord2f(tx, ty);
+                    gl.glVertex3f(x, y, 0);
                 }
-                gl.glEnd();                
+                gl.glEnd();
+                gl.glDisable(GL_TEXTURE_2D);
                 gl.glFlush();
                 
-               
-                
+                /*File track2tex = new File("C:\\Users\\Xndingo\\Desktop\\2IV60 Graphics\\Assignment\\Textures\\track2.jpg");
+                Texture track2= TextureIO.newTexture(track2tex, true);
+                // Track brick texture
+                gl.glEnable(GL_TEXTURE_2D);
+                gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+                gl.glBindTexture(GL_TEXTURE_2D, track2.getTextureObject());
+                track2.bind(gl);    */ 
                 // Track outer sides
                 gl.glBegin(GL_TRIANGLE_STRIP);
                 gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
                 for (int i=0; i < curves; i++)
                 {
-                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
-                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
+                    float radian = (float) (360 * (PI/180.0f));
+
+                    float xcos = (float)cos(i);
+                    float ysin = (float)sin(i);
+                    float x = (float) (xcos * 8.5);
+                    float y = (float) (ysin * 8.5);
+                    float tx = (float) (xcos * 0.5 + 0.5);
+                    float ty = (float) (ysin * 0.5 + 0.5);
+
+                    gl.glTexCoord2f(tx, ty);
+                    gl.glVertex3f(x, y, 0);
+                    gl.glVertex3f(x, y, v);
+                    
+                    
+                    
+                   //gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
+                   //gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
                 }
                 gl.glEnd();
+                // gl.glDisable(GL_TEXTURE_2D);
                 gl.glFlush();
                 
+                /*gl.glEnable(GL_TEXTURE_2D);
+                gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+                gl.glBindTexture(GL_TEXTURE_2D, track2.getTextureObject());
+                track2.bind(gl);  */
                 // Track inner sides
                 gl.glBegin(GL_TRIANGLE_STRIP);
                 gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
                 for (int i=0; i < curves; i++)
                 {
-                   gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) 0.0);
-                   gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) v);
+                    float radian = (float) (360 * (PI/180.0f));
+
+                    float xcos = (float)cos(i);
+                    float ysin = (float)sin(i);
+                    float x = (float) (xcos * (8.5-3.3));
+                    float y = (float) (ysin * (8.5-3.3));
+                    float tx = (float) (xcos * 0.5 + 0.5);
+                    float ty = (float) (ysin * 0.5 + 0.5);
+
+                    gl.glTexCoord2f(tx, ty);
+                    gl.glVertex3f(x, y, 0);
+                    gl.glVertex3f(x, y, v);
+                    
+                   //gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) 0.0);
+                   //gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) v);
                 }
                 gl.glEnd();
-                gl.glFlush();                
+                //gl.glDisable(GL_TEXTURE_2D);
+                gl.glFlush();
+               
                 
             // The O-track is selected
             } else if (1 == trackNr) {
