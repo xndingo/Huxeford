@@ -141,7 +141,7 @@ public class RobotRace extends Base {
     private final RaceTrack raceTrack;
     
     /** Instance of the terrain. */
-    private final Terrain terrain;
+    private Terrain terrain;
     
     /** Instance of the clock. */
     private final Clock clock;
@@ -177,9 +177,6 @@ public class RobotRace extends Base {
         // Initialize the race track
         raceTrack = new RaceTrack();
         
-        // Initialize the terrain
-        terrain = new Terrain();
-        
         // Initialize the clock
         clock = new Clock();
     }
@@ -209,8 +206,12 @@ public class RobotRace extends Base {
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         
-        
         configureLighting();
+        
+        // Initialize the terrain
+        terrain = new Terrain();
+        
+        
     }
     
     /**
@@ -494,21 +495,6 @@ public class RobotRace extends Base {
             Vector trackPosition = raceTrack.getPoint(t);
             basePosition = trackPosition.add(initialPosition);
             //updateRobotOrientation();
-            double RADIUS = 1;
-            double INTERVAL = 0.1;
-            double theta = 5;
-            double alpha = 0;
-           // Vector tan = raceTrack.getTangent(t).normalized();
-            double ANGLE = 10;
-            ANGLE = PI*ANGLE/180;
-            double x = RADIUS * Math.cos(t);
-            double y = RADIUS * Math.sin(t);
-            double z = 0;
-            double deltaX = y * Math.cos(t) - x * Math.sin(t);
-            double deltaY = x * Math.cos(t) + y * Math.sin(t);
-            gl.glTranslatef((float) deltaX, (float) deltaY, (float) z);            
-            gl.glRotatef((float) ANGLE, 0, 0, 1);
-            //alpha += INTERVAL;
             if (t < 1){
                 t += tStep;
             }
@@ -520,8 +506,8 @@ public class RobotRace extends Base {
         private void updateRobotOrientation(){
             Vector tan = raceTrack.getTangent(t).normalized();
             double angle = basePosition.normalized().dot(tan);
-            double angleDegrees = PI*angle/180;
-            gl.glRotated(angle, 0, 0, 1);
+            double angleDegrees = 180*angle/PI;
+            gl.glRotated(angleDegrees, 0, 0, 1);
             //System.out.println(angleDegrees);
         }
         
@@ -1167,12 +1153,21 @@ public class RobotRace extends Base {
      * Implementation of the terrain.
      */
     private class Terrain {
-        
+        private int texId;
         /**
          * Can be used to set up a display list.
          */
         public Terrain() {
-           
+           texId = create1DTexture(gl, new Color[]{
+               // Blue
+               new Color(134, 171, 200), new Color(134, 171, 200), new Color(134, 171, 200), new Color(134, 171, 200),
+               // Yellow
+               new Color(234, 185, 55), new Color(234, 185, 55), 
+               // Green
+               new Color(0, 55, 0), new Color(0, 55, 0)           
+           });
+           gl.glEnable(GL_TEXTURE_2D);
+           gl.glDisable(GL_TEXTURE_1D);
         }
         
         /**
@@ -1184,6 +1179,7 @@ public class RobotRace extends Base {
             drawTree(new Vector(-1,0,0), 1, 1, 2);
             drawTree(new Vector(8,-9,0), 1.5, 1, 1.5);
             drawTree(new Vector(-10,0,0), 2, 2, 3);
+            drawWater();
         }
         
         /**
@@ -1194,54 +1190,14 @@ public class RobotRace extends Base {
         }
         
         public void drawTerrain(){
-            // Draw the water (transparent and grey)
-            
-            /*gl.glColor4d(0.5, 0.5, 0.5, 0.3);
-            
+            gl.glColor4d(1,1,1,1);
+            gl.glEnable(GL_TEXTURE_1D);
+            gl.glDisable(GL_TEXTURE_2D);
+            gl.glBindTexture(GL_TEXTURE_1D, texId);
             gl.glBegin(GL_TRIANGLES);
-                gl.glNormal3d(0, 0, 1);
-                gl.glVertex3d(-30, -30, 0);
-                gl.glVertex3d(30, -30, 0);
-                gl.glVertex3d(30, 30, 0);
-                
-                gl.glNormal3d(0, 0, 1);
-                gl.glVertex3d(-30, -30, 0);
-                gl.glVertex3d(30, 30, 0);
-                gl.glVertex3d(-30, 30, 0);
-            gl.glEnd();
-            * */
-            
-            /*gl.glEnable(GL_TEXTURE_2D);
-            gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-            gl.glBindTexture(GL_TEXTURE_2D, brick.getTextureObject());
-            brick.bind(gl);
-            gl.glBegin(GL_QUADS);
-                gl.glTexCoord2d(0, 0);
-                gl.glVertex3d(-10, -10, 0);
-                gl.glTexCoord2d(1, 0);
-                gl.glVertex3d(10, -10, 0 );
-                gl.glTexCoord2d(1, 1);
-                gl.glVertex3d(10, 10, 0);
-                gl.glTexCoord2d(0, 1);
-                gl.glVertex3d(-10, 10, 0);
-            gl.glEnd(); 
-            gl.glDisable(GL_TEXTURE_2D);    
-            * */
-            
-            // Draw the terrain with 1D texture coloring. NOT WORKING!
-            
-            // Call the configuration function
-            //int a = create1DTexture(gl, new Color[] {new Color(1,0,0),new Color(0,1,0),new Color(0,0,1)});
-            gl.glEnable(GL_TEXTURE_2D);
-            gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-            gl.glBindTexture(GL_TEXTURE_2D, brick.getTextureObject());
-            brick.bind(gl);
-            gl.glBegin(GL_TRIANGLES);
-            //gl.glColor4d(0.8, 0.4, 0, 0.8);
-            gl.glMaterialfv(GL_FRONT, GL_SPECULAR, new float[]{0,0,0}, 0);
-            float step = 0.5f;
-            for (float j = -30; j <= 30; j=j+step){
-                for (float i = -30; i <= 30; i=i+step){
+            float step = 1f;
+            for (float j = -20; j <= 20; j=j+step){
+                for (float i = -20; i <= 20; i=i+step){
                     Vector p1 = new Vector(i, j, heightAt(i,j));
                     Vector p2 = new Vector(i+step, j, heightAt(i+step,j));
                     Vector p3 = new Vector(i+step, j+step, heightAt(i+step,j+step));
@@ -1250,11 +1206,11 @@ public class RobotRace extends Base {
                     Vector norm = diff1.cross(diff2);
                     Vector unitNorm = norm.normalized();
                     gl.glNormal3d(unitNorm.x(), unitNorm.y(), unitNorm.z());
-                    gl.glTexCoord2d(0, 0);
+                    applyTexture(p1.z());
                     gl.glVertex3d(p1.x(), p1.y(), p1.z());
-                    gl.glTexCoord2d(1,0);
+                    applyTexture(p1.z());
                     gl.glVertex3d(p2.x(), p2.y(), p2.z());
-                    gl.glTexCoord2d(1, 1);
+                    applyTexture(p1.z());
                     gl.glVertex3d(p3.x(), p3.y(), p3.z());
                     
                     p1 = new Vector(i, j, heightAt(i,j));
@@ -1265,16 +1221,25 @@ public class RobotRace extends Base {
                     norm = diff1.cross(diff2);
                     unitNorm = norm.normalized();
                     gl.glNormal3d(unitNorm.x(), unitNorm.y(), unitNorm.z());
-                    gl.glTexCoord2d(0, 0);
+                    applyTexture(p1.z());
                     gl.glVertex3d(p1.x(), p1.y(), p1.z());
-                    gl.glTexCoord2d(1, 0);
+                    applyTexture(p1.z());
                     gl.glVertex3d(p2.x(), p2.y(), p2.z());
-                    gl.glTexCoord2d(1, 1);
+                    applyTexture(p1.z());
                     gl.glVertex3d(p3.x(), p3.y(), p3.z());                
                 }
             }
             gl.glEnd();
-            gl.glDisable(GL_TEXTURE_2D);
+            gl.glBindTexture(GL_TEXTURE_1D, 0);
+            
+            gl.glDisable(GL_TEXTURE_1D);
+            gl.glEnable(GL_TEXTURE_2D);
+        }
+        
+        private void applyTexture(double color){
+            // Round the double value of color to contain only 1 decimal point
+            double texColorValue = (double)Math.round(color * 10)/10;
+            gl.glTexCoord1d(texColorValue);
         }
         
         /**
@@ -1308,6 +1273,25 @@ public class RobotRace extends Base {
             gl.glVertex2f(-groundScale, groundScale);
             gl.glEnd();         
             gl.glFlush();      
+        }
+        
+        private void drawWater() {
+            // Transparent and grey
+            
+            gl.glDepthMask(false);
+            gl.glColor4d(0.5, 0.5, 0.5, 0.3);
+            gl.glBegin(GL_TRIANGLES);
+                gl.glNormal3d(0, 0, 1);
+                gl.glVertex3d(-20, -20, 0);
+                gl.glVertex3d(20, -20, 0);
+                gl.glVertex3d(20, 20, 0);
+                
+                gl.glNormal3d(0, 0, 1);
+                gl.glVertex3d(-20, -20, 0);
+                gl.glVertex3d(20, 20, 0);
+                gl.glVertex3d(-20, 20, 0);
+            gl.glEnd();
+            gl.glDepthMask(true);
         }
         
         /**
