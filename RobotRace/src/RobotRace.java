@@ -156,20 +156,16 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0        
-        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,1)
-            /* add other parameters that characterize this robot */);
+        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,1), 0.005f);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,1)
-            /* add other parameters that characterize this robot */);
+        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,1), 0.005f);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,1)
-            /* add other parameters that characterize this robot */);
+        robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,1), 0.005f);
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE, new Vector(1.5,0,1)
-            /* add other parameters that characterize this robot */);
+        robots[3] = new Robot(Material.ORANGE, new Vector(1.5,0,1), 0.005f);
         
         // Initialize the camera
         camera = new Camera();
@@ -454,7 +450,7 @@ public class RobotRace extends Base {
         private boolean showStick = gs.showStick;
         
         private float t = 0;
-        private float tStep = 0.005f; //how fast the robots move
+        private float velocity; //how fast the robots move
         /**
          * The coordinates where the robot is initially placed at, specified 
          * at the constructor of RobotRace.
@@ -463,12 +459,12 @@ public class RobotRace extends Base {
         /**
          * Constructs the robot with initial parameters.
          */
-        public Robot(Material material, Vector initialPosition) {
+        public Robot(Material material, Vector initialPosition, float velocity) {
             this.material = material; /** Sets the material of the robot to the 
             given material. */
             this.initialPosition = initialPosition; /** Sets the position where the 
-            robot is placed at the given basePosition. */
-            
+            robot is placed initially */
+            this.velocity = velocity;
         }
         
         /**
@@ -476,39 +472,41 @@ public class RobotRace extends Base {
          */
         public void draw(boolean stickFigure) {
             gl.glPushMatrix();
-            updateRobotRaceTrackPosition();
-            /**Here each part is drawn taking the basePosition as the main
-             * position of the robot and translating regarding to it.
-             */
-            drawHead(showStick);
-            drawShoulder(showStick);
-            drawArm(leftArmPosition, leftShoulderJoint, limbStartAngle, showStick);
-            drawArm(rightArmPosition, rightShoulderJoint, -limbStartAngle, showStick);
-            drawTorso(showStick);
-            drawBottom(showStick);
-            drawLeg(leftLegPosition, leftLegJoint, -limbStartAngle, showStick);
-            drawLeg(rightLegPosition, rightLegJoint, limbStartAngle, showStick);
+                updateRobotRaceTrackPosition();
+                /**Here each part is drawn taking the basePosition as the main
+                 * position of the robot and translating regarding to it.
+                 */
+                drawHead(showStick);
+                drawShoulder(showStick);
+                drawArm(leftArmPosition, leftShoulderJoint, limbStartAngle, showStick);
+                drawArm(rightArmPosition, rightShoulderJoint, -limbStartAngle, showStick);
+                drawTorso(showStick);
+                drawBottom(showStick);
+                drawLeg(leftLegPosition, leftLegJoint, -limbStartAngle, showStick);
+                drawLeg(rightLegPosition, rightLegJoint, limbStartAngle, showStick);
             gl.glPopMatrix();
         }
         
         private void updateRobotRaceTrackPosition(){
+            /* First, update the track position where the robot need to be,
+            according to the specific track */
             Vector trackPosition = raceTrack.getPoint(t);
-            basePosition = trackPosition.add(initialPosition);
-            //updateRobotOrientation();
+            gl.glTranslated(trackPosition.x(), trackPosition.y(), trackPosition.z());
+            /* Second, rotate the system, so the robot is oriented according
+            to the tangent of the track */
+            Vector tan = raceTrack.getTangent(t).normalized();
+            double angleFromYInRadians = atan2(tan.y(), tan.x());
+            double angleFromYInDegrees = -90+180*angleFromYInRadians/PI;
+            gl.glRotated(angleFromYInDegrees, 0, 0, 1);
+            
+            // Update the positions from where the limbs should be drawn
+            basePosition = initialPosition;
             if (t < 1){
-                t += tStep;
+                t += velocity;
             }
             else {
                 t = 0;
             }
-        }
-        
-        private void updateRobotOrientation(){
-            Vector tan = raceTrack.getTangent(t).normalized();
-            double angle = basePosition.normalized().dot(tan);
-            double angleDegrees = 180*angle/PI;
-            gl.glRotated(angleDegrees, 0, 0, 1);
-            //System.out.println(angleDegrees);
         }
         
         public void setMaterialColor(){
@@ -1083,14 +1081,16 @@ public class RobotRace extends Base {
          * Returns the position of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getPoint(double t) {
-            return new Vector( (float) (6.5 * cos(2 * PI * t)), (float) (6.5 * sin(2 * PI * t)), 0);                
+            double radius = 6.85; // Half of the other radius
+            return new Vector( (float) (radius * cos(2 * PI * t)), (float) (radius * sin(2 * PI * t)), 0);                
         }
         
         /**
          * Returns the tangent of the curve at 0 <= {@code t} <= 1.
          */
-        public Vector getTangent(double t) {            
-            return new Vector(8.5 * Math.PI * Math.cos(2 * Math.PI * t), -8.5 * Math.PI * Math.sin(2 * Math.PI * t), 0);
+        public Vector getTangent(double t) { 
+            double radius = 6.85;
+            return new Vector(-radius * Math.sin(2 * Math.PI * t), radius * Math.cos(2 * Math.PI * t), 0);
         }
         
         /**
