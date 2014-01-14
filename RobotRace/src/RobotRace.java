@@ -1158,16 +1158,25 @@ public class RobotRace extends Base {
          * Can be used to set up a display list.
          */
         public Terrain() {
-           texId = create1DTexture(gl, new Color[]{
-               // Blue
-               new Color(134, 171, 200), new Color(134, 171, 200), new Color(134, 171, 200), new Color(134, 171, 200),
-               // Yellow
-               new Color(234, 185, 55), new Color(234, 185, 55), 
-               // Green
-               new Color(0, 55, 0), new Color(0, 55, 0)           
-           });
-           gl.glEnable(GL_TEXTURE_2D);
-           gl.glDisable(GL_TEXTURE_1D);
+            Color[] myColors = new Color[450];
+            for (int i = 0; i < 200; i++){
+                myColors[i] = new Color(0, 0, i);
+            }
+            for (int i = 0; i < 50; i++){
+                myColors[i+200] = new Color(50+i, 50+i, 200-i);
+            }
+            for (int i = 0; i < 50; i++){
+                myColors[i+250] = new Color(i+100, i+100, 0);
+            }
+            for (int i = 0; i < 50; i++){
+                myColors[i+300] = new Color(150-i, 150-i, 0);
+            }
+            for (int i = 0; i < 100; i++){
+                myColors[i+350] = new Color(0, i+100, 0);
+            }
+            texId = create1DTexture(gl, myColors);
+            gl.glEnable(GL_TEXTURE_2D);
+            gl.glDisable(GL_TEXTURE_1D);
         }
         
         /**
@@ -1195,7 +1204,7 @@ public class RobotRace extends Base {
             gl.glDisable(GL_TEXTURE_2D);
             gl.glBindTexture(GL_TEXTURE_1D, texId);
             gl.glBegin(GL_TRIANGLES);
-            float step = 1f;
+            float step = 0.3f;
             for (float j = -20; j <= 20; j=j+step){
                 for (float i = -20; i <= 20; i=i+step){
                     Vector p1 = new Vector(i, j, heightAt(i,j));
@@ -1208,9 +1217,9 @@ public class RobotRace extends Base {
                     gl.glNormal3d(unitNorm.x(), unitNorm.y(), unitNorm.z());
                     applyTexture(p1.z());
                     gl.glVertex3d(p1.x(), p1.y(), p1.z());
-                    applyTexture(p1.z());
+                    applyTexture(p2.z());
                     gl.glVertex3d(p2.x(), p2.y(), p2.z());
-                    applyTexture(p1.z());
+                    applyTexture(p3.z());
                     gl.glVertex3d(p3.x(), p3.y(), p3.z());
                     
                     p1 = new Vector(i, j, heightAt(i,j));
@@ -1223,9 +1232,9 @@ public class RobotRace extends Base {
                     gl.glNormal3d(unitNorm.x(), unitNorm.y(), unitNorm.z());
                     applyTexture(p1.z());
                     gl.glVertex3d(p1.x(), p1.y(), p1.z());
-                    applyTexture(p1.z());
+                    applyTexture(p2.z());
                     gl.glVertex3d(p2.x(), p2.y(), p2.z());
-                    applyTexture(p1.z());
+                    applyTexture(p3.z());
                     gl.glVertex3d(p3.x(), p3.y(), p3.z());                
                 }
             }
@@ -1238,7 +1247,7 @@ public class RobotRace extends Base {
         
         private void applyTexture(double color){
             // Round the double value of color to contain only 1 decimal point
-            double texColorValue = (double)Math.round(color * 10)/10;
+            double texColorValue = (color + 1) * 0.5;
             gl.glTexCoord1d(texColorValue);
         }
         
