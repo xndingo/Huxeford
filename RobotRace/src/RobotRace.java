@@ -156,13 +156,13 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0        
-        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,1), 0.005f);
+        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,1), 0.001f);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,1), 0.005f);
+        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,1), 0.002f);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,1), 0.005f);
+        robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,1), 0.004f);
 
         // Initialize robot 3
         robots[3] = new Robot(Material.ORANGE, new Vector(1.5,0,1), 0.005f);
@@ -278,13 +278,13 @@ public class RobotRace extends Base {
             
             // Draw the 4 robots.
             robots[0].setMaterialColor(); //GOLD
-            robots[0].draw(false); //Draw robot fully initially.
+            robots[0].draw(gs.showStick);
             robots[1].setMaterialColor(); //SILVER
-            robots[1].draw(false); //Draw robot fully initially.
+            robots[1].draw(gs.showStick);
             robots[2].setMaterialColor(); //WOOD
-            robots[2].draw(false); //Draw robot fully initially.
+            robots[2].draw(gs.showStick);
             robots[3].setMaterialColor(); //ORANGE
-            robots[3].draw(false); //Draw robot fully initially.
+            robots[3].draw(gs.showStick);
      
             // Draw race track
             raceTrack.draw(gs.trackNr);
@@ -445,9 +445,15 @@ public class RobotRace extends Base {
         private Vector rightLegJoint = new Vector(-0.1, 0, 1);       
         
         private Vector basePosition;
-        private Vector initialPosition;
+        private Vector absolutePosition;
+        
+        private Vector tangent;
+        private Vector trackPosition;
+        private double angleFromYInRadians;
+        private double angleFromYInDegrees;
+        
         private float limbStartAngle = 45f;
-        private boolean showStick = gs.showStick;
+        private boolean showStick;
         
         private float t = 0;
         private float velocity; //how fast the robots move
@@ -459,10 +465,10 @@ public class RobotRace extends Base {
         /**
          * Constructs the robot with initial parameters.
          */
-        public Robot(Material material, Vector initialPosition, float velocity) {
+        public Robot(Material material, Vector basePosition, float velocity) {
             this.material = material; /** Sets the material of the robot to the 
             given material. */
-            this.initialPosition = initialPosition; /** Sets the position where the 
+            this.basePosition = basePosition; /** Sets the position where the 
             robot is placed initially */
             this.velocity = velocity;
         }
@@ -471,6 +477,7 @@ public class RobotRace extends Base {
          * Draws this robot (as a {@code stickfigure} if specified).
          */
         public void draw(boolean stickFigure) {
+            showStick = stickFigure;
             gl.glPushMatrix();
                 updateRobotRaceTrackPosition();
                 /**Here each part is drawn taking the basePosition as the main
@@ -490,17 +497,17 @@ public class RobotRace extends Base {
         private void updateRobotRaceTrackPosition(){
             /* First, update the track position where the robot need to be,
             according to the specific track */
-            Vector trackPosition = raceTrack.getPoint(t);
+            trackPosition = raceTrack.getPoint(t);
             gl.glTranslated(trackPosition.x(), trackPosition.y(), trackPosition.z());
             /* Second, rotate the system, so the robot is oriented according
             to the tangent of the track */
-            Vector tan = raceTrack.getTangent(t).normalized();
-            double angleFromYInRadians = atan2(tan.y(), tan.x());
-            double angleFromYInDegrees = -90+180*angleFromYInRadians/PI;
+            tangent = raceTrack.getTangent(t).normalized();
+            angleFromYInRadians = atan2(tangent.y(), tangent.x());
+            angleFromYInDegrees = -90+180*angleFromYInRadians/PI;
             gl.glRotated(angleFromYInDegrees, 0, 0, 1);
             
-            // Update the positions from where the limbs should be drawn
-            basePosition = initialPosition;
+            // Update the absolute position of the robot for camera usage
+            absolutePosition = trackPosition.add(basePosition);
             if (t < 1){
                 t += velocity;
             }
@@ -751,8 +758,8 @@ public class RobotRace extends Base {
          * on the helicopter mode.
          */
         private void setHelicopterMode() {
-            eye = robots[robotToFocus].basePosition.add(new Vector(0,0,10));
-            center = robots[robotToFocus].basePosition;
+            eye = robots[robotToFocus].absolutePosition.add(new Vector(0,0,10));
+            center = robots[robotToFocus].absolutePosition;
             up = Vector.Y;
             updateFocusedRobot();
         }
@@ -762,8 +769,12 @@ public class RobotRace extends Base {
          * on the motorcycle mode.
          */
         private void setMotorCycleMode() {
-            eye = robots[robotToFocus].basePosition.add(new Vector(10,0,0));
-            center = robots[robotToFocus].basePosition;
+            double zOffset = 1;
+            double scale = 10;
+            Vector robotTangent = robots[robotToFocus].tangent.normalized();
+            Vector normal = (new Vector(robotTangent.y(), -robotTangent.x(), 0)).scale(scale);
+            eye = robots[robotToFocus].absolutePosition.add(normal.add(new Vector(0,0,zOffset)));
+            center = robots[robotToFocus].absolutePosition.add(new Vector(0,0,zOffset));
             up = Vector.Z;
             updateFocusedRobot();
         }
@@ -773,10 +784,11 @@ public class RobotRace extends Base {
          * on the first person mode.
          */
         private void setFirstPersonMode() {
-            Vector headPosition = robots[robotToFocus].basePosition.add(
-                    new Vector(0, -3, robots[robotToFocus].headPosition.z()));
-            eye = headPosition;
-            center = headPosition.add(new Vector(0,2,0));
+            Vector eyePosition = robots[robotToFocus].absolutePosition.add(
+                    robots[robotToFocus].headPosition).subtract(robots[robotToFocus].tangent.scale(3));
+            Vector centerPosition = robots[robotToFocus].absolutePosition.add(robots[robotToFocus].headPosition);
+            eye = eyePosition;
+            center = centerPosition;
             up = Vector.Z;
             updateFocusedRobot();
         }
