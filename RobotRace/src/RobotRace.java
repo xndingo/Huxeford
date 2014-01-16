@@ -27,6 +27,7 @@ import java.math.RoundingMode;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.util.Calendar;
 import java.util.Date;
@@ -138,7 +139,7 @@ public class RobotRace extends Base {
     private final Camera camera;
     
     /** Instance of the race track. */
-    private final RaceTrack raceTrack;
+    private RaceTrack raceTrack;
     
     /** Instance of the terrain. */
     private Terrain terrain;
@@ -156,22 +157,19 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0        
-        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,1), 0.001f);
+        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,1), 0.004f);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,1), 0.002f);
+        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,1), 0.004f);
         
         // Initialize robot 2
         robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,1), 0.004f);
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE, new Vector(1.5,0,1), 0.005f);
+        robots[3] = new Robot(Material.ORANGE, new Vector(1.5,0,1), 0.004f);
         
         // Initialize the camera
         camera = new Camera();
-        
-        // Initialize the race track
-        raceTrack = new RaceTrack();
         
         // Initialize the clock
         clock = new Clock();
@@ -203,6 +201,9 @@ public class RobotRace extends Base {
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         
         configureLighting();
+        
+        // Initialize the race track
+        raceTrack = new RaceTrack();
         
         // Initialize the terrain
         terrain = new Terrain();
@@ -839,11 +840,26 @@ public class RobotRace extends Base {
     private class RaceTrack {
         
         /** Array with control points for the O-track. */
-        private Vector[] controlPointsOTrack;
+        private Vector[] controlPointsOTrack = {
+            new Vector(-20, 0, 1), new Vector(-20, -10, 1), new Vector(-10, -20, 1),
+            new Vector(0, -20, 1), new Vector(10, -20, 1), new Vector(20, -10, 1),
+            new Vector(20, 0, 1), new Vector(20, 10, 1), new Vector(10, 20, 1),
+            new Vector(0, 20, 1), new Vector(-10, 20, 1), new Vector(-20, 10, 1)
+        };
         
         /** Array with control points for the L-track. */
-        private Vector[] controlPointsLTrack;
-        
+        private Vector[] controlPointsLTrack = {
+            new Vector(-20, 14, 1), new Vector(-20, 4, 1), new Vector(-20, -2, 1),
+            new Vector(-20, -14, 1), new Vector(-18, -16, 1), new Vector(-16, -18, 1),
+            new Vector(-14, -20, 1), new Vector(-4, -20, 1), new Vector(6, -20, 1),
+            new Vector(14, -20, 1), new Vector(16, -18, 1), new Vector(18, -16, 1),
+            new Vector(20, -14, 1), new Vector(18, -12, 1), new Vector(16, -10, 1),
+            new Vector(14, -8, 1), new Vector(6, -8, 1), new Vector(4, -8, 1),
+            new Vector(-2, -8, 1), new Vector(-4, -6, 1), new Vector(-6, -4, 1),
+            new Vector(-8, -2, 1), new Vector(-8, 4, 1), new Vector(-8, 6, 1),
+            new Vector(-10, 16, 1), new Vector(-12, 18, 1), new Vector(-14, 20, 1),
+            new Vector(-16, 18, 1), new Vector(-18, 16, 1), new Vector(-20, 14, 1)            
+        };
         /** Array with control points for the C-track. */
         private Vector[] controlPointsCTrack;
         
@@ -861,231 +877,42 @@ public class RobotRace extends Base {
          * Draws this track, based on the selected track number.
          */
         public void draw(int trackNr) throws IOException {
-            float ctrlpoints[][] = new float[][]
-            {
-            { -4.0f, -4.0f, 0.0f },
-            { -2.0f, 4.0f, 0.0f },
-            { 2.0f, -4.0f, 0.0f },
-            { 4.0f, 4.0f, 0.0f } };
-            FloatBuffer ctrlpointBuf = //
-            FloatBuffer.allocate(ctrlpoints[0].length * ctrlpoints.length);
-            
-
-            // need to convert 2d array to buffer type
-            for (int i = 0; i < ctrlpoints.length; i++)
-            {
-              for (int j = 0; j < 3; j++)
-              {
-                ctrlpointBuf.put(ctrlpoints[i][j]);
-              }
-            }
-            ctrlpointBuf.rewind();
-
-            //gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); //makes stuff black
-            //gl.glShadeModel(GL_FLAT); //makes it look all trippy
-            gl.glMap1f(GL_MAP1_VERTEX_3, 0.0f, 1.0f, 3, 4, ctrlpointBuf);
-            gl.glEnable(GL_MAP1_VERTEX_3);
-    
+            double numberOfPoints = 30;
             // The test track is selected
             if (0 == trackNr) {
-                float radius = (float) 8.5; //track radius
-                float curves = (int) radius*100; //The number of curves used
-                float v = 1; //height    
-                
-                // Track track texture
-                gl.glEnable(GL_TEXTURE_2D);
-                gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-                gl.glBindTexture(GL_TEXTURE_2D, track.getTextureObject());
-                track.bind(gl);                 
-                // Track top
-                gl.glBegin(GL_TRIANGLE_STRIP);
-                gl.glColor4f(0.0f, 0.0f, 1.0f, 1.0f);                
-                for (int i=0; i < curves; i++)
-                {
-                    float radian = (float) (360 * (PI/180.0f));
-
-                    float xcos = (float)cos(i);
-                    float ysin = (float)sin(i);
-                    float x = (float) (xcos * 8.5);
-                    float y = (float) (ysin * 8.5);
-                    float tx = (float) (xcos * 0.5 + 0.5);
-                    float ty = (float) (ysin * 0.5 + 0.5);
-
-                    gl.glTexCoord2f(tx, ty);
-                    gl.glVertex3f(x, y, 1);
-                }
-                gl.glEnd();
-                gl.glDisable(GL_TEXTURE_2D);
-                gl.glFlush();
-                
-                // Track track texture
-                gl.glEnable(GL_TEXTURE_2D);
-                gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-                gl.glBindTexture(GL_TEXTURE_2D, track.getTextureObject());
-                track.bind(gl);       
-                // Track bottom
-                gl.glBegin(GL_TRIANGLE_STRIP);
-                gl.glColor4f(1.0f, 0.0f, 0.0f, 1.0f);                
-                for (int i=0; i < curves; i++)
-                {           
-                   float radian = (float) (360 * (PI/180.0f));
-
-                    float xcos = (float)cos(i);
-                    float ysin = (float)sin(i);
-                    float x = (float) (xcos * 8.5);
-                    float y = (float) (ysin * 8.5);
-                    float tx = (float) (xcos * 0.5 + 0.5);
-                    float ty = (float) (ysin * 0.5 + 0.5);
-
-                    gl.glTexCoord2f(tx, ty);
-                    gl.glVertex3f(x, y, 0);
-                }
-                gl.glEnd();
-                gl.glDisable(GL_TEXTURE_2D);
-                gl.glFlush();
-                
-                /*File track2tex = new File("C:\\Users\\Xndingo\\Desktop\\2IV60 Graphics\\Assignment\\Textures\\track2.jpg");
-                Texture track2= TextureIO.newTexture(track2tex, true);
-                // Track brick texture
-                gl.glEnable(GL_TEXTURE_2D);
-                gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-                gl.glBindTexture(GL_TEXTURE_2D, track2.getTextureObject());
-                track2.bind(gl);    */ 
-                // Track outer sides
-                gl.glBegin(GL_TRIANGLE_STRIP);
-                gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
-                for (int i=0; i < curves; i++)
-                {
-                    float radian = (float) (360 * (PI/180.0f));
-
-                    float xcos = (float)cos(i);
-                    float ysin = (float)sin(i);
-                    float x = (float) (xcos * 8.5);
-                    float y = (float) (ysin * 8.5);
-                    float tx = (float) (xcos * 0.5 + 0.5);
-                    float ty = (float) (ysin * 0.5 + 0.5);
-
-                    gl.glTexCoord2f(tx, ty);
-                    gl.glVertex3f(x, y, 0);
-                    gl.glVertex3f(x, y, v);
-                    
-                    
-                    
-                   //gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
-                   //gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
-                }
-                gl.glEnd();
-                // gl.glDisable(GL_TEXTURE_2D);
-                gl.glFlush();
-                
-                /*gl.glEnable(GL_TEXTURE_2D);
-                gl.glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-                gl.glBindTexture(GL_TEXTURE_2D, track2.getTextureObject());
-                track2.bind(gl);  */
-                // Track inner sides
-                gl.glBegin(GL_TRIANGLE_STRIP);
-                gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
-                for (int i=0; i < curves; i++)
-                {
-                    float radian = (float) (360 * (PI/180.0f));
-
-                    float xcos = (float)cos(i);
-                    float ysin = (float)sin(i);
-                    float x = (float) (xcos * (8.5-3.3));
-                    float y = (float) (ysin * (8.5-3.3));
-                    float tx = (float) (xcos * 0.5 + 0.5);
-                    float ty = (float) (ysin * 0.5 + 0.5);
-
-                    gl.glTexCoord2f(tx, ty);
-                    gl.glVertex3f(x, y, 0);
-                    gl.glVertex3f(x, y, v);
-                    
-                   //gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) 0.0);
-                   //gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) v);
-                }
-                gl.glEnd();
-                //gl.glDisable(GL_TEXTURE_2D);
-                gl.glFlush();
-               
                 
             // The O-track is selected
             } else if (1 == trackNr) {
-                float radius = (float) 8.5; //track radius
-                float curves = (int) radius*100; //The number of curves used
-                float v = 1; //height               
-                
-                // Track bottom
-                gl.glBegin(GL_TRIANGLE_STRIP);
-                gl.glColor4f(1.0f, 0.0f, 0.0f, 1.0f);                
-                for (int i=0; i < curves; i++)
-                {
-                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
+                for(int i = 0; i < controlPointsOTrack.length; i = i + 3){
+                    Vector temp;
+                    gl.glColor3d(1, 0, 0);
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfPoints){
+                            temp = getCubicBezierPnt(
+                                    j, controlPointsOTrack[i%12], controlPointsOTrack[(i+1)%12], controlPointsOTrack[(i+2)%12], controlPointsOTrack[(i+3)%12]);
+                            gl.glVertex3d(temp.x(), temp.y(), temp.z());
+                        }
+                    gl.glEnd();
                 }
-                gl.glEnd();
-                gl.glFlush();
-                
-                // Track top
-                gl.glBegin(GL_TRIANGLE_STRIP);
-                gl.glColor4f(0.0f, 0.0f, 1.0f, 1.0f);                
-                for (int i=0; i < curves; i++)
-                {
-                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
-                }
-                gl.glEnd();
-                gl.glFlush();
-                
-                // Track outer sides
-                gl.glBegin(GL_TRIANGLE_STRIP);
-                gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
-                for (int i=0; i < curves; i++)
-                {
-                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) 0.0);
-                   gl.glVertex3f((float) (radius * cos(i)), (float) (radius * sin(i)), (float) v);
-                }
-                gl.glEnd();
-                gl.glFlush();
-                
-                // Track inner sides
-                gl.glBegin(GL_TRIANGLE_STRIP);
-                gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);                
-                for (int i=0; i < curves; i++)
-                {
-                   gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) 0.0);
-                   gl.glVertex3f((float) ((radius-3.3) * cos(i)), (float) ((radius-3.3) * sin(i)), (float) v);
-                }
-                gl.glEnd();
-                gl.glFlush();
-                
             // The L-track is selected
             } else if (2 == trackNr) {
-                
-                
+                for(int i = 0; i < controlPointsLTrack.length; i = i + 3){
+                    Vector temp;
+                    gl.glColor3d(1, 0, 0);
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfPoints){
+                            temp = getCubicBezierPnt(
+                                    j, controlPointsLTrack[i%12], controlPointsLTrack[(i+1)%12], controlPointsLTrack[(i+2)%12], controlPointsLTrack[(i+3)%12]);
+                            gl.glVertex3d(temp.x(), temp.y(), temp.z());
+                        }
+                    gl.glEnd();
+                }
             // The C-track is selected
             } else if (3 == trackNr) {
-                // code goes here ...
                 
             // The custom track is selected
             } else if (4 == trackNr) {
-                // code goes here ...
-                //gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-                gl.glColor3f(1.0f, 1.0f, 1.0f);
-                gl.glBegin(GL.GL_LINE_STRIP);
-                for (int i = 0; i <= 30; i++)
-                {
-                  gl.glEvalCoord1f((float) i / (float) 30.0);
-                }
-                gl.glEnd();
-                /* The following code displays the control points as dots. */
-                gl.glPointSize(5.0f);
-                gl.glColor3f(1.0f, 1.0f, 0.0f);
-                gl.glBegin(GL_POINTS);
-                for (int i = 0; i < 4; i++)
-                {
-                  gl.glVertex3fv(ctrlpointBuf);
-                  ctrlpointBuf.position(i * 3);
-                }
-                gl.glEnd();
-                gl.glFlush();                
+                
             }
         }
         
@@ -1093,51 +920,36 @@ public class RobotRace extends Base {
          * Returns the position of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getPoint(double t) {
-            double radius = 6.85; // Half of the other radius
-            return new Vector( (float) (radius * cos(2 * PI * t)), (float) (radius * sin(2 * PI * t)), 0);                
+            return new Vector(10 * cos(2 * PI * t), 14 * sin(2 * PI * t), 1);
         }
         
         /**
          * Returns the tangent of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getTangent(double t) { 
-            double radius = 6.85;
-            return new Vector(-radius * Math.sin(2 * Math.PI * t), radius * Math.cos(2 * Math.PI * t), 0);
+            return new Vector(-2 * PI * 10 * sin(2 * PI * t), 2 * PI * 14 * cos(2 * PI * t), 1);
         }
         
         /**
          * Evaluates a cubic Bezier segment for parameter value t.
          */
         public Vector getCubicBezierPnt(double t, Vector P0, Vector P1, Vector P2, Vector P3){         
-            Vector[] p = new Vector[]{P0, P1, P2, P3};
-            Vector result = Vector.O;
-            
-            if (t == 1) {
-                t = 0.99;
-            }
-            for (int i = 0; i < p.length; i++) {
-                p[i] = p[i].scale((double) (combinations(p.length, i)) * Math.pow((1 - t), p.length - i) * Math.pow(t, i));
-                result = result.add(p[i]);
-            }
-            return result;
+            Vector a = P0.scale((1-t)*(1-t)*(1-t));
+            Vector b = P1.scale(3*t*(1-t)*(1-t));
+            Vector c = P2.scale(3*t*t*(1-t));
+            Vector d = P3.scale(t*t*t);
+            return a.add(b).add(c).add(d);
         }
         
         /**
          * Evaluates the tangent of a cubic Bezier segment for parameter value t.
          */
         public Vector getCubicBezierTng(double t, Vector P0, Vector P1, Vector P2, Vector P3){
-            Vector[] p = new Vector[]{P0, P1, P2, P3};
-            Vector result = Vector.O;
-            
-            if (t == 1) {
-                t = 0.99;
-            }
-            for (int i = 0; i < p.length - 1; i++) {
-                double B = ((double) (combinations(p.length - 1, i)) * Math.pow((1 - t), p.length - 1 - i) * Math.pow(t, i));
-                Vector Qi = p[i + 1].subtract(p[i]).scale(p.length);
-                result = result.add(Qi.scale(B));
-            }
-            return result;       
+            Vector a = P0.scale(3*(1-t)*(1-t));
+            Vector b = P1.scale(3 * ( ((1-t)*(1-t)) + (-2*t*(1-t)) ) );
+            Vector c = P2.scale(3 * ( 2*t*(1-t) - t*t ) );
+            Vector d = P3.scale(3*t*t);
+            return a.add(b).add(c).add(d);
         }
         
         /*
