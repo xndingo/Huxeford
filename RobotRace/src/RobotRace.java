@@ -31,6 +31,7 @@ import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -457,7 +458,7 @@ public class RobotRace extends Base {
         private float limbStartAngle = 45f;
         private boolean showStick;
         
-        private float t = 0;
+        private float t = 0;    //'time' of each robot - define the robot position
         private float velocity; //how fast the robots move
         /**
          * The coordinates where the robot is initially placed at, specified 
@@ -869,6 +870,13 @@ public class RobotRace extends Base {
      * Implementation of a race track that is made from Bezier segments.
      */
     private class RaceTrack {
+        Random generator = new Random(); // Random generator
+        // Generate random values for coordinates
+        int r1 = generator.nextInt(20)+1;
+        int r2 = generator.nextInt(10)+1;
+        int r3 = generator.nextInt(5)+1;
+        int r4 = generator.nextInt(5)+1;
+        /** Array with control points for the Random-track. */
         
         /** Array with control points for the O-track. */
         private Vector[] controlPointsOTrack = {
@@ -898,10 +906,10 @@ public class RobotRace extends Base {
         
         /** Array with control points for the custom track. */
         private Vector[] controlPointsCustomTrack = {
-            new Vector(-10, 16, 1), new Vector(-10, 8, 1), new Vector(-10, -8, 1),
-            new Vector(-10, -16, 1), new Vector(-5, -20, 1), new Vector(5, -20, 1),
-            new Vector(10, -16, 1), new Vector(10, -8, 1), new Vector(10, 8, 1),
-            new Vector(10, 16, 1), new Vector(5, 20, 1), new Vector(-5, 20, 1)
+            new Vector(-r1, 0, r3), new Vector(-r1, -r2, r3), new Vector(-r2, -r1, r3),
+            new Vector(0, -r1, r3), new Vector(r2, -r1, r3), new Vector(r1, -r2, r3),
+            new Vector(r1, 0, r4), new Vector(r1, r2, r4), new Vector(r2, r1, r4),
+            new Vector(0, r1, r4), new Vector(-r2, r1, r4), new Vector(-r1, r2, r4)
             
         };
         
