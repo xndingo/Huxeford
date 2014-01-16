@@ -53,6 +53,7 @@ import static javax.media.opengl.GL.GL_REPLACE;
 import static javax.media.opengl.GL.GL_TEXTURE_2D;
 import static javax.media.opengl.GL.GL_TEXTURE_MIN_FILTER;
 import static javax.media.opengl.GL.GL_TEXTURE_WRAP_S;
+import static javax.media.opengl.GL.GL_TEXTURE_WRAP_T;
 import static javax.media.opengl.GL.GL_TRIANGLES;
 import static javax.media.opengl.GL.GL_TRIANGLE_STRIP;
 import static javax.media.opengl.GL.GL_TRUE;
@@ -277,6 +278,9 @@ public class RobotRace extends Base {
                 drawAxisFrame();
             }
             
+            // Draw race track
+            raceTrack.draw(gs.trackNr);
+            
             // Draw the 4 robots.
             robots[0].setMaterialColor(); //GOLD
             robots[0].draw(gs.showStick);
@@ -287,9 +291,6 @@ public class RobotRace extends Base {
             robots[3].setMaterialColor(); //ORANGE
             robots[3].draw(gs.showStick);
      
-            // Draw race track
-            raceTrack.draw(gs.trackNr);
-            
             // Draw terrain
             terrain.draw();
             
@@ -896,7 +897,13 @@ public class RobotRace extends Base {
         };
         
         /** Array with control points for the custom track. */
-        private Vector[] controlPointsCustomTrack;
+        private Vector[] controlPointsCustomTrack = {
+            new Vector(-10, 16, 1), new Vector(-10, 8, 1), new Vector(-10, -8, 1),
+            new Vector(-10, -16, 1), new Vector(-5, -20, 1), new Vector(5, -20, 1),
+            new Vector(10, -16, 1), new Vector(10, -8, 1), new Vector(10, 8, 1),
+            new Vector(10, 16, 1), new Vector(5, 20, 1), new Vector(-5, 20, 1)
+            
+        };
         
         private int trackNumber;
         private int trackLength;
@@ -917,7 +924,7 @@ public class RobotRace extends Base {
             if (0 == trackNr) {
                 trackLength = 1; // used in the others (here just not to crash the other functions)
                 gl.glEnable(GL_TEXTURE_2D);
-                brick.bind(gl);
+                track.bind(gl);
                 gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                 gl.glBegin(GL_QUAD_STRIP);
@@ -947,7 +954,13 @@ public class RobotRace extends Base {
                         gl.glVertex3d(outerPoint.x(), outerPoint.y(), outerPoint.z() - 2);
 
                     }
-                    
+                gl.glEnd();
+                
+                brick.bind(gl);
+                gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                
+                gl.glBegin(GL_QUAD_STRIP);
                     for (double i = 0; i <= 1; i = i + 1/numberOfInternalSegments){
                         Vector centerPoint = getPoint(i);
                         Vector tangent = getTangent(i);
@@ -979,7 +992,10 @@ public class RobotRace extends Base {
                 trackLength = controlPointsOTrack.length;
                 for(int i = 0; i < trackLength; i = i + 3){
                     Vector outerBorder, tangent, unitNormal, innerBorder;
-                    gl.glColor3d(1, 0, 0);
+                    gl.glEnable(GL_TEXTURE_2D);
+                    track.bind(gl);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                     // Draw the top of the track
                     gl.glBegin(GL_TRIANGLE_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
@@ -998,7 +1014,9 @@ public class RobotRace extends Base {
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             innerBorder = outerBorder.subtract(unitNormal.scale(4));
                             gl.glNormal3d(0, 0, 1);
+                            gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glTexCoord2d(10*i, 1);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
                         }
                     gl.glEnd();
@@ -1020,10 +1038,18 @@ public class RobotRace extends Base {
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             innerBorder = outerBorder.subtract(unitNormal.scale(4));
                             gl.glNormal3d(0, 0, 1);
+                            gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
+                            gl.glTexCoord2d(10*i, 1);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
                         }
                     gl.glEnd();
+                    
+                    brick.bind(gl);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                    
+                
                     // Draw the outer part of the track
                     gl.glBegin(GL_TRIANGLE_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
@@ -1041,7 +1067,9 @@ public class RobotRace extends Base {
                                     controlPointsOTrack[(i+3)%trackLength]);
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glTexCoord2d(10*i, 1);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
                             
                         }
@@ -1064,18 +1092,24 @@ public class RobotRace extends Base {
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             innerBorder = outerBorder.subtract(unitNormal.scale(4));
                             gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
+                            gl.glTexCoord2d(10*i, 1);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
                             
                         }
                     gl.glEnd();
+                    gl.glDisable(GL_TEXTURE_2D);
                 }
             // The L-track is selected
             } else if (2 == trackNr) {
                 trackLength = controlPointsLTrack.length;
                 for(int i = 0; i < trackLength; i = i + 3){
                     Vector outerBorder, tangent, unitNormal, innerBorder;
-                    gl.glColor3d(1, 0, 0);
+                    gl.glEnable(GL_TEXTURE_2D);
+                    track.bind(gl);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                     // Draw the top of the track
                     gl.glBegin(GL_TRIANGLE_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
@@ -1094,7 +1128,9 @@ public class RobotRace extends Base {
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             innerBorder = outerBorder.subtract(unitNormal.scale(4));
                             gl.glNormal3d(0, 0, 1);
+                            gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glTexCoord2d(10*i, 1);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
                         }
                     gl.glEnd();
@@ -1116,12 +1152,20 @@ public class RobotRace extends Base {
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             innerBorder = outerBorder.subtract(unitNormal.scale(4));
                             gl.glNormal3d(0, 0, 1);
+                            gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
+                            gl.glTexCoord2d(10*i, 1);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
                         }
                     gl.glEnd();
+                    
+                    brick.bind(gl);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                    
+                    
                     // Draw the outer part of the track
-                    gl.glBegin(GL_TRIANGLE_STRIP);
+                    gl.glBegin(GL_QUAD_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
                             outerBorder = getCubicBezierPnt(
                                     j, 
@@ -1137,13 +1181,15 @@ public class RobotRace extends Base {
                                     controlPointsLTrack[(i+3)%trackLength]);
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glTexCoord2d(1000*i, 0);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glTexCoord2d(1000*i, 1);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
                             
                         }
                     gl.glEnd();
                     // Draw the inner part of the track
-                    gl.glBegin(GL_TRIANGLE_STRIP);
+                    gl.glBegin(GL_QUAD_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
                             outerBorder = getCubicBezierPnt(
                                     j, 
@@ -1160,18 +1206,24 @@ public class RobotRace extends Base {
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             innerBorder = outerBorder.subtract(unitNormal.scale(4));
                             gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
+                            gl.glTexCoord2d(10*i, 1);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
                             
                         }
                     gl.glEnd();
+                    gl.glDisable(GL_TEXTURE_2D);
                 }
             // The C-track is selected
             } else if (3 == trackNr) {
                 trackLength = controlPointsCTrack.length;
                 for(int i = 0; i < trackLength; i = i + 3){
                     Vector outerBorder, tangent, unitNormal, innerBorder;
-                    gl.glColor3d(1, 0, 0);
+                    gl.glEnable(GL_TEXTURE_2D);
+                    track.bind(gl);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                     // Draw the top of the track
                     gl.glBegin(GL_TRIANGLE_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
@@ -1190,7 +1242,9 @@ public class RobotRace extends Base {
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             innerBorder = outerBorder.subtract(unitNormal.scale(4));
                             gl.glNormal3d(0, 0, 1);
+                            gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glTexCoord2d(10*i, 1);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
                         }
                     gl.glEnd();
@@ -1212,10 +1266,17 @@ public class RobotRace extends Base {
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             innerBorder = outerBorder.subtract(unitNormal.scale(4));
                             gl.glNormal3d(0, 0, 1);
+                            gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
+                            gl.glTexCoord2d(10*i, 1);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
                         }
                     gl.glEnd();
+                    
+                    brick.bind(gl);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                    
                     // Draw the outer part of the track
                     gl.glBegin(GL_TRIANGLE_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
@@ -1233,7 +1294,9 @@ public class RobotRace extends Base {
                                     controlPointsCTrack[(i+3)%trackLength]);
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glTexCoord2d(10*i, 1);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
                             
                         }
@@ -1256,15 +1319,129 @@ public class RobotRace extends Base {
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
                             innerBorder = outerBorder.subtract(unitNormal.scale(4));
                             gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
+                            gl.glTexCoord2d(10*i, 1);
                             gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
                             
                         }
                     gl.glEnd();
+                    gl.glDisable(GL_TEXTURE_2D);
                 }
             // The custom track is selected
             } else if (4 == trackNr) {
+                trackLength = controlPointsCustomTrack.length;
+                for(int i = 0; i < trackLength; i = i + 3){
+                    Vector outerBorder, tangent, unitNormal, innerBorder;
+                    gl.glEnable(GL_TEXTURE_2D);
+                    track.bind(gl);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                    // Draw the top of the track
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            outerBorder = getCubicBezierPnt(
+                                    j, 
+                                    controlPointsCustomTrack[i%trackLength],
+                                    controlPointsCustomTrack[(i+1)%trackLength],
+                                    controlPointsCustomTrack[(i+2)%trackLength],
+                                    controlPointsCustomTrack[(i+3)%trackLength]);
+                            tangent = getCubicBezierTng(
+                                    j, 
+                                    controlPointsCustomTrack[i%trackLength],
+                                    controlPointsCustomTrack[(i+1)%trackLength],
+                                    controlPointsCustomTrack[(i+2)%trackLength],
+                                    controlPointsCustomTrack[(i+3)%trackLength]);
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            innerBorder = outerBorder.subtract(unitNormal.scale(4));
+                            gl.glNormal3d(0, 0, 1);
+                            gl.glTexCoord2d(10*i, 0);
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glTexCoord2d(10*i, 1);
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
+                        }
+                    gl.glEnd();
+                    // Draw the bottom of the track
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            outerBorder = getCubicBezierPnt(
+                                    j, 
+                                    controlPointsCustomTrack[i%trackLength],
+                                    controlPointsCustomTrack[(i+1)%trackLength],
+                                    controlPointsCustomTrack[(i+2)%trackLength],
+                                    controlPointsCustomTrack[(i+3)%trackLength]);
+                            tangent = getCubicBezierTng(
+                                    j, 
+                                    controlPointsCustomTrack[i%trackLength],
+                                    controlPointsCustomTrack[(i+1)%trackLength],
+                                    controlPointsCustomTrack[(i+2)%trackLength],
+                                    controlPointsCustomTrack[(i+3)%trackLength]);
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            innerBorder = outerBorder.subtract(unitNormal.scale(4));
+                            gl.glNormal3d(0, 0, 1);
+                            gl.glTexCoord2d(10*i, 0);
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
+                            gl.glTexCoord2d(10*i, 1);
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
+                        }
+                    gl.glEnd();
+                    
+                    brick.bind(gl);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                    
                 
+                    // Draw the outer part of the track
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            outerBorder = getCubicBezierPnt(
+                                    j, 
+                                    controlPointsCustomTrack[i%trackLength],
+                                    controlPointsCustomTrack[(i+1)%trackLength],
+                                    controlPointsCustomTrack[(i+2)%trackLength],
+                                    controlPointsCustomTrack[(i+3)%trackLength]);
+                            tangent = getCubicBezierTng(
+                                    j, 
+                                    controlPointsCustomTrack[i%trackLength],
+                                    controlPointsCustomTrack[(i+1)%trackLength],
+                                    controlPointsCustomTrack[(i+2)%trackLength],
+                                    controlPointsCustomTrack[(i+3)%trackLength]);
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glTexCoord2d(10*i, 0);
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glTexCoord2d(10*i, 1);
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
+                            
+                        }
+                    gl.glEnd();
+                    // Draw the inner part of the track
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            outerBorder = getCubicBezierPnt(
+                                    j, 
+                                    controlPointsCustomTrack[i%trackLength],
+                                    controlPointsCustomTrack[(i+1)%trackLength],
+                                    controlPointsCustomTrack[(i+2)%trackLength],
+                                    controlPointsCustomTrack[(i+3)%trackLength]);
+                            tangent = getCubicBezierTng(
+                                    j, 
+                                    controlPointsCustomTrack[i%trackLength],
+                                    controlPointsCustomTrack[(i+1)%trackLength],
+                                    controlPointsCustomTrack[(i+2)%trackLength],
+                                    controlPointsCustomTrack[(i+3)%trackLength]);
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            innerBorder = outerBorder.subtract(unitNormal.scale(4));
+                            gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glTexCoord2d(10*i, 0);
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
+                            gl.glTexCoord2d(10*i, 1);
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
+                            
+                        }
+                    gl.glEnd();
+                    gl.glDisable(GL_TEXTURE_2D);
+                }
             }
         }
         
@@ -1297,6 +1474,9 @@ public class RobotRace extends Base {
                 else if(trackNr == 3) {
                     vecTemp[j] = controlPointsCTrack[i%trackLength];
                 }
+                else if(trackNr == 4) {
+                    vecTemp[j] = controlPointsCustomTrack[i%trackLength];
+                }
             }
             Vector tan = getCubicBezierTng(temp, vecTemp[0], vecTemp[1], vecTemp[2], vecTemp[3]);
             Vector normal = (new Vector(tan.y(), -tan.x(), 0)).normalized();
@@ -1317,6 +1497,9 @@ public class RobotRace extends Base {
                 }
                 else if(trackNr == 3) {
                     vecTemp[j] = controlPointsCTrack[i%trackLength];
+                }
+                else if(trackNr == 4) {
+                    vecTemp[j] = controlPointsCustomTrack[i%trackLength];
                 }
             }
             return getCubicBezierTng(temp, vecTemp[0], vecTemp[1], vecTemp[2], vecTemp[3]);
@@ -1378,9 +1561,9 @@ public class RobotRace extends Base {
         public void draw() {
             //drawGround(50);
             drawTerrain();
-            drawTree(new Vector(-1,0,0), 1, 1, 2);
-            drawTree(new Vector(15,15,0), 1.5, 1, 1.5);
-            drawTree(new Vector(18,-15,0), 2, 2, 3);
+            drawTree(new Vector(5,0,0), 1, 1, 2);
+            drawTree(new Vector(-18,18,0), 1.5, 1, 1.5);
+            drawTree(new Vector(-17,-17,0), 2, 2, 3);
             drawWater();
         }
         
@@ -1435,7 +1618,7 @@ public class RobotRace extends Base {
             gl.glBindTexture(GL_TEXTURE_1D, 0);
             
             gl.glDisable(GL_TEXTURE_1D);
-            gl.glEnable(GL_TEXTURE_2D);
+//            gl.glEnable(GL_TEXTURE_2D);
         }
         
         private void applyTexture(double color){
