@@ -1251,10 +1251,8 @@ public class RobotRace extends Base {
                 }
             }
             gl.glEnd();
-            gl.glBindTexture(GL_TEXTURE_1D, 0);
-            
+            gl.glBindTexture(GL_TEXTURE_1D, 0);            
             gl.glDisable(GL_TEXTURE_1D);
-            gl.glEnable(GL_TEXTURE_2D);
         }
         
         private void applyTexture(double color){
