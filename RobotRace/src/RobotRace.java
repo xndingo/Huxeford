@@ -157,16 +157,16 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0        
-        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,1), 0.004f);
+        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,0), 0.004f);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,1), 0.004f);
+        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,0), 0.004f);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,1), 0.004f);
+        robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,0), 0.004f);
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE, new Vector(1.5,0,1), 0.004f);
+        robots[3] = new Robot(Material.ORANGE, new Vector(1.5,0,0), 0.004f);
         
         // Initialize the camera
         camera = new Camera();
@@ -879,7 +879,52 @@ public class RobotRace extends Base {
             int trackLength;
             // The test track is selected
             if (0 == trackNr) {
-                
+                gl.glBegin(GL_TRIANGLE_STRIP);
+                    for (double i = 0; i <= 1; i = i + 1/numberOfInternalSegments){
+                        Vector centerPoint = getPoint(i);
+                        Vector tangent = getTangent(i);
+                        Vector radius = (new Vector (tangent.y(), -tangent.x(), 0)).normalized().scale(2);
+                        Vector outerPoint = centerPoint.add(radius);
+                        Vector innerPoint = centerPoint.subtract(radius);
+                        gl.glNormal3d(0, 0, 1);
+                        gl.glVertex3d(innerPoint.x(), innerPoint.y(), innerPoint.z());
+                        gl.glVertex3d(outerPoint.x(), outerPoint.y(), outerPoint.z());
+
+                    }
+                    for (double i = 0; i <= 1; i = i + 1/numberOfInternalSegments){
+                        Vector centerPoint = getPoint(i);
+                        Vector tangent = getTangent(i);
+                        Vector radius = (new Vector (tangent.y(), -tangent.x(), 0)).normalized().scale(2);
+                        Vector outerPoint = centerPoint.add(radius);
+                        Vector innerPoint = centerPoint.subtract(radius);
+                        gl.glNormal3d(0, 0, 1);
+                        gl.glVertex3d(innerPoint.x(), innerPoint.y(), innerPoint.z() - 2);
+                        gl.glVertex3d(outerPoint.x(), outerPoint.y(), outerPoint.z() - 2);
+
+                    }
+                    
+                    for (double i = 0; i <= 1; i = i + 1/numberOfInternalSegments){
+                        Vector centerPoint = getPoint(i);
+                        Vector tangent = getTangent(i);
+                        Vector radius = (new Vector (tangent.y(), -tangent.x(), 0)).normalized().scale(2);
+                        Vector innerPoint = centerPoint.subtract(radius);
+                        gl.glNormal3d(-radius.x(), -radius.y(), -radius.z());
+                        gl.glVertex3d(innerPoint.x(), innerPoint.y(), innerPoint.z());
+                        gl.glVertex3d(innerPoint.x(), innerPoint.y(), innerPoint.z()-2);
+                        
+                    }
+                    for (double i = 0; i <= 1; i = i + 1/numberOfInternalSegments){
+                        Vector centerPoint = getPoint(i);
+                        Vector tangent = getTangent(i);
+                        Vector radius = (new Vector (tangent.y(), -tangent.x(), 0)).normalized().scale(2);
+                        Vector outerPoint = centerPoint.add(radius);
+                        gl.glNormal3d(radius.x(), radius.y(), radius.z());
+                        gl.glVertex3d(outerPoint.x(), outerPoint.y(), outerPoint.z());
+                        gl.glVertex3d(outerPoint.x(), outerPoint.y(), outerPoint.z() - 2);
+                        
+                    }
+                    
+                gl.glEnd();
             // The O-track is selected
             } else if (1 == trackNr) {
                 trackLength = controlPointsOTrack.length;
@@ -1045,8 +1090,8 @@ public class RobotRace extends Base {
             //drawGround(50);
             drawTerrain();
             drawTree(new Vector(-1,0,0), 1, 1, 2);
-            drawTree(new Vector(8,-9,0), 1.5, 1, 1.5);
-            drawTree(new Vector(-10,0,0), 2, 2, 3);
+            drawTree(new Vector(15,15,0), 1.5, 1, 1.5);
+            drawTree(new Vector(18,-15,0), 2, 2, 3);
             drawWater();
         }
         
