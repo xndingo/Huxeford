@@ -157,13 +157,13 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0        
-        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,0), 0.04f);
+        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,0), 0.01f);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,0), 0.04f);
+        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,0), 0.02f);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,0), 0.04f);
+        robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,0), 0.03f);
 
         // Initialize robot 3
         robots[3] = new Robot(Material.ORANGE, new Vector(1.5,0,0), 0.04f);
@@ -783,7 +783,7 @@ public class RobotRace extends Base {
             eye = robots[robotToFocus].absolutePosition.add(normal.add(new Vector(0,0,zOffset)));
             center = robots[robotToFocus].absolutePosition.add(new Vector(0,0,zOffset));
             up = Vector.Z;
-            updateFocusedRobot();
+            checkForWinningRobot();
         }
         
         /**
@@ -799,7 +799,7 @@ public class RobotRace extends Base {
             eye = eyePosition;
             center = centerPosition;
             up = Vector.Z;
-            updateFocusedRobot();
+            checkForLoosingRobot();
         }
         
         private Vector getEyePosition() {
@@ -839,6 +839,28 @@ public class RobotRace extends Base {
                 robotToFocus = 0;
                 changeRobotToFocus = 0;
             }
+        }
+        
+        private void checkForWinningRobot() {
+            double max = 0;
+            for (int i = 0; i < robots.length; i++){
+                if (robots[i].t > max){
+                    max = robots[i].t;
+                    robotToFocus = i;
+                }
+            }
+        }
+        
+        private void checkForLoosingRobot(){
+            double min = robots[0].t;
+            robotToFocus = 0;
+            for (int i = 1; i < robots.length; i++){
+                if (robots[i].t < min){
+                    min = robots[i].t;
+                    robotToFocus = i;
+                }
+            }
+            
         }
     }
     
@@ -893,7 +915,7 @@ public class RobotRace extends Base {
             double numberOfInternalSegments = 30;
             // The test track is selected
             if (0 == trackNr) {
-                trackLength = 1;
+                trackLength = 1; // used in the others (here just not to crash the other functions)
                 gl.glEnable(GL_TEXTURE_2D);
                 brick.bind(gl);
                 gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
