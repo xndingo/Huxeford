@@ -1052,25 +1052,95 @@ public class RobotRace extends Base {
             } else if (2 == trackNr) {
                 trackLength = controlPointsLTrack.length;
                 for(int i = 0; i < trackLength; i = i + 3){
-                    Vector temp, temp2;
+                    Vector outerBorder, tangent, unitNormal, innerBorder;
                     gl.glColor3d(1, 0, 0);
+                    // Draw the top of the track
                     gl.glBegin(GL_TRIANGLE_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
-                            temp = getCubicBezierPnt(
+                            outerBorder = getCubicBezierPnt(
                                     j, 
                                     controlPointsLTrack[i%trackLength],
                                     controlPointsLTrack[(i+1)%trackLength],
                                     controlPointsLTrack[(i+2)%trackLength],
                                     controlPointsLTrack[(i+3)%trackLength]);
-                            temp2 = getCubicBezierTng(
+                            tangent = getCubicBezierTng(
                                     j, 
                                     controlPointsLTrack[i%trackLength],
                                     controlPointsLTrack[(i+1)%trackLength],
                                     controlPointsLTrack[(i+2)%trackLength],
                                     controlPointsLTrack[(i+3)%trackLength]);
-                            temp2 = temp.subtract((new Vector(temp2.y(), -temp2.x(), 0)).normalized().scale(4));
-                            gl.glVertex3d(temp.x(), temp.y(), temp.z());
-                            gl.glVertex3d(temp2.x(), temp2.y(), temp2.z());
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            innerBorder = outerBorder.subtract(unitNormal.scale(4));
+                            gl.glNormal3d(0, 0, 1);
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
+                        }
+                    gl.glEnd();
+                    // Draw the bottom of the track
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            outerBorder = getCubicBezierPnt(
+                                    j, 
+                                    controlPointsLTrack[i%trackLength],
+                                    controlPointsLTrack[(i+1)%trackLength],
+                                    controlPointsLTrack[(i+2)%trackLength],
+                                    controlPointsLTrack[(i+3)%trackLength]);
+                            tangent = getCubicBezierTng(
+                                    j, 
+                                    controlPointsLTrack[i%trackLength],
+                                    controlPointsLTrack[(i+1)%trackLength],
+                                    controlPointsLTrack[(i+2)%trackLength],
+                                    controlPointsLTrack[(i+3)%trackLength]);
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            innerBorder = outerBorder.subtract(unitNormal.scale(4));
+                            gl.glNormal3d(0, 0, 1);
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
+                        }
+                    gl.glEnd();
+                    // Draw the outer part of the track
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            outerBorder = getCubicBezierPnt(
+                                    j, 
+                                    controlPointsLTrack[i%trackLength],
+                                    controlPointsLTrack[(i+1)%trackLength],
+                                    controlPointsLTrack[(i+2)%trackLength],
+                                    controlPointsLTrack[(i+3)%trackLength]);
+                            tangent = getCubicBezierTng(
+                                    j, 
+                                    controlPointsLTrack[i%trackLength],
+                                    controlPointsLTrack[(i+1)%trackLength],
+                                    controlPointsLTrack[(i+2)%trackLength],
+                                    controlPointsLTrack[(i+3)%trackLength]);
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
+                            
+                        }
+                    gl.glEnd();
+                    // Draw the inner part of the track
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            outerBorder = getCubicBezierPnt(
+                                    j, 
+                                    controlPointsLTrack[i%trackLength],
+                                    controlPointsLTrack[(i+1)%trackLength],
+                                    controlPointsLTrack[(i+2)%trackLength],
+                                    controlPointsLTrack[(i+3)%trackLength]);
+                            tangent = getCubicBezierTng(
+                                    j, 
+                                    controlPointsLTrack[i%trackLength],
+                                    controlPointsLTrack[(i+1)%trackLength],
+                                    controlPointsLTrack[(i+2)%trackLength],
+                                    controlPointsLTrack[(i+3)%trackLength]);
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            innerBorder = outerBorder.subtract(unitNormal.scale(4));
+                            gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
+                            
                         }
                     gl.glEnd();
                 }
@@ -1078,25 +1148,95 @@ public class RobotRace extends Base {
             } else if (3 == trackNr) {
                 trackLength = controlPointsCTrack.length;
                 for(int i = 0; i < trackLength; i = i + 3){
-                    Vector temp, temp2;
+                    Vector outerBorder, tangent, unitNormal, innerBorder;
                     gl.glColor3d(1, 0, 0);
+                    // Draw the top of the track
                     gl.glBegin(GL_TRIANGLE_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
-                            temp = getCubicBezierPnt(
+                            outerBorder = getCubicBezierPnt(
                                     j, 
                                     controlPointsCTrack[i%trackLength],
                                     controlPointsCTrack[(i+1)%trackLength],
                                     controlPointsCTrack[(i+2)%trackLength],
                                     controlPointsCTrack[(i+3)%trackLength]);
-                            temp2 = getCubicBezierTng(
+                            tangent = getCubicBezierTng(
                                     j, 
                                     controlPointsCTrack[i%trackLength],
                                     controlPointsCTrack[(i+1)%trackLength],
                                     controlPointsCTrack[(i+2)%trackLength],
                                     controlPointsCTrack[(i+3)%trackLength]);
-                            temp2 = temp.subtract((new Vector(temp2.y(), -temp2.x(), 0)).normalized().scale(4));
-                            gl.glVertex3d(temp.x(), temp.y(), temp.z());
-                            gl.glVertex3d(temp2.x(), temp2.y(), temp2.z());
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            innerBorder = outerBorder.subtract(unitNormal.scale(4));
+                            gl.glNormal3d(0, 0, 1);
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
+                        }
+                    gl.glEnd();
+                    // Draw the bottom of the track
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            outerBorder = getCubicBezierPnt(
+                                    j, 
+                                    controlPointsCTrack[i%trackLength],
+                                    controlPointsCTrack[(i+1)%trackLength],
+                                    controlPointsCTrack[(i+2)%trackLength],
+                                    controlPointsCTrack[(i+3)%trackLength]);
+                            tangent = getCubicBezierTng(
+                                    j, 
+                                    controlPointsCTrack[i%trackLength],
+                                    controlPointsCTrack[(i+1)%trackLength],
+                                    controlPointsCTrack[(i+2)%trackLength],
+                                    controlPointsCTrack[(i+3)%trackLength]);
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            innerBorder = outerBorder.subtract(unitNormal.scale(4));
+                            gl.glNormal3d(0, 0, 1);
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
+                        }
+                    gl.glEnd();
+                    // Draw the outer part of the track
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            outerBorder = getCubicBezierPnt(
+                                    j, 
+                                    controlPointsCTrack[i%trackLength],
+                                    controlPointsCTrack[(i+1)%trackLength],
+                                    controlPointsCTrack[(i+2)%trackLength],
+                                    controlPointsCTrack[(i+3)%trackLength]);
+                            tangent = getCubicBezierTng(
+                                    j, 
+                                    controlPointsCTrack[i%trackLength],
+                                    controlPointsCTrack[(i+1)%trackLength],
+                                    controlPointsCTrack[(i+2)%trackLength],
+                                    controlPointsCTrack[(i+3)%trackLength]);
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
+                            gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z() - 2);
+                            
+                        }
+                    gl.glEnd();
+                    // Draw the inner part of the track
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            outerBorder = getCubicBezierPnt(
+                                    j, 
+                                    controlPointsCTrack[i%trackLength],
+                                    controlPointsCTrack[(i+1)%trackLength],
+                                    controlPointsCTrack[(i+2)%trackLength],
+                                    controlPointsCTrack[(i+3)%trackLength]);
+                            tangent = getCubicBezierTng(
+                                    j, 
+                                    controlPointsCTrack[i%trackLength],
+                                    controlPointsCTrack[(i+1)%trackLength],
+                                    controlPointsCTrack[(i+2)%trackLength],
+                                    controlPointsCTrack[(i+3)%trackLength]);
+                            unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            innerBorder = outerBorder.subtract(unitNormal.scale(4));
+                            gl.glNormal3d(unitNormal.x(), unitNormal.y(), unitNormal.z());
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z());
+                            gl.glVertex3d(innerBorder.x(), innerBorder.y(), innerBorder.z() - 2);
+                            
                         }
                     gl.glEnd();
                 }
