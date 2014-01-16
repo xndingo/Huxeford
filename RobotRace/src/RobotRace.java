@@ -920,14 +920,14 @@ public class RobotRace extends Base {
         };
         
         Random generator = new Random(); // Random generator
-        int Low = 2;
+        int Low = 5;
         int High = 20;
         // Generate random values for coordinates
-        int r1 = generator.nextInt(High-Low)+Low;
+        int r1 = generator.nextInt(High-Low)+2;
         int r2 = generator.nextInt(Low)+2;
-        int r3 = generator.nextInt(High-Low);
-        int r4 = generator.nextInt(High-Low+5);
-        int r5 = generator.nextInt(High-Low+5)+2;
+        int r3 = generator.nextInt(High-Low-10)+1;
+        int r4 = generator.nextInt(High-Low-10)+1;
+        int r5 = generator.nextInt(High-Low-10)+1;
         
         /** Array with control points for the custom track. */
         private Vector[] controlPointsCustomTrack = {
