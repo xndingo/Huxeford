@@ -223,7 +223,7 @@ public class RobotRace extends Base {
          * related to the aspect of the view. Then, calculates the atan of
          * (height/2)/gs.vDist, to determine half of the angle. Then, double
          * the angle and convert it from radians to degrees. */
-        double fovy = (180/PI) * (2 * atan(gs.vWidth * (gs.w/gs.h) / (2 * gs.vDist))); 
+        double fovy = (2 * Math.toDegrees(atan(gs.vWidth * (gs.w/gs.h) / (2 * gs.vDist)))); 
 
         // Select part of window.
         gl.glViewport(0, 0, gs.w, gs.h);
@@ -482,7 +482,8 @@ public class RobotRace extends Base {
         public void draw(boolean stickFigure) {
             showStick = stickFigure;
             gl.glPushMatrix();
-                updateRobotRaceTrackPosition();
+                updateRobotRaceTrackPosition(); // explained below
+                
                 /**Here each part is drawn taking the basePosition as the main
                  * position of the robot and translating regarding to it.
                  */
@@ -521,7 +522,7 @@ public class RobotRace extends Base {
             
             // Update the absolute position of the robot for camera usage
             absolutePosition = trackPosition.add(basePosition);
-            // Change position based on velocity
+            // Change next position based on velocity
             t+=velocity;
         }
         
@@ -767,8 +768,13 @@ public class RobotRace extends Base {
          * on the helicopter mode.
          */
         private void setHelicopterMode() {
+            // get the absolute position of the focused robot and goes 10 meters up
             eye = robots[robotToFocus].absolutePosition.add(new Vector(0,0,10));
+            // the center is the absolute position of the robot, so the camera
+            // is looking from above
             center = robots[robotToFocus].absolutePosition;
+            // the orientation is the Y vector, because to change it in this
+            // mode give a bit of motion sickness
             up = Vector.Y;
             updateFocusedRobot();
         }
@@ -780,9 +786,17 @@ public class RobotRace extends Base {
         private void setMotorCycleMode() {
             double zOffset = 1;
             double scale = 10;
+            // get the tangent of the focused robot
             Vector robotTangent = robots[robotToFocus].tangent.normalized();
+            // create the normal of the tangent (regarding xOy plane) and scale
+            // it to get a little bit away from the robot in the normal direction
             Vector normal = (new Vector(robotTangent.y(), -robotTangent.x(), 0)).scale(scale);
+            // to follow the robot, add the previous normal vector to the absolute
+            // position of the robot. The zOffset is just not for the camera to
+            // stay in the ground
             eye = robots[robotToFocus].absolutePosition.add(normal.add(new Vector(0,0,zOffset)));
+            // the center position is the robot position (so the eye is looking
+            // to the robot)
             center = robots[robotToFocus].absolutePosition.add(new Vector(0,0,zOffset));
             up = Vector.Z;
             checkForWinningRobot();
@@ -793,8 +807,11 @@ public class RobotRace extends Base {
          * on the first person mode.
          */
         private void setFirstPersonMode() {
+            // get the position of the head of the robot and use it as the eye
             Vector eyePosition = robots[robotToFocus].absolutePosition.add(
                     robots[robotToFocus].headPosition);
+            // get the eye position and sum the tangent, to make the center in
+            // the direction of the tangent and further ahead of the robot
             Vector centerPosition = robots[robotToFocus].absolutePosition.add(
                     robots[robotToFocus].headPosition).add(
                             robots[robotToFocus].tangent.scale(1.5));
@@ -827,6 +844,8 @@ public class RobotRace extends Base {
         }
         
         private void updateFocusedRobot(){
+            // change the focused robot after a few iterations, not to leave the
+            // race too much boring
             changeRobotToFocus++;
             if(changeRobotToFocus == iterationsToChangeCamera){
                 robotToFocus = 1;
@@ -844,6 +863,7 @@ public class RobotRace extends Base {
         }
         
         private void checkForWinningRobot() {
+            // used by the motorCycleMode to keep track of the wining robot
             double max = 0;
             for (int i = 0; i < robots.length; i++){
                 if (robots[i].t > max){
@@ -854,6 +874,7 @@ public class RobotRace extends Base {
         }
         
         private void checkForLoosingRobot(){
+            // used by the firstPersonMode to keep track of the loosing robot
             double min = robots[0].t;
             robotToFocus = 0;
             for (int i = 1; i < robots.length; i++){
@@ -870,14 +891,6 @@ public class RobotRace extends Base {
      * Implementation of a race track that is made from Bezier segments.
      */
     private class RaceTrack {
-        Random generator = new Random(); // Random generator
-        // Generate random values for coordinates
-        int r1 = generator.nextInt(20)+1;
-        int r2 = generator.nextInt(10)+1;
-        int r3 = generator.nextInt(5)+1;
-        int r4 = generator.nextInt(5)+1;
-        /** Array with control points for the Random-track. */
-        
         /** Array with control points for the O-track. */
         private Vector[] controlPointsOTrack = {
             new Vector(-20, 0, 1), new Vector(-20, -10, 1), new Vector(-10, -20, 1),
@@ -904,17 +917,27 @@ public class RobotRace extends Base {
             new Vector(10, 20, 1), new Vector(-10, 20, 1), new Vector(-20, 10, 1)
         };
         
+        Random generator = new Random(); // Random generator
+        int Low = 10;
+        int High = 30;
+        // Generate random values for coordinates
+        int r1 = generator.nextInt(High-Low)+Low;
+        int r2 = generator.nextInt(Low)+2;
+        int r3 = generator.nextInt(High-Low);
+        int r4 = generator.nextInt(High-Low+5);
+        int r5 = generator.nextInt(High-Low+5)+2;
+        
         /** Array with control points for the custom track. */
         private Vector[] controlPointsCustomTrack = {
-            new Vector(-r1, 0, r3), new Vector(-r1, -r2, r3), new Vector(-r2, -r1, r3),
-            new Vector(0, -r1, r3), new Vector(r2, -r1, r3), new Vector(r1, -r2, r3),
-            new Vector(r1, 0, r4), new Vector(r1, r2, r4), new Vector(r2, r1, r4),
-            new Vector(0, r1, r4), new Vector(-r2, r1, r4), new Vector(-r1, r2, r4)
+            new Vector(-r1, 0, r3), new Vector(-r1, -r1/2, r3), new Vector(-r1/2, -r1, r3),
+            new Vector(0, -r1, r2), new Vector(r1/2, -r1, r2), new Vector(r1, -r1/2, r2),
+            new Vector(r1, 0, r4), new Vector(r1, r1/2, r4), new Vector(r1/2, r1, r4),
+            new Vector(0, r1, r5), new Vector(-r1/2, r1, r5), new Vector(-r1, r1/2, r5)
             
         };
         
-        private int trackNumber;
-        private int trackLength;
+        private int trackNumber;  // keep track of the current track
+        private int trackLength;  // keep track of the length of the track (points)
         /**
          * Constructs the race track, sets up display lists.
          */
@@ -924,26 +947,37 @@ public class RobotRace extends Base {
         
         /**
          * Draws this track, based on the selected track number.
+         * Only the trackNr==0 and trackNr==1 are explained, since all the others are very
+         * similar to trackNr==1.
          */
         public void draw(int trackNr) throws IOException {
             trackNumber = trackNr;
-            double numberOfInternalSegments = 30;
+            double numberOfInternalSegments = 30;  // to be used by the splines
             // The test track is selected
             if (0 == trackNr) {
-                trackLength = 1; // used in the others (here just not to crash the other functions)
+                trackLength = 1; // used with the other trackNr (here just not to crash the other functions)
                 gl.glEnable(GL_TEXTURE_2D);
-                track.bind(gl);
+                track.bind(gl); // using track texture
                 gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                 gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                 gl.glBegin(GL_QUAD_STRIP);
                     for (double i = 0; i <= 1; i = i + 1/numberOfInternalSegments){
+                        // get the center point of the track
                         Vector centerPoint = getPoint(i);
+                        // get the tangent of the center point
                         Vector tangent = getTangent(i);
+                        // find the normal of the tangent and scale it to 2 meters,
+                        // since the track should be 4 meters
                         Vector radius = (new Vector (tangent.y(), -tangent.x(), 0)).normalized().scale(2);
+                        // find the outer point of the track
                         Vector outerPoint = centerPoint.add(radius);
+                        // find the inner point of the track
                         Vector innerPoint = centerPoint.subtract(radius);
+                        // the normal of the top part is the Z vector
                         gl.glNormal3d(0, 0, 1);
+                        // add the texture coordinates
                         gl.glTexCoord2d(10*i, 0);
+                        // start constructing the track
                         gl.glVertex3d(innerPoint.x(), innerPoint.y(), innerPoint.z());
                         gl.glTexCoord2d(10*i, 1);
                         gl.glVertex3d(outerPoint.x(), outerPoint.y(), outerPoint.z());
@@ -1007,20 +1041,25 @@ public class RobotRace extends Base {
                     // Draw the top of the track
                     gl.glBegin(GL_TRIANGLE_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            // get the outer border, using the bezier function
                             outerBorder = getCubicBezierPnt(
                                     j, 
                                     controlPointsOTrack[i%trackLength],
                                     controlPointsOTrack[(i+1)%trackLength],
                                     controlPointsOTrack[(i+2)%trackLength],
                                     controlPointsOTrack[(i+3)%trackLength]);
+                            // get the tangent using the bezier function
                             tangent = getCubicBezierTng(
                                     j, 
                                     controlPointsOTrack[i%trackLength],
                                     controlPointsOTrack[(i+1)%trackLength],
                                     controlPointsOTrack[(i+2)%trackLength],
                                     controlPointsOTrack[(i+3)%trackLength]);
+                            // find the normal and normalize it
                             unitNormal = (new Vector(tangent.y(), -tangent.x(), 0)).normalized();
+                            // find the inner border, 4 meters away from the outer
                             innerBorder = outerBorder.subtract(unitNormal.scale(4));
+                            // configure the normal, texturing and start drawing
                             gl.glNormal3d(0, 0, 1);
                             gl.glTexCoord2d(10*i, 0);
                             gl.glVertex3d(outerBorder.x(), outerBorder.y(), outerBorder.z());
@@ -1468,8 +1507,14 @@ public class RobotRace extends Base {
         }
         
         public Vector getPointToFollow(double t, int trackNr){
+            // get the center point of the bezier tracks, so that the robots 
+            // can follow it. First the 'temp' value should be bigger than
+            // 'trackLength', not to give points not existent in the control points.
+            // Divide by 3 because of the splines. After get the floor and the
+            // 3 times to go to the appropriate start position of the control points.
             double temp = (t % trackLength)/3;
             int curveStartPoint = 3*((int)Math.floor(temp));
+            // ajust 'temp' to be between 0 and 1
             temp = temp - (curveStartPoint/3);
             Vector[] vecTemp = new Vector[4];
             for (int i = curveStartPoint, j = 0; i < curveStartPoint + 4; i++, j++){
@@ -1486,12 +1531,16 @@ public class RobotRace extends Base {
                     vecTemp[j] = controlPointsCustomTrack[i%trackLength];
                 }
             }
+            // find the central point of the track, since the bezier function give
+            // the border.
             Vector tan = getCubicBezierTng(temp, vecTemp[0], vecTemp[1], vecTemp[2], vecTemp[3]);
             Vector normal = (new Vector(tan.y(), -tan.x(), 0)).normalized();
             return getCubicBezierPnt(temp, vecTemp[0], vecTemp[1], vecTemp[2], vecTemp[3]).subtract(normal.scale(2));
         }
         
         public Vector getTangentToFollow(double t, int trackNr){
+            // almost the same as the previous function but now call the bezier
+            // tangent.
             double temp = (t % trackLength)/3;
             int curveStartPoint = 3 * ((int)Math.floor(temp));
             temp = temp - (curveStartPoint/3);
@@ -1542,6 +1591,7 @@ public class RobotRace extends Base {
          * Can be used to set up a display list.
          */
         public Terrain() {
+            // colors to be used in the 1d texturing
             Color[] myColors = new Color[450];
             for (int i = 0; i < 200; i++){
                 myColors[i] = new Color(0, 0, i);
