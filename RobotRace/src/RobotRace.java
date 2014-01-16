@@ -270,7 +270,7 @@ public class RobotRace extends Base {
             gl.glClear(GL_DEPTH_BUFFER_BIT);
             
             // Set color to black.
-            gl.glColor3f(0f, 0f, 0f);
+            gl.glColor3f(1f, 1f, 0f);
             
             gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             
@@ -705,6 +705,7 @@ public class RobotRace extends Base {
         
         private int changeAutoModeInterval = 100;
         private int changeAutoModeCounter = 0;
+        private long cameraMode;
         /**
          * Updates the camera viewpoint and direction based on the
          * selected camera mode.
@@ -726,11 +727,20 @@ public class RobotRace extends Base {
                 
             // Auto mode
             } else if (4 == mode) {
-                if (changeAutoModeCounter == changeAutoModeInterval){
-                    chooseRandomCameraMode();
+                if (changeAutoModeCounter >= changeAutoModeInterval){
+                    cameraMode = chooseRandomCameraMode();
                     changeAutoModeCounter = 0;
                 }
                 else{
+                    if (cameraMode >= 0 && cameraMode < 1){
+                        setHelicopterMode();
+                    }
+                    else if (cameraMode >= 1 && cameraMode < 2){
+                        setMotorCycleMode();
+                    }
+                    else if (cameraMode >= 2 && cameraMode < 3){
+                        setFirstPersonMode();
+                    }
                     changeAutoModeCounter++;
                 }
                 updateFocusedRobot();
@@ -740,17 +750,9 @@ public class RobotRace extends Base {
             }
         }
         
-        private void chooseRandomCameraMode(){
+        private long chooseRandomCameraMode(){
             long temp = Math.round(3*Math.random());
-            if (temp >= 0 && temp < 1){
-                setHelicopterMode();
-            }
-            else if (temp >= 1 && temp < 2){
-                setMotorCycleMode();
-            }
-            else if (temp >= 2 && temp < 3){
-                setFirstPersonMode();
-            }
+            return temp;
         }
         
         /**
@@ -918,8 +920,8 @@ public class RobotRace extends Base {
         };
         
         Random generator = new Random(); // Random generator
-        int Low = 10;
-        int High = 30;
+        int Low = 2;
+        int High = 20;
         // Generate random values for coordinates
         int r1 = generator.nextInt(High-Low)+Low;
         int r2 = generator.nextInt(Low)+2;
