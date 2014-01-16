@@ -849,16 +849,11 @@ public class RobotRace extends Base {
         
         /** Array with control points for the L-track. */
         private Vector[] controlPointsLTrack = {
-            new Vector(-20, 14, 1), new Vector(-20, 4, 1), new Vector(-20, -2, 1),
-            new Vector(-20, -14, 1), new Vector(-18, -16, 1), new Vector(-16, -18, 1),
-            new Vector(-14, -20, 1), new Vector(-4, -20, 1), new Vector(6, -20, 1),
-            new Vector(14, -20, 1), new Vector(16, -18, 1), new Vector(18, -16, 1),
-            new Vector(20, -14, 1), new Vector(18, -12, 1), new Vector(16, -10, 1),
-            new Vector(14, -8, 1), new Vector(6, -8, 1), new Vector(4, -8, 1),
-            new Vector(-2, -8, 1), new Vector(-4, -6, 1), new Vector(-6, -4, 1),
-            new Vector(-8, -2, 1), new Vector(-8, 4, 1), new Vector(-8, 6, 1),
-            new Vector(-10, 16, 1), new Vector(-12, 18, 1), new Vector(-14, 20, 1),
-            new Vector(-16, 18, 1), new Vector(-18, 16, 1), new Vector(-20, 14, 1)            
+            new Vector(-20, 10, 1), new Vector(-20, -10, 1), new Vector(-10, -20, 1),
+            new Vector(10, -20, 1), new Vector(20, -20, 1), new Vector(20, -10, 1),
+            new Vector(10, -10, 1), new Vector(0, -10, 1), new Vector(-10, 0, 1),
+            new Vector(-10, 10, 1), new Vector(-10, 20, 1), new Vector(-20, 20, 1)
+            
         };
         /** Array with control points for the C-track. */
         private Vector[] controlPointsCTrack;
