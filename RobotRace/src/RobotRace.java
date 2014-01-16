@@ -157,16 +157,16 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0        
-        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,0), 0.004f);
+        robots[0] = new Robot(Material.GOLD, new Vector(-1.5,0,0), 0.04f);
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,0), 0.004f);
+        robots[1] = new Robot(Material.SILVER, new Vector(-0.5,0,0), 0.04f);
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,0), 0.004f);
+        robots[2] = new Robot(Material.WOOD, new Vector(0.5,0,0), 0.04f);
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE, new Vector(1.5,0,0), 0.004f);
+        robots[3] = new Robot(Material.ORANGE, new Vector(1.5,0,0), 0.04f);
         
         // Initialize the camera
         camera = new Camera();
@@ -498,11 +498,17 @@ public class RobotRace extends Base {
         private void updateRobotRaceTrackPosition(){
             /* First, update the track position where the robot need to be,
             according to the specific track */
-            trackPosition = raceTrack.getPoint(t);
+            if (gs.trackNr == 0)
+                trackPosition = raceTrack.getPoint(t);
+            else
+                trackPosition = raceTrack.getPointToFollow(t, gs.trackNr);
             gl.glTranslated(trackPosition.x(), trackPosition.y(), trackPosition.z());
             /* Second, rotate the system, so the robot is oriented according
             to the tangent of the track */
-            tangent = raceTrack.getTangent(t).normalized();
+            if (gs.trackNr == 0)
+                tangent = raceTrack.getTangent(t).normalized();
+            else
+                tangent = raceTrack.getTangentToFollow(t, gs.trackNr);
             angleFromYInRadians = atan2(tangent.y(), tangent.x());
             angleFromYInDegrees = -90+180*angleFromYInRadians/PI;
             gl.glRotated(angleFromYInDegrees, 0, 0, 1);
@@ -864,6 +870,8 @@ public class RobotRace extends Base {
         /** Array with control points for the custom track. */
         private Vector[] controlPointsCustomTrack;
         
+        private int trackNumber;
+        private int trackLength;
         /**
          * Constructs the race track, sets up display lists.
          */
@@ -875,10 +883,11 @@ public class RobotRace extends Base {
          * Draws this track, based on the selected track number.
          */
         public void draw(int trackNr) throws IOException {
+            trackNumber = trackNr;
             double numberOfInternalSegments = 30;
-            int trackLength;
             // The test track is selected
             if (0 == trackNr) {
+                trackLength = 1;
                 gl.glBegin(GL_QUAD_STRIP);
                     for (double i = 0; i <= 1; i = i + 1/numberOfInternalSegments){
                         Vector centerPoint = getPoint(i);
@@ -1023,6 +1032,45 @@ public class RobotRace extends Base {
             return new Vector(-2 * PI * 10 * sin(2 * PI * t), 2 * PI * 14 * cos(2 * PI * t), 1);
         }
         
+        public Vector getPointToFollow(double t, int trackNr){
+            double temp = (t % trackLength)/3;
+            int curveStartPoint = 3*((int)Math.floor(temp));
+            temp = temp - (curveStartPoint/3);
+            Vector[] vecTemp = new Vector[4];
+            for (int i = curveStartPoint, j = 0; i < curveStartPoint + 4; i++, j++){
+                if(trackNr == 1) {
+                    vecTemp[j] = controlPointsOTrack[i%trackLength];
+                }
+                else if(trackNr == 2) {
+                    vecTemp[j] = controlPointsLTrack[i%trackLength];
+                }
+                else if(trackNr == 3) {
+                    vecTemp[j] = controlPointsCTrack[i%trackLength];
+                }
+            }
+            Vector tan = getCubicBezierTng(temp, vecTemp[0], vecTemp[1], vecTemp[2], vecTemp[3]);
+            Vector normal = (new Vector(tan.y(), -tan.x(), 0)).normalized();
+            return getCubicBezierPnt(temp, vecTemp[0], vecTemp[1], vecTemp[2], vecTemp[3]).subtract(normal.scale(2));
+        }
+        
+        public Vector getTangentToFollow(double t, int trackNr){
+            double temp = (t % trackLength)/3;
+            int curveStartPoint = 3 * ((int)Math.floor(temp));
+            temp = temp - (curveStartPoint/3);
+            Vector[] vecTemp = new Vector[4];
+            for (int i = curveStartPoint, j = 0; i < curveStartPoint + 4; i++, j++){
+                if(trackNr == 1) {
+                    vecTemp[j] = controlPointsOTrack[i%trackLength];
+                }
+                else if(trackNr == 2) {
+                    vecTemp[j] = controlPointsLTrack[i%trackLength];
+                }
+                else if(trackNr == 3) {
+                    vecTemp[j] = controlPointsCTrack[i%trackLength];
+                }
+            }
+            return getCubicBezierTng(temp, vecTemp[0], vecTemp[1], vecTemp[2], vecTemp[3]);
+        }
         /*
          * Returns a long representation of the Binomial Coefficient, 
          * "n choose k", the number of k-element subsets that can be selected 
