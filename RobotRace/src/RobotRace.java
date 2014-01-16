@@ -509,12 +509,8 @@ public class RobotRace extends Base {
             
             // Update the absolute position of the robot for camera usage
             absolutePosition = trackPosition.add(basePosition);
-            if (t < 1){
-                t += velocity;
-            }
-            else {
-                t = 0;
-            }
+            // Change position based on velocity
+            t+=velocity;
         }
         
         public void setMaterialColor(){
@@ -856,7 +852,14 @@ public class RobotRace extends Base {
             
         };
         /** Array with control points for the C-track. */
-        private Vector[] controlPointsCTrack;
+        private Vector[] controlPointsCTrack = {
+            new Vector(-20, 0, 1), new Vector(-20, -10, 1), new Vector(-10, -20, 1),
+            new Vector(10, -20, 1), new Vector(20, -20, 1), new Vector(20, -10, 1),
+            new Vector(10, -10, 1), new Vector(5, -10, 1), new Vector(0, -5, 1),
+            new Vector(0, 0, 1), new Vector(0, 5, 1), new Vector(5, 10, 1),
+            new Vector(10, 10, 1), new Vector(20, 10, 1), new Vector(20, 20, 1),
+            new Vector(10, 20, 1), new Vector(-10, 20, 1), new Vector(-20, 10, 1)
+        };
         
         /** Array with control points for the custom track. */
         private Vector[] controlPointsCustomTrack;
@@ -872,39 +875,76 @@ public class RobotRace extends Base {
          * Draws this track, based on the selected track number.
          */
         public void draw(int trackNr) throws IOException {
-            double numberOfPoints = 30;
+            double numberOfInternalSegments = 30;
+            int trackLength;
             // The test track is selected
             if (0 == trackNr) {
                 
             // The O-track is selected
             } else if (1 == trackNr) {
-                for(int i = 0; i < controlPointsOTrack.length; i = i + 3){
-                    Vector temp;
+                trackLength = controlPointsOTrack.length;
+                for(int i = 0; i < trackLength; i = i + 3){
+                    Vector temp, temp2;
                     gl.glColor3d(1, 0, 0);
                     gl.glBegin(GL_TRIANGLE_STRIP);
-                        for(double j = 0; j <=1; j = j + 1/numberOfPoints){
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
                             temp = getCubicBezierPnt(
-                                    j, controlPointsOTrack[i%12], controlPointsOTrack[(i+1)%12], controlPointsOTrack[(i+2)%12], controlPointsOTrack[(i+3)%12]);
+                                    j, 
+                                    controlPointsOTrack[i%trackLength],
+                                    controlPointsOTrack[(i+1)%trackLength],
+                                    controlPointsOTrack[(i+2)%trackLength],
+                                    controlPointsOTrack[(i+3)%trackLength]);
+                            temp2 = getCubicBezierTng(
+                                    j, 
+                                    controlPointsOTrack[i%trackLength],
+                                    controlPointsOTrack[(i+1)%trackLength],
+                                    controlPointsOTrack[(i+2)%trackLength],
+                                    controlPointsOTrack[(i+3)%trackLength]);
+                            temp2 = temp.subtract((new Vector(temp2.y(), -temp2.x(), 0)).normalized().scale(4));
                             gl.glVertex3d(temp.x(), temp.y(), temp.z());
+                            gl.glVertex3d(temp2.x(), temp2.y(), temp2.z());
+                            
                         }
                     gl.glEnd();
                 }
             // The L-track is selected
             } else if (2 == trackNr) {
-                for(int i = 0; i < controlPointsLTrack.length; i = i + 3){
+                trackLength = controlPointsLTrack.length;
+                for(int i = 0; i < trackLength; i = i + 3){
                     Vector temp;
                     gl.glColor3d(1, 0, 0);
                     gl.glBegin(GL_TRIANGLE_STRIP);
-                        for(double j = 0; j <=1; j = j + 1/numberOfPoints){
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
                             temp = getCubicBezierPnt(
-                                    j, controlPointsLTrack[i%12], controlPointsLTrack[(i+1)%12], controlPointsLTrack[(i+2)%12], controlPointsLTrack[(i+3)%12]);
+                                    j, 
+                                    controlPointsLTrack[i%trackLength],
+                                    controlPointsLTrack[(i+1)%trackLength],
+                                    controlPointsLTrack[(i+2)%trackLength],
+                                    controlPointsLTrack[(i+3)%trackLength]);
                             gl.glVertex3d(temp.x(), temp.y(), temp.z());
+                            gl.glVertex3d(temp.x(), temp.y(), temp.z() - 2);
                         }
                     gl.glEnd();
                 }
             // The C-track is selected
             } else if (3 == trackNr) {
-                
+                trackLength = controlPointsCTrack.length;
+                for(int i = 0; i < trackLength; i = i + 3){
+                    Vector temp;
+                    gl.glColor3d(1, 0, 0);
+                    gl.glBegin(GL_TRIANGLE_STRIP);
+                        for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
+                            temp = getCubicBezierPnt(
+                                    j, 
+                                    controlPointsCTrack[i%trackLength],
+                                    controlPointsCTrack[(i+1)%trackLength],
+                                    controlPointsCTrack[(i+2)%trackLength],
+                                    controlPointsCTrack[(i+3)%trackLength]);
+                            gl.glVertex3d(temp.x(), temp.y(), temp.z());
+                            gl.glVertex3d(temp.x(), temp.y(), temp.z() - 2);
+                        }
+                    gl.glEnd();
+                }
             // The custom track is selected
             } else if (4 == trackNr) {
                 
