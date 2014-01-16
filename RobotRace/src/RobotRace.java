@@ -879,7 +879,7 @@ public class RobotRace extends Base {
             int trackLength;
             // The test track is selected
             if (0 == trackNr) {
-                gl.glBegin(GL_TRIANGLE_STRIP);
+                gl.glBegin(GL_QUAD_STRIP);
                     for (double i = 0; i <= 1; i = i + 1/numberOfInternalSegments){
                         Vector centerPoint = getPoint(i);
                         Vector tangent = getTangent(i);
@@ -906,24 +906,23 @@ public class RobotRace extends Base {
                     for (double i = 0; i <= 1; i = i + 1/numberOfInternalSegments){
                         Vector centerPoint = getPoint(i);
                         Vector tangent = getTangent(i);
-                        Vector radius = (new Vector (tangent.y(), -tangent.x(), 0)).normalized().scale(2);
-                        Vector innerPoint = centerPoint.subtract(radius);
+                        Vector radius = (new Vector (tangent.y(), -tangent.x(), 0)).normalized();
+                        Vector innerPoint = centerPoint.subtract(radius.scale(2));
                         gl.glNormal3d(-radius.x(), -radius.y(), -radius.z());
                         gl.glVertex3d(innerPoint.x(), innerPoint.y(), innerPoint.z());
-                        gl.glVertex3d(innerPoint.x(), innerPoint.y(), innerPoint.z()-2);
+                        gl.glVertex3d(innerPoint.x(), innerPoint.y(), innerPoint.z() - 2);
                         
                     }
                     for (double i = 0; i <= 1; i = i + 1/numberOfInternalSegments){
                         Vector centerPoint = getPoint(i);
                         Vector tangent = getTangent(i);
-                        Vector radius = (new Vector (tangent.y(), -tangent.x(), 0)).normalized().scale(2);
-                        Vector outerPoint = centerPoint.add(radius);
+                        Vector radius = (new Vector (tangent.y(), -tangent.x(), 0)).normalized();
+                        Vector outerPoint = centerPoint.add(radius.scale(2));
                         gl.glNormal3d(radius.x(), radius.y(), radius.z());
                         gl.glVertex3d(outerPoint.x(), outerPoint.y(), outerPoint.z());
                         gl.glVertex3d(outerPoint.x(), outerPoint.y(), outerPoint.z() - 2);
                         
                     }
-                    
                 gl.glEnd();
             // The O-track is selected
             } else if (1 == trackNr) {
@@ -956,7 +955,7 @@ public class RobotRace extends Base {
             } else if (2 == trackNr) {
                 trackLength = controlPointsLTrack.length;
                 for(int i = 0; i < trackLength; i = i + 3){
-                    Vector temp;
+                    Vector temp, temp2;
                     gl.glColor3d(1, 0, 0);
                     gl.glBegin(GL_TRIANGLE_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
@@ -966,8 +965,15 @@ public class RobotRace extends Base {
                                     controlPointsLTrack[(i+1)%trackLength],
                                     controlPointsLTrack[(i+2)%trackLength],
                                     controlPointsLTrack[(i+3)%trackLength]);
+                            temp2 = getCubicBezierTng(
+                                    j, 
+                                    controlPointsLTrack[i%trackLength],
+                                    controlPointsLTrack[(i+1)%trackLength],
+                                    controlPointsLTrack[(i+2)%trackLength],
+                                    controlPointsLTrack[(i+3)%trackLength]);
+                            temp2 = temp.subtract((new Vector(temp2.y(), -temp2.x(), 0)).normalized().scale(4));
                             gl.glVertex3d(temp.x(), temp.y(), temp.z());
-                            gl.glVertex3d(temp.x(), temp.y(), temp.z() - 2);
+                            gl.glVertex3d(temp2.x(), temp2.y(), temp2.z());
                         }
                     gl.glEnd();
                 }
@@ -975,7 +981,7 @@ public class RobotRace extends Base {
             } else if (3 == trackNr) {
                 trackLength = controlPointsCTrack.length;
                 for(int i = 0; i < trackLength; i = i + 3){
-                    Vector temp;
+                    Vector temp, temp2;
                     gl.glColor3d(1, 0, 0);
                     gl.glBegin(GL_TRIANGLE_STRIP);
                         for(double j = 0; j <=1; j = j + 1/numberOfInternalSegments){
@@ -985,8 +991,15 @@ public class RobotRace extends Base {
                                     controlPointsCTrack[(i+1)%trackLength],
                                     controlPointsCTrack[(i+2)%trackLength],
                                     controlPointsCTrack[(i+3)%trackLength]);
+                            temp2 = getCubicBezierTng(
+                                    j, 
+                                    controlPointsCTrack[i%trackLength],
+                                    controlPointsCTrack[(i+1)%trackLength],
+                                    controlPointsCTrack[(i+2)%trackLength],
+                                    controlPointsCTrack[(i+3)%trackLength]);
+                            temp2 = temp.subtract((new Vector(temp2.y(), -temp2.x(), 0)).normalized().scale(4));
                             gl.glVertex3d(temp.x(), temp.y(), temp.z());
-                            gl.glVertex3d(temp.x(), temp.y(), temp.z() - 2);
+                            gl.glVertex3d(temp2.x(), temp2.y(), temp2.z());
                         }
                     gl.glEnd();
                 }
@@ -1008,28 +1021,6 @@ public class RobotRace extends Base {
          */
         public Vector getTangent(double t) { 
             return new Vector(-2 * PI * 10 * sin(2 * PI * t), 2 * PI * 14 * cos(2 * PI * t), 1);
-        }
-        
-        /**
-         * Evaluates a cubic Bezier segment for parameter value t.
-         */
-        public Vector getCubicBezierPnt(double t, Vector P0, Vector P1, Vector P2, Vector P3){         
-            Vector a = P0.scale((1-t)*(1-t)*(1-t));
-            Vector b = P1.scale(3*t*(1-t)*(1-t));
-            Vector c = P2.scale(3*t*t*(1-t));
-            Vector d = P3.scale(t*t*t);
-            return a.add(b).add(c).add(d);
-        }
-        
-        /**
-         * Evaluates the tangent of a cubic Bezier segment for parameter value t.
-         */
-        public Vector getCubicBezierTng(double t, Vector P0, Vector P1, Vector P2, Vector P3){
-            Vector a = P0.scale(3*(1-t)*(1-t));
-            Vector b = P1.scale(3 * ( ((1-t)*(1-t)) + (-2*t*(1-t)) ) );
-            Vector c = P2.scale(3 * ( 2*t*(1-t) - t*t ) );
-            Vector d = P3.scale(3*t*t);
-            return a.add(b).add(c).add(d);
         }
         
         /*
@@ -1577,4 +1568,26 @@ public class RobotRace extends Base {
         gl.glBindTexture(GL_TEXTURE_1D, 0);
         return texid[0];
     }
+    /**
+     * Evaluates a cubic Bezier segment for parameter value t.
+     */
+    public Vector getCubicBezierPnt(double t, Vector P0, Vector P1, Vector P2, Vector P3){         
+        Vector a = P0.scale((1-t)*(1-t)*(1-t));
+        Vector b = P1.scale(3*t*(1-t)*(1-t));
+        Vector c = P2.scale(3*t*t*(1-t));
+        Vector d = P3.scale(t*t*t);
+        return a.add(b).add(c).add(d);
+    }
+
+    /**
+     * Evaluates the tangent of a cubic Bezier segment for parameter value t.
+     */
+    public Vector getCubicBezierTng(double t, Vector P0, Vector P1, Vector P2, Vector P3){
+        Vector a = P0.scale(-3*(1-t)*(1-t));
+        Vector b = P1.scale(3 * ( ((1-t)*(1-t)) + (-2*t*(1-t)) ) );
+        Vector c = P2.scale(3 * ( 2*t*(1-t) - t*t ) );
+        Vector d = P3.scale(3*t*t);
+        return a.add(b).add(c).add(d);
+    }
+        
 }
