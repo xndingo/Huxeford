@@ -1093,7 +1093,7 @@ public class RobotRace extends Base {
          * Returns the position of the curve at 0 <= {@code t} <= 1.
          */
         public Vector getPoint(double t) {
-            double radius = 6.85; // Half of the other radius
+            double radius = 6.5; // Half of the other radius
             return new Vector( (float) (radius * cos(2 * PI * t)), (float) (radius * sin(2 * PI * t)), 0);                
         }
         
